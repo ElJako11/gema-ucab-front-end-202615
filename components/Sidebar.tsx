@@ -1,25 +1,35 @@
-import { NavLink } from 'react-router-dom'
-import { User, BarChart3, Users, MapPin, X, Menu, UserPlus } from 'lucide-react'
-import { useState } from 'react'
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { User, BarChart3, Users, MapPin, X, Menu, UserPlus } from 'lucide-react';
 
 type MenuItem = {
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  path: string
-}
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  path: string;
+};
 
 const Sidebar = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname(); // Hook de Next.js para la ruta actual
   
   const menuItems: MenuItem[] = [
     { icon: BarChart3, label: 'Vista General', path: '/general' },
     { icon: MapPin, label: 'Ubicaciones Técnicas', path: '/locations' },
     { icon: Users, label: 'Grupos de Trabajo', path: '/groups' },
-    { icon: UserPlus, label: 'Tecnicos', path:'/tecnicos' },
-  ]
+    { icon: UserPlus, label: 'Tecnicos', path: '/tecnicos' },
+  ];
+
+  // Función para verificar si la ruta está activa
+  const isActive = (path: string) => {
+    return pathname === path;
+  };
 
   return (
     <>
+      {/* Botón móvil */}
       <button
         className="fixed top-2 left-2 z-40 lg:hidden p-2 rounded-md bg-gray-200 text-gray-700"
         onClick={() => setMobileMenuOpen(true)}
@@ -27,6 +37,7 @@ const Sidebar = () => {
         <Menu size={24} />
       </button>
 
+      {/* Menú móvil */}
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-40">
           <div 
@@ -49,23 +60,21 @@ const Sidebar = () => {
             <nav className="p-4">
               <ul className="space-y-2">
                 {menuItems.map((item) => {
-                  const Icon = item.icon
+                  const Icon = item.icon;
                   return (
                     <li key={item.path}>
-                      <NavLink
-                        to={item.path}
-                        className={({ isActive }) => 
-                          `flex items-center p-3 rounded-lg ${
-                            isActive ? 'bg-gray-300 font-medium' : 'hover:bg-gray-300'
-                          }`
-                        }
+                      <Link
+                        href={item.path}
+                        className={`flex items-center p-3 rounded-lg ${
+                          isActive(item.path) ? 'bg-gray-300 font-medium' : 'hover:bg-gray-300'
+                        }`}
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <Icon className="mr-3" />
                         <span>{item.label}</span>
-                      </NavLink>
+                      </Link>
                     </li>
-                  )
+                  );
                 })}
               </ul>
             </nav>
@@ -73,6 +82,7 @@ const Sidebar = () => {
         </div>
       )}
 
+      {/* Sidebar desktop */}
       <div className="hidden lg:flex lg:flex-shrink-0 shadow-[5px_0_5px_-5px_rgba(0,0,0,0.3)]">
         <div className="flex flex-col w-64 h-full bg-gray-200 text-black border-r border-gray-300">
           <div className="flex items-center justify-between p-4 border-b-2 border-gray-300">
@@ -88,29 +98,27 @@ const Sidebar = () => {
           <nav className="flex-1 overflow-y-auto p-4">
             <ul className="space-y-2">
               {menuItems.map((item) => {
-                const Icon = item.icon
+                const Icon = item.icon;
                 return (
                   <li key={item.path}>
-                    <NavLink
-                      to={item.path}
-                      className={({ isActive }) => 
-                        `flex items-center p-3 rounded-lg transition-colors ${
-                          isActive ? 'bg-gray-300 font-medium' : 'hover:bg-gray-300'
-                        }`
-                      }
+                    <Link
+                      href={item.path}
+                      className={`flex items-center p-3 rounded-lg transition-colors ${
+                        isActive(item.path) ? 'bg-gray-300 font-medium' : 'hover:bg-gray-300'
+                      }`}
                     >
                       <Icon className="mr-3 text-black" />
                       <span>{item.label}</span>
-                    </NavLink>
+                    </Link>
                   </li>
-                )
+                );
               })}
             </ul>
           </nav>
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;
