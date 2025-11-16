@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from "react";
 import FormNuevoTecnico from "@/components/FormNuevoTecnico";
 import { useQuery } from "@tanstack/react-query";
@@ -39,15 +41,18 @@ const Tecnicos = () => {
   const [open, setOpen] = useState(false);
   const [modalTecnicoId, setModalTecnicoId] = useState<number | null>(null);
 
-  const tecnicos = useQuery<{ data: Tecnico[] }>({
+  // Queries mejoradas
+  const { data: tecnicosData, isLoading: isLoadingTecnicos } = useQuery({
     queryKey: ["tecnicos"],
     queryFn: getTecnicos,
   });
-  const grupos = useQuery<{ data: GrupoTrabajo[] }>({
+
+  const { data: gruposData, isLoading: isLoadingGrupos } = useQuery({
     queryKey: ["gruposDeTrabajo"],
     queryFn: getGruposDeTrabajo,
   });
-  const trabajadoresPorGrupo = useQuery({
+
+  const { data: trabajadoresData, isLoading: isLoadingTrabajadores } = useQuery({
     queryKey: ["trabajadoresPorGrupo"],
     queryFn: getAllWorkersInALLGroups,
     select: (data: { data: TrabajaEnGrupo[] }) => {
@@ -59,45 +64,57 @@ const Tecnicos = () => {
     },
   });
 
-  if (
-    tecnicos.isLoading ||
-    grupos.isLoading ||
-    trabajadoresPorGrupo.isLoading
-  ) {
-    return (
-      <div className="p-6 text-center">
-        <LoaderCircle className="animate-spin h-5 w-5" />
-      </div>
-    );
-  }
-
+  // Mapeo de técnicos a grupos
   const tecnicoGruposMap: Record<number, GrupoTrabajo[]> = {};
-  if (trabajadoresPorGrupo.data && grupos.data) {
-    Object.entries(trabajadoresPorGrupo.data).forEach(([grupoId, usuarios]) => {
+  if (trabajadoresData && gruposData?.data) {
+    Object.entries(trabajadoresData).forEach(([grupoId, usuarios]) => {
       usuarios.forEach((usuario) => {
-        if (!tecnicoGruposMap[usuario.Id]) tecnicoGruposMap[usuario.Id] = [];
-        const grupo = grupos.data?.data?.find((g) => g.id === Number(grupoId));
-        if (grupo) tecnicoGruposMap[usuario.Id].push(grupo);
+        if (!tecnicoGruposMap[usuario.Id]) {
+          tecnicoGruposMap[usuario.Id] = [];
+        }
+        const grupo = gruposData.data.find((g) => g.id === Number(grupoId));
+        if (grupo) {
+          tecnicoGruposMap[usuario.Id].push(grupo);
+        }
       });
     });
   }
 
+  const isLoading = isLoadingTecnicos || isLoadingGrupos || isLoadingTrabajadores;
+
+  if (isLoading) {
+    return (
+      <div className="p-6 text-center">
+        <LoaderCircle className="animate-spin h-5 w-5 mx-auto" />
+      </div>
+    );
+  }
+
+  const tecnicos = tecnicosData?.data || [];
+  const gruposDeTecnico = modalTecnicoId ? tecnicoGruposMap[modalTecnicoId] || [] : [];
+
   return (
-    <div className="p-6 max-w-6xl">
-      <h1 className="text-2xl font-bold mb-3">Técnicos</h1>
+    <div className="p-6 max-w-6xl mx-auto">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Técnicos</h1>
+        
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-gema-green hover:bg-green-700">
+              <CirclePlus className="mr-2 h-4 w-4" />
+              Crear nuevo técnico
+            </Button>
+          </DialogTrigger>
+          <FormNuevoTecnico 
+            open={open} 
+            onClose={() => setOpen(false)} 
+          />
+        </Dialog>
+      </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button className="mb-5 bg-gema-green hover:bg-green-700">
-            <CirclePlus className="mr-2" />
-            Crear nuevo técnico
-          </Button>
-        </DialogTrigger>
-        <FormNuevoTecnico open={open} onClose={() => setOpen(false)} />
-      </Dialog>
-
+      {/* Tabla para desktop */}
       <div className="overflow-x-auto">
-        <table className="hidden md:table min-w-full bg-white border border-gray-200">
+        <table className="hidden md:table min-w-full bg-white border border-gray-200 rounded-lg">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -111,26 +128,28 @@ const Tecnicos = () => {
               </th>
             </tr>
           </thead>
-          <tbody>
-            {tecnicos.data?.data?.map((tecnico) => (
-              <tr key={tecnico.Id}>
-                <td className="px-6 py-4 text-sm">{tecnico.Nombre}</td>
-                <td className="px-6 py-4 text-sm">{tecnico.Correo}</td>
+          <tbody className="divide-y divide-gray-200">
+            {tecnicos.map((tecnico) => (
+              <tr key={tecnico.Id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                  {tecnico.Nombre}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-600">
+                  {tecnico.Correo}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div
-                        role="button"
-                        className="flex items-center justify-center border-2 border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-300 transition w-fit px-4 cursor-pointer"
+                      <button
+                        className="flex items-center justify-center border-2 border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-300 transition px-4 py-2 min-w-[120px]"
                         onClick={() => setModalTecnicoId(tecnico.Id)}
                       >
-                        Pertenece a {tecnicoGruposMap[tecnico.Id]?.length || 0}{" "}
-                        grupo
-                        {tecnicoGruposMap[tecnico.Id]?.length === 1 ? "" : "s"}
-                      </div>
+                        {tecnicoGruposMap[tecnico.Id]?.length || 0} grupo
+                        {(tecnicoGruposMap[tecnico.Id]?.length || 0) !== 1 ? 's' : ''}
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <span>Ver grupos</span>
+                      <span>Ver grupos del técnico</span>
                     </TooltipContent>
                   </Tooltip>
                 </td>
@@ -140,38 +159,66 @@ const Tecnicos = () => {
         </table>
       </div>
 
+      {/* Vista móvil (opcional) */}
+      <div className="md:hidden space-y-4">
+        {tecnicos.map((tecnico) => (
+          <div key={tecnico.Id} className="bg-white p-4 rounded-lg border border-gray-200">
+            <div className="space-y-2">
+              <div>
+                <p className="font-medium text-gray-900">{tecnico.Nombre}</p>
+                <p className="text-sm text-gray-600">{tecnico.Correo}</p>
+              </div>
+              <button
+                className="w-full border-2 border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-300 transition px-4 py-2 text-sm"
+                onClick={() => setModalTecnicoId(tecnico.Id)}
+              >
+                {tecnicoGruposMap[tecnico.Id]?.length || 0} grupo
+                {(tecnicoGruposMap[tecnico.Id]?.length || 0) !== 1 ? 's' : ''}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal de grupos del técnico */}
       <Dialog
         open={modalTecnicoId !== null}
         onOpenChange={(isOpen: boolean) => {
           if (!isOpen) setModalTecnicoId(null);
         }}
       >
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Grupos de Trabajo</DialogTitle>
           </DialogHeader>
-          <div className="space-y-2 py-3">
-            {modalTecnicoId &&
-              (tecnicoGruposMap[modalTecnicoId]?.length ? (
-                tecnicoGruposMap[modalTecnicoId].map((grupo) => (
-                  <div key={grupo.id} className="border rounded px-3 py-2">
-                    <div className="font-medium">{grupo.nombre}</div>
-                    <div className="text-xs text-gray-500">
-                      Código: {grupo.codigo}
-                    </div>
+          
+          <div className="space-y-3 py-2">
+            {gruposDeTecnico.length > 0 ? (
+              gruposDeTecnico.map((grupo) => (
+                <div key={grupo.id} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                  <div className="font-medium text-gray-900">{grupo.nombre}</div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    Código: {grupo.codigo}
                   </div>
-                ))
-              ) : (
-                <div className="text-gray-500 text-center pt-2 flex flex-col gap-2">
-                  <span>No pertenece a ningún grupo</span>
-                  <Button variant="link" asChild>
-                    <Link href="/grupos">Ir a grupos de trabajo</Link>
-                  </Button>
                 </div>
-              ))}
+              ))
+            ) : (
+              <div className="text-center py-6 space-y-3">
+                <p className="text-gray-500">No pertenece a ningún grupo</p>
+                <Button variant="outline" asChild>
+                  <Link href="/grupos">
+                    Ir a grupos de trabajo
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
-          <div className="flex justify-end">
-            <Button variant="outline" onClick={() => setModalTecnicoId(null)}>
+
+          <div className="flex justify-end pt-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setModalTecnicoId(null)}
+            >
               Cerrar
             </Button>
           </div>
