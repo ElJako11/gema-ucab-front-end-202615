@@ -22,7 +22,7 @@ import {
   deleteUbicacionTecnica,
   getUbicacionesDependientes,
   getUbicacionesTecnicas,
-  getPadresDeUbicacion, // Importar el nuevo servicio
+  getPadresDeUbicacion,
 } from "@/lib/api/ubicacionesTecnicas";
 import {
   Tooltip,
@@ -67,9 +67,9 @@ const UbicacionHierarchy: React.FC<{
   ubicaciones: UbicacionTecnica[];
   onCreateFrom: (codigo: string) => void;
   onDelete: (detalle: UbicacionTecnica) => void;
-  onViewDetails: (detalle: UbicacionTecnica | null) => void; // Acepta null para cerrar
-  onEdit: (detalle: UbicacionTecnica | null) => void; // Función para editar ubicación
-  activeDetailItem: UbicacionTecnica | null; // Prop para saber qué item está activo
+  onViewDetails: (detalle: UbicacionTecnica | null) => void;
+  onEdit: (detalle: UbicacionTecnica | null) => void;
+  activeDetailItem: UbicacionTecnica | null;
 }> = ({
   ubicaciones,
   onCreateFrom,
@@ -112,7 +112,7 @@ const UbicacionHierarchy: React.FC<{
                         onViewDetails(isViewing ? null : ubicacion)
                       }
                     >
-                      {isViewing ? <EyeOff /> : <Eye />}
+                      {isViewing ? <EyeOff size={16} /> : <Eye size={16} />}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -131,7 +131,7 @@ const UbicacionHierarchy: React.FC<{
                         onCreateFrom(ubicacion.codigo_Identificacion)
                       }
                     >
-                      <CirclePlus />
+                      <CirclePlus size={16} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -146,7 +146,7 @@ const UbicacionHierarchy: React.FC<{
                       aria-label="Editar descripción"
                       onClick={() => onEdit(ubicacion)}
                     >
-                      <Pencil />
+                      <Pencil size={16} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -161,7 +161,7 @@ const UbicacionHierarchy: React.FC<{
                       aria-label="Eliminar ubicación"
                       onClick={() => onDelete(ubicacion)}
                     >
-                      <Trash />
+                      <Trash size={16} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -170,7 +170,6 @@ const UbicacionHierarchy: React.FC<{
                 </Tooltip>
               </div>
             </div>
-            {/* Llamada recursiva para los hijos */}
             {ubicacion.children && ubicacion.children.length > 0 && (
               <UbicacionHierarchy
                 ubicaciones={ubicacion.children}
@@ -192,23 +191,33 @@ const UbicacionesTecnicas: React.FC = () => {
   // Estados para modales
   const [ubicacionParaEditar, setUbicacionParaEditar] =
     useState<UbicacionTecnica | null>(null);
-  // Estado de diálogos
   const [open, setOpen] = useState(false);
   const [borrarUbicacion, setBorrarUbicacion] =
     useState<UbicacionTecnica | null>(null);
   const [verDetalle, setVerDetalle] = useState<UbicacionTecnica | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [manualOpen, setManualOpen] = useState(false);
 
-  // Mostrar un diálogo/manual la primera vez que el usuario visita
-  const [manualOpen, setManualOpen] = useState<boolean>(() => {
-    try {
-      return !localStorage.getItem("haCargadoUbicaciones");
-    } catch {
-      return false;
+  // ✅ CORREGIDO: localStorage en useEffect
+  useEffect(() => {
+    const hasLoaded = localStorage.getItem("haCargadoUbicaciones");
+    setManualOpen(!hasLoaded);
+  }, []);
+
+  // ✅ CORREGIDO: Manejo mejorado del manual
+  const handleManualClose = (isOpen: boolean) => {
+    if (!isOpen) {
+      try {
+        localStorage.setItem("haCargadoUbicaciones", "true");
+      } catch (error) {
+        console.error("Error al guardar en localStorage:", error);
+      }
+      setManualOpen(false);
+    } else {
+      setManualOpen(true);
     }
-  });
+  };
 
-  // Query para obtener los padres de la ubicación seleccionada para ver detalles
   const { data: padresData, isLoading: isLoadingPadres } = useQuery({
     queryKey: ["padresUbicacion", verDetalle?.idUbicacion],
     queryFn: () =>
@@ -243,7 +252,6 @@ const UbicacionesTecnicas: React.FC = () => {
       valoresIniciales[nivel] = nivelesExtraidos[index] || "";
       if (nivelesExtraidos[index]) levelAmount++;
     });
-    // Actualizar el estado del formulario con los valores extraídos
     setFormValues(valoresIniciales);
     setDisplayedLevels(Math.min(levelAmount + 1, NIVELES.length));
     setOpen(true);
@@ -263,7 +271,7 @@ const UbicacionesTecnicas: React.FC = () => {
       setBorrarUbicacion(null);
       toast.success("Ubicación técnica eliminada correctamente");
     },
-    onError: () => toast.error(`Error al eliminar ubicación técnica`),
+    onError: () => toast.error("Error al eliminar ubicación técnica"),
   });
 
   const [filters, setFilters] = useState<Filters>({
@@ -281,7 +289,6 @@ const UbicacionesTecnicas: React.FC = () => {
     const flatten = (nodes: UbicacionTecnica[]): UbicacionTecnica[] => {
       let list: UbicacionTecnica[] = [];
       for (const node of nodes) {
-        // Push node without children to keep a flat list
         const withoutChildren = { ...node } as any;
         if (withoutChildren.children) delete withoutChildren.children;
         list.push(withoutChildren as UbicacionTecnica);
@@ -344,23 +351,15 @@ const UbicacionesTecnicas: React.FC = () => {
     );
   };
 
-  if (isLoading)
-    return (
-      <div className="p-6">
-        <LoaderCircle className="animate-spin" />
-      </div>
-    );
-  if (error) return <div>Error al obtener ubicaciones técnicas</div>;
-
+  // ✅ CORREGIDO: Exportación simplificada
   const handleExportExcel = async () => {
-    const exportTimer = setTimeout(() => {
-      setIsExporting(true);
-    }, 500); // Espera 500ms para mostrar el loader
-
+    setIsExporting(true);
     try {
       const baseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
-      const token = localStorage.getItem("authToken");
-
+      
+      // ⚠️ TEMPORAL: Esto se refactorizará en FASE 2
+      const token = typeof window !== 'undefined' ? localStorage.getItem("authToken") : null;
+      
       if (!baseUrl) {
         toast.error("Backend URL no configurada");
         return;
@@ -378,13 +377,13 @@ const UbicacionesTecnicas: React.FC = () => {
         },
       });
 
-      if (!response.ok) {
-        throw new Error("Error al descargar el archivo");
-      }
+      if (!response.ok) throw new Error("Error al descargar el archivo");
 
       const blob = await response.blob();
+      
+      // Obtener nombre del archivo
       const contentDisposition = response.headers.get("Content-Disposition");
-      let filename = "ubicaciones.xlsx"; // Nombre por defecto
+      let filename = "ubicaciones.xlsx";
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
         if (filenameMatch && filenameMatch.length > 1) {
@@ -398,15 +397,14 @@ const UbicacionesTecnicas: React.FC = () => {
       link.setAttribute("download", filename);
       document.body.appendChild(link);
       link.click();
-
-      // Limpieza
       link.remove();
       window.URL.revokeObjectURL(downloadUrl);
+
+      toast.success("Exportación completada");
     } catch (error) {
       console.error("Error en la exportación a Excel:", error);
       toast.error("No se pudo exportar a Excel.");
     } finally {
-      clearTimeout(exportTimer);
       setIsExporting(false);
     }
   };
@@ -420,27 +418,29 @@ const UbicacionesTecnicas: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: ["ubicacionesTecnicas"] });
   };
 
+  if (isLoading)
+    return (
+      <div className="p-6 text-center">
+        <LoaderCircle className="animate-spin mx-auto" />
+      </div>
+    );
+    
+  if (error) return <div className="p-6 text-red-600">Error al obtener ubicaciones técnicas</div>;
+
   return (
-    <div className="p-6 mx-auto">
-      <h1 className="text-2xl font-bold mb-3">Ubicaciones Técnicas</h1>
+    <div className="p-6 mx-auto max-w-7xl">
+      <h1 className="text-2xl font-bold mb-6">Ubicaciones Técnicas</h1>
 
       <VerManualDialog
         open={manualOpen}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) {
-            try {
-              localStorage.setItem("haCargadoUbicaciones", "true");
-            } catch {}
-            setManualOpen(false);
-          } else setManualOpen(true);
-        }}
+        onOpenChange={handleManualClose}
       />
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 mb-6">
         <Dialog open={open && !manualOpen} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="mb-5 bg-gema-green hover:bg-green-700">
-              <CirclePlus className="mr-2" />
+            <Button className="bg-gema-green hover:bg-green-700">
+              <CirclePlus className="mr-2 h-4 w-4" />
               Crear nueva ubicación
             </Button>
           </DialogTrigger>
@@ -454,14 +454,14 @@ const UbicacionesTecnicas: React.FC = () => {
           />
         </Dialog>
         <Button
-          className="mb-5 bg-gema-blue hover:bg-blue-500"
+          className="bg-gema-blue hover:bg-blue-500"
           onClick={handleExportExcel}
           disabled={isExporting}
         >
           {isExporting ? (
-            <LoaderCircle className="animate-spin mr-2" />
+            <LoaderCircle className="animate-spin mr-2 h-4 w-4" />
           ) : (
-            <FileSpreadsheet className="mr-2" />
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
           )}
           {isExporting ? "Exportando..." : "Exportar a Excel"}
         </Button>
@@ -472,46 +472,49 @@ const UbicacionesTecnicas: React.FC = () => {
         open={!!verDetalle}
         onOpenChange={(isOpen) => !isOpen && setVerDetalle(null)}
       >
-        <DialogContent className="min-w-xl">
-          <div>
-            <h2 className="font-semibold text-lg text-center mb-3">
+        <DialogContent className="max-w-2xl">
+          <div className="space-y-4">
+            <h2 className="font-semibold text-lg text-center">
               Detalles de la Ubicación
             </h2>
             {verDetalle && (
-              <ul className="mt-3 list-disc px-3 space-y-2">
-                <li className="text-neutral-700 text-sm">
-                  <b>Código:</b> {verDetalle.codigo_Identificacion}
-                </li>
-                <li className="text-neutral-700 text-sm">
-                  <b>Descripción:</b> {verDetalle.descripcion}
-                </li>
-              </ul>
+              <div className="space-y-3">
+                <div className="text-sm">
+                  <span className="font-medium">Código:</span> {verDetalle.codigo_Identificacion}
+                </div>
+                <div className="text-sm">
+                  <span className="font-medium">Descripción:</span> {verDetalle.descripcion}
+                </div>
+              </div>
             )}
-            <h3 className="font-semibold text-md mt-4 mb-2">Padres</h3>
+            <h3 className="font-semibold text-md">Padres</h3>
             {isLoadingPadres ? (
-              <LoaderCircle className="animate-spin mx-auto mt-3" />
+              <div className="flex justify-center">
+                <LoaderCircle className="animate-spin" />
+              </div>
             ) : padresData?.data?.length > 0 ? (
-              <ul className="mt-3 list-disc px-3 space-y-2">
+              <div className="space-y-2 max-h-60 overflow-y-auto">
                 {padresData.data.map((padre: PadreUbicacion) => (
-                  <li
+                  <div
                     key={padre.idUbicacion}
-                    className="text-neutral-700 text-sm"
+                    className="text-sm p-3 border rounded-lg bg-gray-50"
                   >
-                    {padre.codigo_Identificacion} - {padre.descripcion}
+                    <div className="font-medium">{padre.codigo_Identificacion}</div>
+                    <div className="text-gray-600">{padre.descripcion}</div>
                     {padre.esUbicacionFisica && (
-                      <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                      <span className="inline-block mt-1 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
                         Ubicación Física
                       </span>
                     )}
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             ) : (
-              <p className="text-center text-sm text-neutral-700 mt-3">
+              <p className="text-center text-sm text-gray-500 py-4">
                 Esta ubicación no tiene padres asignados.
               </p>
             )}
-            <div className="flex justify-end gap-2 mt-4">
+            <div className="flex justify-end gap-2 pt-4">
               <Button variant="outline" onClick={() => setVerDetalle(null)}>
                 Cerrar
               </Button>
@@ -520,62 +523,68 @@ const UbicacionesTecnicas: React.FC = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Diálogo para eliminar ubicación */}
       <Dialog
         open={!!borrarUbicacion}
         onOpenChange={(open) => {
           if (!open) setBorrarUbicacion(null);
         }}
       >
-        <DialogContent className="min-w-xl">
-          <div>
-            <h2 className="font-semibold text-lg text-center mb-3">
+        <DialogContent className="max-w-2xl">
+          <div className="space-y-4">
+            <h2 className="font-semibold text-lg text-center">
               ¿Seguro que desea eliminar esta ubicación técnica?
             </h2>
-            <ul className="mt-3 list-disc px-3 space-y-2">
-              <li className="text-neutral-700 text-sm">
-                <b>Nombre de la ubicación:</b> {borrarUbicacion?.descripcion}
-              </li>
-              <li className="text-neutral-700 text-sm">
-                <b>Código de identificación:</b>{" "}
-                {borrarUbicacion?.codigo_Identificacion}
-              </li>
-            </ul>
-            <p className="text-neutral-700 text-sm pt-4">
-              Esto eliminará la ubicación, y todas las listadas a continuación:
+            
+            <div className="space-y-3 p-4 border rounded-lg bg-gray-50">
+              <div className="text-sm">
+                <span className="font-medium">Nombre:</span> {borrarUbicacion?.descripcion}
+              </div>
+              <div className="text-sm">
+                <span className="font-medium">Código:</span> {borrarUbicacion?.codigo_Identificacion}
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-700">
+              Esto eliminará la ubicación y todas las ubicaciones dependientes:
             </p>
+            
             {dependencias.isLoading ? (
-              <LoaderCircle className="animate-spin mx-auto mt-3" />
+              <div className="flex justify-center py-4">
+                <LoaderCircle className="animate-spin" />
+              </div>
             ) : dependencias.data?.data.length ? (
-              <ul className="mt-3 list-disc px-3 space-y-2">
+              <div className="max-h-40 overflow-y-auto space-y-2">
                 {dependencias.data.data.map((dep: UbicacionTecnica) => (
-                  <li
+                  <div
                     key={dep.idUbicacion}
-                    className="text-neutral-700 text-sm"
+                    className="text-sm p-2 border rounded bg-white"
                   >
                     {dep.descripcion} ({dep.codigo_Identificacion})
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             ) : (
-              <p className="text-center text-sm text-neutral-700 mt-3">
+              <p className="text-center text-sm text-gray-500 py-4">
                 No hay ubicaciones dependientes.
               </p>
             )}
-            <div className="flex justify-between items-center mt-4">
+
+            <div className="flex justify-between items-center pt-4">
               <Button
                 className="bg-gema-blue hover:bg-blue-500 text-white"
                 onClick={handleExportExcel}
                 disabled={isExporting || deleteMutation.isPending}
               >
                 {isExporting ? (
-                  <LoaderCircle className="animate-spin mr-2" />
+                  <LoaderCircle className="animate-spin mr-2 h-4 w-4" />
                 ) : (
-                  <FileSpreadsheet className="mr-2" />
+                  <FileSpreadsheet className="mr-2 h-4 w-4" />
                 )}
-                {isExporting ? "Exportando..." : "Guardar respaldo en Excel"}
+                {isExporting ? "Exportando..." : "Guardar respaldo"}
               </Button>
 
-              <div className="flex justify-end gap-2 mt-2">
+              <div className="flex gap-2">
                 <Button
                   variant="outline"
                   onClick={() => setBorrarUbicacion(null)}
@@ -592,10 +601,12 @@ const UbicacionesTecnicas: React.FC = () => {
                   }}
                   disabled={deleteMutation.isPending}
                 >
-                  <Trash /> Eliminar{" "}
-                  {deleteMutation.isPending && (
-                    <LoaderCircle className="animate-spin ml-2" />
+                  {deleteMutation.isPending ? (
+                    <LoaderCircle className="animate-spin mr-2 h-4 w-4" />
+                  ) : (
+                    <Trash className="mr-2 h-4 w-4" />
                   )}
+                  Eliminar
                 </Button>
               </div>
             </div>
@@ -603,7 +614,7 @@ const UbicacionesTecnicas: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Mostrar el modal editar solo si está abierto */}
+      {/* Modal de edición */}
       {ubicacionParaEditar && (
         <EditUbicacionForm
           open={!!ubicacionParaEditar}
@@ -614,86 +625,87 @@ const UbicacionesTecnicas: React.FC = () => {
       )}
 
       {/* Filtros por niveles */}
-      {!!flatUbicaciones.length && (
-        <p className="text-sm text-neutral-800 font-semibold">Filtrar:</p>
+      {flatUbicaciones.length > 0 && (
+        <div className="mb-6">
+          <p className="text-sm font-medium text-gray-700 mb-3">Filtrar por niveles:</p>
+          <div className="flex flex-wrap gap-3">
+            {NIVELES.map((nivel, idx) => {
+              if (idx > 0 && !filters[NIVELES[idx - 1]]) return null;
+              const opciones = getOptions(nivel, filters);
+              if (!opciones.length) return null;
+              return (
+                <Select
+                  value={filters[nivel]}
+                  key={nivel}
+                  onValueChange={(value) => {
+                    setFilters((prev) => {
+                      const updated = { ...prev };
+                      updated[nivel] = value;
+                      for (let i = idx + 1; i < NIVELES.length; i++)
+                        updated[NIVELES[i]] = "";
+                      return updated;
+                    });
+                  }}
+                >
+                  <SelectTrigger className="bg-white w-40">
+                    <SelectValue placeholder={`Nivel ${idx + 1}`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {opciones.map((op) => (
+                      <SelectItem key={op} value={op}>
+                        {op}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              );
+            })}
+            {Object.values(filters).some(Boolean) && (
+              <Button
+                variant="outline"
+                onClick={() =>
+                  setFilters({
+                    modulo: "",
+                    planta: "",
+                    espacio: "",
+                    tipo: "",
+                    subtipo: "",
+                    numero: "",
+                    pieza: "",
+                  })
+                }
+              >
+                Limpiar filtros
+              </Button>
+            )}
+          </div>
+        </div>
       )}
-      <div className="flex flex-wrap gap-3 mb-5">
-        {NIVELES.map((nivel, idx) => {
-          // Solo mostrar el siguiente selector si el anterior está seleccionado
-          if (idx > 0 && !filters[NIVELES[idx - 1]]) return null;
-          const opciones = getOptions(nivel, filters);
-          if (!opciones.length) return null;
-          return (
-            <Select
-              value={filters[nivel]}
-              key={nivel}
-              onValueChange={(value) => {
-                setFilters((prev) => {
-                  // Limpiar los niveles siguientes
-                  const updated = { ...prev };
-                  updated[nivel] = value;
-                  for (let i = idx + 1; i < NIVELES.length; i++)
-                    updated[NIVELES[i]] = "";
-                  return updated;
-                });
-              }}
-            >
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder={`Seleccionar nivel ${idx + 1}`} />
-              </SelectTrigger>
-              <SelectContent>
-                {opciones.map((op) => (
-                  <SelectItem key={op} value={op}>
-                    {op}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          );
-        })}
-        {Object.values(filters).some(Boolean) && (
-          <Button
-            variant="outline"
-            onClick={() =>
-              setFilters({
-                modulo: "",
-                planta: "",
-                espacio: "",
-                tipo: "",
-                subtipo: "",
-                numero: "",
-                pieza: "",
-              })
-            }
-          >
-            Limpiar filtros
-          </Button>
-        )}
-      </div>
 
+      {/* Lista de ubicaciones */}
       <Accordion
         type="single"
         collapsible
-        className="w-2xl shadow-md mb-2 bg-white rounded-md"
-        defaultValue={filteredData[0]?.codigo_Identificacion}
+        className="w-full bg-white rounded-lg border shadow-sm"
       >
         {filteredData.map((ubicacion) => (
           <AccordionItem
             key={ubicacion.idUbicacion}
             value={ubicacion.codigo_Identificacion}
+            className="border-b last:border-b-0"
           >
-            <AccordionTrigger className="bg-gray-100 hover:bg-gray-200 hover:cursor-pointer px-3">
-              <span className="flex items-center gap-2">
+            <AccordionTrigger className="hover:bg-gray-50 px-6 py-4">
+              <div className="flex items-center gap-3">
                 <Building className="text-blue-600 w-5 h-5" />
-                <span className="text-lg font-semibold">
+                <span className="text-lg font-semibold text-left">
                   {ubicacion.codigo_Identificacion}
                 </span>
-                <span className="bg-gray-200 text-xs font-medium px-2 py-0.5 rounded-full ml-2 text-neutral-600">
+                <span className="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full">
                   {1 + countChildren(ubicacion)} ubicaciones
                 </span>
-              </span>
+              </div>
             </AccordionTrigger>
-            <AccordionContent>
+            <AccordionContent className="px-2">
               <UbicacionHierarchy
                 ubicaciones={[ubicacion]}
                 onCreateFrom={initializeFormValues}
@@ -706,6 +718,12 @@ const UbicacionesTecnicas: React.FC = () => {
           </AccordionItem>
         ))}
       </Accordion>
+
+      {filteredData.length === 0 && (
+        <div className="text-center py-12 text-gray-500">
+          No se encontraron ubicaciones técnicas
+        </div>
+      )}
     </div>
   );
 };
