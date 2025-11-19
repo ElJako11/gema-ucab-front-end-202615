@@ -1,3 +1,5 @@
+'use client'
+
 import type { GrupoTrabajo, TrabajaEnGrupo } from "@/types/grupostrabajo.types";
 
 // Uso de process.env.NEXT_PUBLIC_... que es el estándar en Next.js

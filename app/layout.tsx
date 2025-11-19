@@ -5,6 +5,7 @@ import './globals.css'
 import { AuthProvider } from './(auth)/contex'
 import { QueryProvider } from '@/lib/providers/query-providers'
 import { Toaster } from 'react-hot-toast'
+import { SidebarProvider } from '@/components/sidebar/sidebar' // ← AÑADE ESTO
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -23,7 +24,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <QueryProvider>
           <AuthProvider>
-            {children}
+            <SidebarProvider> {/* ← ENVUELVE CON ESTO */}
+              {children}
+            </SidebarProvider>
             <Toaster position="top-right" />
           </AuthProvider>
         </QueryProvider>

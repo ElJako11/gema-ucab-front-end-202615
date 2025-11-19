@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { addTecnicoToGrupo, deleteTecnicoFromGrupo } from "@/services/gruposDeTrabajo";
+import { addTecnicoToGrupo, deleteTecnicoFromGrupo } from "@/services/gruposTrabajo";
 
 interface GestionTecnicosFormProps {
   open: boolean;

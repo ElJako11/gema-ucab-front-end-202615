@@ -1,7 +1,7 @@
 // src/hooks/grupos-trabajo/useDeleteGrupo.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { deleteGrupoDeTrabajo } from "@/services/gruposDeTrabajo";
+import { deleteGrupoDeTrabajo } from "@/services/gruposTrabajo";
 
 export const useDeleteGrupo = () => {
   const queryClient = useQueryClient();

@@ -1,6 +1,6 @@
 // src/hooks/grupos-trabajo/useTrabajadoresPorGrupo.ts
 import { useQuery } from "@tanstack/react-query";
-import { getAllWorkersInALLGroups } from "@/services/gruposDeTrabajo";
+import { getAllWorkersInALLGroups } from "@/services/gruposTrabajo";
 
 export const useTrabajadoresPorGrupo = () => {
   const { data, isLoading, error, refetch } = useQuery({

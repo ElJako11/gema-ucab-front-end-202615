@@ -16,20 +16,10 @@ import type { UbicacionTecnica } from "@/types/models/ubicacionesTecnicas.types"
 import { Combobox } from "@/components/ui/combobox";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ubicacionTecnicaSchema } from "@/lib/validations/ubicacionTecnicaSchema";
-
-type CreateUbicacionTecnicaPayload = {
-  descripcion: string;
-  abreviacion: string;
-  padres: { idPadre: number; esUbicacionFisica?: boolean }[];
-};
-
-// ✅ CORREGIDO: Tipo de respuesta para la mutación
-type CreateUbicacionResponse = {
-  data: {
-    message: string;
-    ubicacion: UbicacionTecnica;
-  };
-};
+import type { 
+  CreateUbicacionTecnicaPayload, 
+  CreateUbicacionResponse 
+} from "@/types/api/api";
 
 type UbicacionTecnicaForm = {
   modulo: string;
@@ -51,14 +41,12 @@ interface Props {
   setDisplayedLevels: React.Dispatch<React.SetStateAction<number>>;
 }
 
-// ✅ CORREGIDO: Custom Hook para la lógica de niveles
 function useUbicacionesNiveles(formValues: UbicacionTecnicaForm) {
   const { data: ubicacionesData, isLoading } = useQuery({
     queryKey: ["ubicacionesTecnicas"],
     queryFn: ubicacionesAPI.getUbicacionesTecnicas,
   });
 
-  // ✅ CORREGIDO: Lógica de queries anidadas simplificada
   const selectedNivel1 = ubicacionesData?.data?.find(u => u.abreviacion === formValues.modulo);
   
   const { data: dependientesNivel2, isLoading: loadingNivel2 } = useQuery({
@@ -202,23 +190,20 @@ const FormNuevaUbicacion: React.FC<Props> = ({
   };
 
   // ✅ CORREGIDO: useMutation con tipos explícitos para resolver el error
-  const { mutate, status, isError, error } = useMutation<
-    CreateUbicacionResponse, // Tipo de éxito
-    Error, // Tipo de error  
-    CreateUbicacionTecnicaPayload // Tipo de variables
-  >({
+  const mutation = useMutation({
     mutationFn: ubicacionesAPI.createUbicacionTecnica,
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["ubicacionesTecnicas"] });
-      toast.success(data.data.message);
-      setFormValues({
-        modulo: "", planta: "", espacio: "", tipo: "", subtipo: "", numero: "", pieza: "", descripcion: "",
-      });
+      toast.success(data.data?.message || "Ubicación creada exitosamente");
       onClose();
+      setFormValues({
+        modulo: "", planta: "", espacio: "", tipo: "", subtipo: "", 
+        numero: "", pieza: "", descripcion: ""
+      });
+      setDisplayedLevels(1);
     },
-    onError: (err: Error) => {
-      console.error("Error al crear la ubicación técnica:", err);
-      toast.error("Error al crear la ubicación técnica, por favor intente de nuevo.");
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al crear la ubicación técnica");
     },
   });
 
@@ -253,7 +238,7 @@ const FormNuevaUbicacion: React.FC<Props> = ({
     };
 
     if (padreFisico) {
-      payload.padres.push({ idPadre: padreFisico.idUbicacion, esUbicacionFisica: true });
+      payload.padres!.push({ idPadre: padreFisico.idUbicacion, esUbicacionFisica: true });
     } else if (partes.length > 1) {
       toast.error(`Error: No se encontró la ubicación padre con código "${codigoSinUltimoNivel}".`);
       return;
@@ -265,22 +250,21 @@ const FormNuevaUbicacion: React.FC<Props> = ({
         .map((id) => ({ idPadre: Number(id), esUbicacionFisica: false }));
 
       for (const p of idsPadresVirtuales) {
-        if (!payload.padres.some(existente => existente.idPadre === p.idPadre)) {
-          payload.padres.push(p);
+        if (!payload.padres!.some(existente => existente.idPadre === p.idPadre)) { 
+          payload.padres!.push(p); 
         }
       }
     }
 
     const validationResult = ubicacionTecnicaSchema.safeParse(payload);
     if (!validationResult.success) {
-      validationResult.error.errors.forEach((error) => toast.error(error.message));
+      validationResult.error.issues.forEach((issue) => toast.error(issue.message)); // ← .issues en lugar de .errors
       return;
     }
 
-    mutate(payload);
+    mutation.mutate(payload);
   };
 
-  // ✅ CORREGIDO: Renderizado de niveles simplificado
   const renderNivel = (nivel: number, label: string, campo: keyof UbicacionTecnicaForm, placeholder: string) => {
     if (displayedLevels < nivel) return null;
     
@@ -439,11 +423,11 @@ const FormNuevaUbicacion: React.FC<Props> = ({
           </div>
         </div>
 
-        {isError && <p className="text-red-600 text-sm">{error instanceof Error ? error.message : "Error al crear la ubicación técnica, por favor intente de nuevo."}</p>}
+        {mutation.isError && <p className="text-red-600 text-sm">{mutation.error instanceof Error ? mutation.error.message : "Error al crear la ubicación técnica, por favor intente de nuevo."}</p>}
 
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={closeModal} className="px-8">Cancelar</Button>
-          <Button className="bg-gema-green hover:bg-green-700 text-white px-8" onClick={onSubmit} disabled={status === "pending" || isLoading}>
+          <Button className="bg-gema-green hover:bg-green-700 text-white px-8" onClick={onSubmit} disabled={status === "pending" || mutation.isPending}>
             {status === "pending" ? "Creando..." : "Crear Ubicación"}
           </Button>
         </div>

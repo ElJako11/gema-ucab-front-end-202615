@@ -6,16 +6,22 @@ import {
   createGrupoDeTrabajo, 
   editGrupoDeTrabajo,
   deleteGrupoDeTrabajo 
-} from "@/services/gruposDeTrabajo";
+} from "@/services/gruposTrabajo";
 
 export const useGruposTrabajo = () => {
-  return useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["gruposTrabajo"],
     queryFn: getGruposDeTrabajo,
     select: (data) => data.data,
   });
-};
 
+  return {
+    grupos: data,
+    isLoading,
+    error,
+    refetch,
+  };
+};
 export const useCreateGrupo = () => {
   const queryClient = useQueryClient();
   

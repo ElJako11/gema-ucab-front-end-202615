@@ -1,7 +1,7 @@
 // src/hooks/grupos-trabajo/useCreateGrupo.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { createGrupoDeTrabajo } from "@/services/gruposDeTrabajo";
+import { createGrupoDeTrabajo } from "@/services/gruposTrabajo";
 
 export const useCreateGrupo = () => {
   const queryClient = useQueryClient();

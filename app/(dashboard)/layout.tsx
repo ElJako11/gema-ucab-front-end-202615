@@ -5,6 +5,7 @@ import { SidebarProvider } from '@/components/sidebar/sidebar-provider'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { SidebarTrigger } from '@/components/sidebar/sidebar'
 
+
 export default function DashboardLayout({
   children,
 }: {

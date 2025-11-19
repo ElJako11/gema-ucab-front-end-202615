@@ -1,3 +1,5 @@
+'use client'
+
 import type { Tecnico } from "@/types/tecnicos.types";
 
 /**

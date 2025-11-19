@@ -1,7 +1,7 @@
 // src/hooks/grupos-trabajo/useEditGrupo.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { editGrupoDeTrabajo } from "@/services/gruposDeTrabajo";
+import { editGrupoDeTrabajo } from "@/services/gruposTrabajo";
 
 export const useEditGrupo = () => {
   const queryClient = useQueryClient();

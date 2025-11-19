@@ -1,3 +1,4 @@
+// lib/validations/grupoTrabajoSchema.ts
 import { z } from "zod";
 
 export const grupoTrabajoSchema = z.object({
@@ -11,7 +12,7 @@ export const grupoTrabajoSchema = z.object({
     .min(1, "El nombre es requerido"),
   
   supervisor: z.coerce
-    .number({ invalid_type_error: "El supervisor es requerido" })
+    .number({ message: "El supervisor es requerido" }) // ← CORREGIDO
     .int("El supervisor debe ser un número entero")
     .positive("El supervisor debe ser un ID válido"),
 });
