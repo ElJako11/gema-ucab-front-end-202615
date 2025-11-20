@@ -1,14 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* * NOTA IMPORTANTE: Si 'tw-animate-css' es un archivo CSS externo, 
- * debe importarse usando la sintaxis estándar @import. 
- * Si es un plugin de Tailwind, debe configurarse en tailwind.config.js y 
- * esta línea puede eliminarse.
- * Dejo la importación como comentario para que decidas su uso:
- * @import url("tw-animate-css");
- */
+@import "tailwindcss";
+@import "tw-animate-css";
 
 /* ===== CONFIGURACIÓN DE TEMA ===== */
 :root {
