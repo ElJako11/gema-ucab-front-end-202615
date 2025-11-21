@@ -125,8 +125,8 @@ const ComboSelectInput: React.FC<ComboSelectInputProps> = ({
               </div>
             ))
           ) : (
-            <div className="py-1.5 px-3 text-sm text-muted-foreground">
-              No hay resultados.
+            <div className="py-1.5 px-3 text-sm text-muted-foreground bg-white">
+              No se encontraron resultados.
             </div>
           )}
         </Popover.Content>

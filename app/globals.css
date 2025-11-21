@@ -1,14 +1,22 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+
+
 /* ===== CONFIGURACIÓN DE TEMA ===== */
 :root {
+
+  /* COLORES */
+  --color-gema-yellow: #fbc22f;
+  --color-gema-blue: #36b3e1;
+  --color-gema-green: #0EAD69;
+
   /* FUENTES */
   --font-sans: 'Poppins', 'Inter', sans-serif;
-  
+
   /* RADIOS */
   --radius: 0.625rem;
-  
+
   /* COLORES TAILWIND - Versión simplificada */
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -26,14 +34,9 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
-  
-  /* COLORES GEMA ESPECÍFICOS */
-  --color-gema-yellow: #fbc22f;
-  --color-gema-blue: #36b3e1;
-  --color-gema-green: #0ead69;
 }
 
-/* Dark mode - Tailwind v4 lo maneja automáticamente con clase .dark */
+/* Dark mode */
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -76,4 +79,11 @@ body {
 
 .animation-delay-500 {
   animation-delay: 500ms;
+}
+
+@theme inline {
+  --color-gema-yellow: var(--color-gema-yellow);
+  --color-gema-green: var(--color-gema-green);
+  --color-gema-blue: var(--color-gema-blue);
+
 }

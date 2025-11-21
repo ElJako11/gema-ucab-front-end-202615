@@ -44,7 +44,7 @@ const EditUbicacionForm: React.FC<EditUbicacionProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg bg-white">
         <h2 className="text-lg font-semibold mb-4">Editar Ubicación</h2>
 
         <div className="space-y-2">

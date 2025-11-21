@@ -51,14 +51,14 @@ export function Combobox<T extends ComboboxItemBase>({
   const customFilter = (value: string, search: string) => {
     const searchLower = search.toLowerCase();
     const valueLower = value.toLowerCase();
-    
+
     // Buscar en el valor y en las keywords (labels)
     const item = data.find(item => String(item.value) === value);
     if (!item) return 0;
-    
+
     const matchesValue = valueLower.includes(searchLower);
     const matchesLabel = item.label.toLowerCase().includes(searchLower);
-    
+
     return (matchesValue || matchesLabel) ? 1 : 0;
   };
 
@@ -66,7 +66,7 @@ export function Combobox<T extends ComboboxItemBase>({
   const handleSelect = (selectedValue: string) => {
     // Encontrar el item original para preservar el tipo correcto
     const selectedItem = data.find(item => String(item.value) === selectedValue);
-    
+
     if (selectedItem) {
       // Toggle selection
       const newValue = selectedItem.value === value ? null : selectedItem.value;
@@ -90,11 +90,11 @@ export function Combobox<T extends ComboboxItemBase>({
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className={cn("w-[200px] p-0", contentClassName)}>
+      <PopoverContent className={cn("w-[200px] p-0 bg-white", contentClassName)}>
         <Command filter={customFilter}>
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
-            <CommandEmpty>No se encontraron resultados.</CommandEmpty>
+            <CommandEmpty >No se encontraron resultados.</CommandEmpty>
             <CommandGroup>
               {data.map((item) => (
                 <CommandItem

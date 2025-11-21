@@ -38,7 +38,7 @@ const ComboSelectInput: React.FC<ComboSelectInputProps> = ({
     if (anchorRef.current) {
       setAnchorWidth(anchorRef.current.offsetWidth);
     }
-  }, [open]); 
+  }, [open]);
 
   // ✅ CORREGIDO: Focus sin setTimeout
   const handleContainerClick = () => {
@@ -103,15 +103,16 @@ const ComboSelectInput: React.FC<ComboSelectInputProps> = ({
         </div>
       </Popover.Anchor>
 
-      <Popover.Portal>
+      <Popover.Portal >
         <Popover.Content
+
           side="bottom"
           align="start"
           sideOffset={4}
           style={{ width: anchorWidth }}
           onOpenAutoFocus={(e) => e.preventDefault()}
           className={cn(
-            "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 relative z-50 rounded-md border shadow-md p-1",
+            "bg-white text-black data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 relative z-50 rounded-md border shadow-md p-1",
             "max-h-[10rem] overflow-y-auto"
           )}
         >
@@ -131,8 +132,8 @@ const ComboSelectInput: React.FC<ComboSelectInputProps> = ({
               </div>
             ))
           ) : (
-            <div className="py-1.5 px-3 text-sm text-muted-foreground">
-              No hay resultados.
+            <div className="py-1.5 px-3 text-sm text-muted-foreground bg-white ">
+              No se encontraron resultados.
             </div>
           )}
         </Popover.Content>

@@ -22,14 +22,14 @@ const items = [
     label: "Ubicaciones Técnicas",
     path: "/ubicaciones-tecnicas", // ← SIN /dashboard
   },
-  { 
-    icon: Users, 
-    label: "Grupos de Trabajo", 
+  {
+    icon: Users,
+    label: "Grupos de Trabajo",
     path: "/grupos" // ← SIN /dashboard
   },
-  { 
-    icon: UserPlus, 
-    label: 'Tecnicos', 
+  {
+    icon: UserPlus,
+    label: 'Tecnicos',
     path: '/tecnicos' // ← SIN /dashboard
   },
 ]
@@ -49,7 +49,7 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="offcanvas">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -68,7 +68,7 @@ export function AppSidebar() {
         </SidebarMenu>
         <hr className="border-neutral-400 mb-2" />
       </SidebarHeader>
-      
+
       <SidebarContent>
         <SidebarMenu>
           {items.map((item) => (
@@ -86,7 +86,7 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      
+
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>

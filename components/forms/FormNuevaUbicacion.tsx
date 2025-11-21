@@ -16,9 +16,9 @@ import type { UbicacionTecnica } from "@/types/models/ubicacionesTecnicas.types"
 import { Combobox } from "@/components/ui/combobox";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ubicacionTecnicaSchema } from "@/lib/validations/ubicacionTecnicaSchema";
-import type { 
-  CreateUbicacionTecnicaPayload, 
-  CreateUbicacionResponse 
+import type {
+  CreateUbicacionTecnicaPayload,
+  CreateUbicacionResponse
 } from "@/types/api/api";
 
 type UbicacionTecnicaForm = {
@@ -48,7 +48,7 @@ function useUbicacionesNiveles(formValues: UbicacionTecnicaForm) {
   });
 
   const selectedNivel1 = ubicacionesData?.data?.find(u => u.abreviacion === formValues.modulo);
-  
+
   const { data: dependientesNivel2, isLoading: loadingNivel2 } = useQuery({
     queryKey: ["ubicacionesDependientes", selectedNivel1?.idUbicacion, 2],
     queryFn: () => selectedNivel1 ? ubicacionesAPI.getUbicacionesDependientes(selectedNivel1.idUbicacion, 2) : Promise.resolve({ data: [] }),
@@ -180,11 +180,11 @@ const FormNuevaUbicacion: React.FC<Props> = ({
     setFormValues(prev => {
       const nuevosValores = { ...prev };
       const campos = ['planta', 'espacio', 'tipo', 'subtipo', 'numero', 'pieza'];
-      
+
       for (let i = nivelInicio - 1; i < campos.length; i++) {
         nuevosValores[campos[i] as keyof UbicacionTecnicaForm] = "";
       }
-      
+
       return nuevosValores;
     });
   };
@@ -197,7 +197,7 @@ const FormNuevaUbicacion: React.FC<Props> = ({
       toast.success(data.data?.message || "Ubicación creada exitosamente");
       onClose();
       setFormValues({
-        modulo: "", planta: "", espacio: "", tipo: "", subtipo: "", 
+        modulo: "", planta: "", espacio: "", tipo: "", subtipo: "",
         numero: "", pieza: "", descripcion: ""
       });
       setDisplayedLevels(1);
@@ -250,8 +250,8 @@ const FormNuevaUbicacion: React.FC<Props> = ({
         .map((id) => ({ idPadre: Number(id), esUbicacionFisica: false }));
 
       for (const p of idsPadresVirtuales) {
-        if (!payload.padres!.some(existente => existente.idPadre === p.idPadre)) { 
-          payload.padres!.push(p); 
+        if (!payload.padres!.some(existente => existente.idPadre === p.idPadre)) {
+          payload.padres!.push(p);
         }
       }
     }
@@ -267,9 +267,9 @@ const FormNuevaUbicacion: React.FC<Props> = ({
 
   const renderNivel = (nivel: number, label: string, campo: keyof UbicacionTecnicaForm, placeholder: string) => {
     if (displayedLevels < nivel) return null;
-    
+
     const dependiente = dependientes[nivel as keyof typeof dependientes];
-    
+
     return (
       <div>
         <Label className="text-sm">{label}</Label>
@@ -301,7 +301,7 @@ const FormNuevaUbicacion: React.FC<Props> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="w-6xl md:min-w-5xl" contentClassName="space-y-2">
+      <DialogContent className="w-6xl md:min-w-5xl bg-white" contentClassName="space-y-2">
         <div className="flex items-center gap-1">
           <h2 className="text-xl font-semibold">Crear Ubicación Técnica</h2>
           <Tooltip>
@@ -313,7 +313,7 @@ const FormNuevaUbicacion: React.FC<Props> = ({
             <TooltipContent><span>Ver guía de ubicaciones técnicas</span></TooltipContent>
           </Tooltip>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-8">
           <div className="space-y-2">
             {/* Nivel 1 */}
@@ -373,7 +373,7 @@ const FormNuevaUbicacion: React.FC<Props> = ({
               <Input name="descripcion" placeholder="Ejemplo: Módulo 2, Planta 1, Aula A2-14"
                 value={formValues.descripcion} onChange={handleChange} className="w-full border rounded p-2" />
             </div>
-            
+
             <div className="bg-slate-200 p-4 pt-3 rounded-sm">
               <span className="text-sm font-semibold">Vista previa del código:</span>
               <div className="p-2 rounded border-2 border-neutral-300 font-mono text-sm">
@@ -386,36 +386,36 @@ const FormNuevaUbicacion: React.FC<Props> = ({
                 <Switch id="agregar-padres" checked={esEquipo} onCheckedChange={setEsEquipo} />
                 <Label htmlFor="agregar-padres" className="text-sm text-neutral-700">¿Es un equipo?</Label>
               </div>
-              
+
               {esEquipo && (
                 <>
                   <p className="text-sm text-neutral-700">
                     Si aplica, indica los espacios donde el equipo brinda servicio, además de su ubicación física
                   </p>
                   <div className="space-y-2">
-                    {posiblesPadres.isLoading ? <LoaderCircle className="animate-spin h-5 w-5" /> 
-                     : posiblesPadres.isError ? <p className="text-red-600 text-sm">Error al cargar ubicaciones.</p>
-                     : (
-                        <>
-                          {padres.filter((p) => p !== null).map((p) => posiblesPadres.data?.data.find(ubicacion => ubicacion.idUbicacion == p)).map((ubicacion) => (
-                            <div key={ubicacion?.idUbicacion} className="flex space-x-3 items-center bg-slate-200 rounded px-2 mb-3">
-                              <span className="text-sm text-neutral-700">{ubicacion?.codigo_Identificacion}</span>
-                              <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-slate-100 !px-1"
-                                onClick={() => setPadres((prev) => prev.filter(id => id != ubicacion?.idUbicacion))}>
-                                <CircleX />
-                              </Button>
-                            </div>
-                          ))}
-                          <Combobox
-                            triggerClassName="w-4/5" contentClassName="w-full"
-                            data={posiblesPadres.data?.data.filter(ubicacion => !generarCodigo(formValues).includes(ubicacion.codigo_Identificacion) && !padres.includes(String(ubicacion.idUbicacion))).map((ubicacion) => ({
-                              value: ubicacion.idUbicacion, label: `${ubicacion.codigo_Identificacion} - ${ubicacion.descripcion}`,
-                            })) || []}
-                            value={padres.at(-1) || null}
-                            onValueChange={(ubicacion) => setPadres((prev) => [...prev.filter((p) => p !== null), ubicacion, null])}
-                          />
-                        </>
-                      )}
+                    {posiblesPadres.isLoading ? <LoaderCircle className="animate-spin h-5 w-5" />
+                      : posiblesPadres.isError ? <p className="text-red-600 text-sm">Error al cargar ubicaciones.</p>
+                        : (
+                          <>
+                            {padres.filter((p) => p !== null).map((p) => posiblesPadres.data?.data.find(ubicacion => ubicacion.idUbicacion == p)).map((ubicacion) => (
+                              <div key={ubicacion?.idUbicacion} className="flex space-x-3 items-center bg-slate-200 rounded px-2 mb-3">
+                                <span className="text-sm text-neutral-700">{ubicacion?.codigo_Identificacion}</span>
+                                <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-slate-100 !px-1"
+                                  onClick={() => setPadres((prev) => prev.filter(id => id != ubicacion?.idUbicacion))}>
+                                  <CircleX />
+                                </Button>
+                              </div>
+                            ))}
+                            <Combobox
+                              triggerClassName="w-4/5" contentClassName="w-full"
+                              data={posiblesPadres.data?.data.filter(ubicacion => !generarCodigo(formValues).includes(ubicacion.codigo_Identificacion) && !padres.includes(String(ubicacion.idUbicacion))).map((ubicacion) => ({
+                                value: ubicacion.idUbicacion, label: `${ubicacion.codigo_Identificacion} - ${ubicacion.descripcion}`,
+                              })) || []}
+                              value={padres.at(-1) || null}
+                              onValueChange={(ubicacion) => setPadres((prev) => [...prev.filter((p) => p !== null), ubicacion, null])}
+                            />
+                          </>
+                        )}
                   </div>
                 </>
               )}
