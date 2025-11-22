@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCreateGrupo } from "@/hooks/grupos-trabajo/useCreateGrupo";
+import type { Tecnico } from "@/types/tecnicos.types";
 
 const grupoTrabajoSchema = z.object({
   codigo: z.string().min(1, "El código es requerido"),
@@ -16,10 +17,10 @@ const grupoTrabajoSchema = z.object({
   supervisor: z.string().min(1, "El supervisor es requerido"),
 });
 
-interface CreateGrupoFormProps {
+export interface CreateGrupoFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  tecnicosDisponibles: any[];
+  tecnicosDisponibles: Tecnico[];
 }
 
 export const CreateGrupoForm: React.FC<CreateGrupoFormProps> = ({

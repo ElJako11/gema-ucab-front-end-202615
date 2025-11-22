@@ -97,7 +97,7 @@ const Tecnicos = () => {
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Técnicos</h1>
-        
+
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="bg-gema-green hover:bg-green-700">
@@ -105,9 +105,9 @@ const Tecnicos = () => {
               Crear nuevo técnico
             </Button>
           </DialogTrigger>
-          <FormNuevoTecnico 
-            open={open} 
-            onClose={() => setOpen(false)} 
+          <FormNuevoTecnico
+            open={open}
+            onClose={() => setOpen(false)}
           />
         </Dialog>
       </div>
@@ -191,7 +191,7 @@ const Tecnicos = () => {
           <DialogHeader>
             <DialogTitle>Grupos de Trabajo</DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-3 py-2">
             {gruposDeTecnico.length > 0 ? (
               gruposDeTecnico.map((grupo) => (
@@ -206,7 +206,7 @@ const Tecnicos = () => {
               <div className="text-center py-6 space-y-3">
                 <p className="text-gray-500">No pertenece a ningún grupo</p>
                 <Button variant="outline" asChild>
-                  <Link href="/grupos">
+                  <Link href="/grupos-trabajo">
                     Ir a grupos de trabajo
                   </Link>
                 </Button>
@@ -215,8 +215,8 @@ const Tecnicos = () => {
           </div>
 
           <div className="flex justify-end pt-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setModalTecnicoId(null)}
             >
               Cerrar

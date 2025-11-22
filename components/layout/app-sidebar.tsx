@@ -25,7 +25,7 @@ const items = [
   {
     icon: Users,
     label: "Grupos de Trabajo",
-    path: "/grupos" // ← SIN /dashboard
+    path: "/grupos-trabajo" // ← SIN /dashboard
   },
   {
     icon: UserPlus,

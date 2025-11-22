@@ -1,18 +1,26 @@
 // services/tecnicos.ts - ARCHIVO TEMPORAL
-export async function createTecnico(data: { Nombre: string; Correo: string }) {
+import type { Tecnico } from "@/types/tecnicos.types";
+
+export async function createTecnico(data: Tecnico) {
   // Mock temporal para compilar
   console.log('Mock: Creando técnico', data);
-  return Promise.resolve({ 
-    success: true, 
-    message: 'Técnico creado exitosamente (mock)' 
+  return Promise.resolve({
+    success: true,
+    message: 'Técnico creado exitosamente (mock)'
   });
 }
 
-export async function getTecnicos() {
-  // Mock temporal
+export async function getTecnicos(): Promise<{ data: Tecnico[] }> {
   return Promise.resolve({
     data: [
-      { Id: 1, Nombre: "Técnico Demo", Correo: "demo@ucab.edu.ve" }
+      {
+        Id: 1,
+        Nombre: "Técnico Demo",
+        Correo: "demo@ucab.edu.ve",
+        // Asegúrate de incluir todas las propiedades requeridas por el tipo Tecnico
+        Tipo: "Técnico", // si existe en el tipo
+        Contraseña: "" // si existe en el tipo
+      }
     ]
   });
 }

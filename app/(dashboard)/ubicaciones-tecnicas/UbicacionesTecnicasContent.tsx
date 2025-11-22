@@ -14,9 +14,9 @@ import {
   Pencil,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import FormNuevaUbicacion from "@/components/forms/FormNuevaUbicacion";
+import FormNuevaUbicacion from "@/components/forms/ubicaciones-tecnicas/FormNuevaUbicacion";
 import { Button } from "@/components/ui/button";
-import EditUbicacionForm from "@/components/forms/EditUbicacionForm";
+import EditUbicacionForm from "@/components/forms/ubicaciones-tecnicas/EditUbicacionForm";
 
 import {
   deleteUbicacionTecnica,
@@ -79,114 +79,114 @@ const UbicacionHierarchy: React.FC<{
   onEdit,
   activeDetailItem,
 }) => {
-  return (
-    <>
-      {ubicaciones.map((ubicacion) => {
-        const isViewing =
-          activeDetailItem?.idUbicacion === ubicacion.idUbicacion;
-        return (
-          <div key={ubicacion.idUbicacion}>
-            <div className="flex px-4 py-2 bg-white hover:bg-gray-50 items-center">
-              <div className="flex-1 flex flex-row items-center gap-2">
-                <div style={{ paddingLeft: `${(ubicacion.nivel - 1) * 20}px` }}>
-                  {ubicacion.nivel > 1 && (
-                    <CornerDownRight size={18} className="text-gray-400" />
-                  )}
+    return (
+      <>
+        {ubicaciones.map((ubicacion) => {
+          const isViewing =
+            activeDetailItem?.idUbicacion === ubicacion.idUbicacion;
+          return (
+            <div key={ubicacion.idUbicacion}>
+              <div className="flex px-4 py-2 bg-white hover:bg-gray-50 items-center">
+                <div className="flex-1 flex flex-row items-center gap-2">
+                  <div style={{ paddingLeft: `${(ubicacion.nivel - 1) * 20}px` }}>
+                    {ubicacion.nivel > 1 && (
+                      <CornerDownRight size={18} className="text-gray-400" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-mono font-semibold text-sm">
+                      {ubicacion.codigo_Identificacion}
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      {ubicacion.descripcion}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-mono font-semibold text-sm">
-                    {ubicacion.codigo_Identificacion}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    {ubicacion.descripcion}
-                  </p>
+                <div className="flex items-center justify-end gap-1 ml-4">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="text-blue-600 !px-2"
+                        aria-label={isViewing ? "Cerrar detalles" : "Ver detalles"}
+                        onClick={() =>
+                          onViewDetails(isViewing ? null : ubicacion)
+                        }
+                      >
+                        {isViewing ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <span>
+                        {isViewing ? "Cerrar detalles" : "Ver detalles"}
+                      </span>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="text-gray-500 !px-2"
+                        aria-label="Crear ubicación desde esta"
+                        onClick={() =>
+                          onCreateFrom(ubicacion.codigo_Identificacion)
+                        }
+                      >
+                        <CirclePlus size={16} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <span>Crear ubicación a partir de esta</span>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="text-yellow-600 !px-2 hover:text-yellow-700"
+                        aria-label="Editar descripción"
+                        onClick={() => onEdit(ubicacion)}
+                      >
+                        <Pencil size={16} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <span>Editar descripción</span>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="text-red-500 !px-2 hover:text-red-600"
+                        aria-label="Eliminar ubicación"
+                        onClick={() => onDelete(ubicacion)}
+                      >
+                        <Trash size={16} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <span>Eliminar ubicación</span>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
-              <div className="flex items-center justify-end gap-1 ml-4">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="text-blue-600 !px-2"
-                      aria-label={isViewing ? "Cerrar detalles" : "Ver detalles"}
-                      onClick={() =>
-                        onViewDetails(isViewing ? null : ubicacion)
-                      }
-                    >
-                      {isViewing ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <span>
-                      {isViewing ? "Cerrar detalles" : "Ver detalles"}
-                    </span>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="text-gray-500 !px-2"
-                      aria-label="Crear ubicación desde esta"
-                      onClick={() =>
-                        onCreateFrom(ubicacion.codigo_Identificacion)
-                      }
-                    >
-                      <CirclePlus size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <span>Crear ubicación a partir de esta</span>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="text-yellow-600 !px-2 hover:text-yellow-700"
-                      aria-label="Editar descripción"
-                      onClick={() => onEdit(ubicacion)}
-                    >
-                      <Pencil size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <span>Editar descripción</span>
-                  </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="text-red-500 !px-2 hover:text-red-600"
-                      aria-label="Eliminar ubicación"
-                      onClick={() => onDelete(ubicacion)}
-                    >
-                      <Trash size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <span>Eliminar ubicación</span>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
+              {ubicacion.children && ubicacion.children.length > 0 && (
+                <UbicacionHierarchy
+                  ubicaciones={ubicacion.children}
+                  onCreateFrom={onCreateFrom}
+                  onDelete={onDelete}
+                  onViewDetails={onViewDetails}
+                  onEdit={onEdit}
+                  activeDetailItem={activeDetailItem}
+                />
+              )}
             </div>
-            {ubicacion.children && ubicacion.children.length > 0 && (
-              <UbicacionHierarchy
-                ubicaciones={ubicacion.children}
-                onCreateFrom={onCreateFrom}
-                onDelete={onDelete}
-                onViewDetails={onViewDetails}
-                onEdit={onEdit}
-                activeDetailItem={activeDetailItem}
-              />
-            )}
-          </div>
-        );
-      })}
-    </>
-  );
-};
+          );
+        })}
+      </>
+    );
+  };
 
 const UbicacionesTecnicas: React.FC = () => {
   // Estados para modales
@@ -222,12 +222,12 @@ const UbicacionesTecnicas: React.FC = () => {
   const { data: padresData, isLoading: isLoadingPadres } = useQuery({
     queryKey: ["padresUbicacion", verDetalle?.idUbicacion],
     queryFn: () =>
-      verDetalle 
-        ? getPadresDeUbicacion(verDetalle.idUbicacion) 
-        : Promise.resolve({ 
-            data: [], 
-            success: true 
-          }),
+      verDetalle
+        ? getPadresDeUbicacion(verDetalle.idUbicacion)
+        : Promise.resolve({
+          data: [],
+          success: true
+        }),
     enabled: !!verDetalle,
   });
 
@@ -362,10 +362,10 @@ const UbicacionesTecnicas: React.FC = () => {
     setIsExporting(true);
     try {
       const baseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
-      
+
       // ⚠️ TEMPORAL: Esto se refactorizará en FASE 2
       const token = typeof window !== 'undefined' ? localStorage.getItem("authToken") : null;
-      
+
       if (!baseUrl) {
         toast.error("Backend URL no configurada");
         return;
@@ -386,7 +386,7 @@ const UbicacionesTecnicas: React.FC = () => {
       if (!response.ok) throw new Error("Error al descargar el archivo");
 
       const blob = await response.blob();
-      
+
       // Obtener nombre del archivo
       const contentDisposition = response.headers.get("Content-Disposition");
       let filename = "ubicaciones.xlsx";
@@ -430,7 +430,7 @@ const UbicacionesTecnicas: React.FC = () => {
         <LoaderCircle className="animate-spin mx-auto" />
       </div>
     );
-    
+
   if (error) return <div className="p-6 text-red-600">Error al obtener ubicaciones técnicas</div>;
 
   return (
@@ -541,7 +541,7 @@ const UbicacionesTecnicas: React.FC = () => {
             <h2 className="font-semibold text-lg text-center">
               ¿Seguro que desea eliminar esta ubicación técnica?
             </h2>
-            
+
             <div className="space-y-3 p-4 border rounded-lg bg-gray-50">
               <div className="text-sm">
                 <span className="font-medium">Nombre:</span> {borrarUbicacion?.descripcion}
@@ -554,7 +554,7 @@ const UbicacionesTecnicas: React.FC = () => {
             <p className="text-sm text-gray-700">
               Esto eliminará la ubicación y todas las ubicaciones dependientes:
             </p>
-            
+
             {dependencias.isLoading ? (
               <div className="flex justify-center py-4">
                 <LoaderCircle className="animate-spin" />
