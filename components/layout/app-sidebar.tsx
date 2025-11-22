@@ -1,6 +1,7 @@
 // components/layout/app-sidebar.tsx - RUTAS CORREGIDAS
 'use client'
 
+import { useEffect, useRef } from "react"
 import { LogOut, MapPin, UserCircle, Users, UserPlus } from "lucide-react"
 import {
   Sidebar,
@@ -10,6 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/sidebar/sidebar"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/app/(auth)/contex"
@@ -38,6 +40,8 @@ export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, logout } = useAuth()
+  const { isMobile, setOpenMobile } = useSidebar()
+  const prevPathnameRef = useRef(pathname)
 
   const handleLogout = async () => {
     try {
@@ -48,6 +52,14 @@ export function AppSidebar() {
     }
   }
 
+  // Cerrar el menú móvil cuando cambia la ruta (solo si realmente cambió)
+  useEffect(() => {
+    if (isMobile && prevPathnameRef.current !== pathname) {
+      setOpenMobile(false)
+      prevPathnameRef.current = pathname
+    }
+  }, [pathname, isMobile, setOpenMobile])
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -56,7 +68,7 @@ export function AppSidebar() {
             <SidebarMenuButton size="lg" asChild>
               <div className="flex items-center h-fit">
                 <UserCircle size={24} />
-                <div className="flex flex-col">
+                <div className="flex flex-col group-data-[collapsible=icon]:hidden">
                   <span className="text-[1.05rem] font-semibold !text-wrap">
                     {user?.nombre || "Usuario"}
                   </span>
@@ -66,7 +78,7 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <hr className="border-neutral-400 mb-2" />
+        <hr className="border-neutral-400 mb-2 group-data-[collapsible=icon]:hidden" />
       </SidebarHeader>
 
       <SidebarContent>
@@ -96,7 +108,7 @@ export function AppSidebar() {
                 onClick={handleLogout}
               >
                 <LogOut size={20} className="text-neutral-600" />
-                <span className="text-neutral-600">Cerrar sesión</span>
+                <span className="text-neutral-600 group-data-[collapsible=icon]:hidden">Cerrar sesión</span>
               </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
