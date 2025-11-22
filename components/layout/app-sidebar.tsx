@@ -22,14 +22,14 @@ const items = [
     label: "Ubicaciones Técnicas",
     path: "/ubicaciones-tecnicas", // ← SIN /dashboard
   },
-  { 
-    icon: Users, 
-    label: "Grupos de Trabajo", 
+  {
+    icon: Users,
+    label: "Grupos de Trabajo",
     path: "/grupos" // ← SIN /dashboard
   },
-  { 
-    icon: UserPlus, 
-    label: 'Tecnicos', 
+  {
+    icon: UserPlus,
+    label: 'Tecnicos',
     path: '/tecnicos' // ← SIN /dashboard
   },
 ]
@@ -54,13 +54,13 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <div className="flex items-center h-fit">
+              <div className="py-4 px-6 flex items-center h-fit">
                 <UserCircle size={24} />
                 <div className="flex flex-col">
-                  <span className="text-[1.05rem] font-semibold !text-wrap">
+                  <span className="text-[1.05rem] font-semibold group-data-[collapsible=icon]:hidden">
                     {user?.nombre || "Usuario"}
                   </span>
-                  <span className="text-sm">Coordinador</span>
+                  <span className="text-sm group-data-[collapsible=icon]:hidden">Coordinador</span>
                 </div>
               </div>
             </SidebarMenuButton>
@@ -68,7 +68,7 @@ export function AppSidebar() {
         </SidebarMenu>
         <hr className="border-neutral-400 mb-2" />
       </SidebarHeader>
-      
+
       <SidebarContent>
         <SidebarMenu>
           {items.map((item) => (
@@ -79,14 +79,16 @@ export function AppSidebar() {
               >
                 <Link href={item.path}>
                   <item.icon />
-                  <span>{item.label}</span>
+                  <span className="group-data-[collapsible=icon]:hidden">
+                    {item.label}
+                  </span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
       </SidebarContent>
-      
+
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
