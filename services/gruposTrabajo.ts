@@ -1,13 +1,14 @@
-// services/gruposDeTrabajo.ts
-export async function createGrupoDeTrabajo(data: { 
-  codigo: string; 
-  nombre: string; 
-  supervisorId: number 
+'use client'
+
+export async function createGrupoDeTrabajo(data: {
+  codigo: string;
+  nombre: string;
+  supervisorId: number
 }) {
   console.log('[MOCK] Creando grupo de trabajo:', data);
-  return Promise.resolve({ 
-    success: true, 
-    message: 'Grupo de trabajo creado exitosamente' 
+  return Promise.resolve({
+    success: true,
+    message: 'Grupo de trabajo creado exitosamente'
   });
 }
 
@@ -20,24 +21,24 @@ export async function getGruposDeTrabajo() {
   });
 }
 
-export async function editGrupoDeTrabajo(data: { 
+export async function editGrupoDeTrabajo(data: {
   id: number;
   codigo: string;
   nombre: string;
   supervisorId: number;
 }) {
   console.log('[MOCK] Editando grupo:', data);
-  return Promise.resolve({ 
-    success: true, 
-    message: 'Grupo editado exitosamente' 
+  return Promise.resolve({
+    success: true,
+    message: 'Grupo editado exitosamente'
   });
 }
 
 export async function deleteGrupoDeTrabajo(id: number) {
   console.log('[MOCK] Eliminando grupo:', id);
-  return Promise.resolve({ 
-    success: true, 
-    message: 'Grupo eliminado exitosamente' 
+  return Promise.resolve({
+    success: true,
+    message: 'Grupo eliminado exitosamente'
   });
 }
 
@@ -55,16 +56,16 @@ export async function getAllWorkersInALLGroups() {
   });
 }
 
-export async function addTecnicoToGrupo(data: { 
-  tecnicoId: number; 
+export async function addTecnicoToGrupo(data: {
+  tecnicoId: number;
   grupoDeTrabajoId: number;
 }) {
   console.log('[MOCK] Agregando técnico a grupo:', data);
   return Promise.resolve({ success: true });
 }
 
-export async function deleteTecnicoFromGrupo(data: { 
-  tecnicoId: number; 
+export async function deleteTecnicoFromGrupo(data: {
+  tecnicoId: number;
   grupoDeTrabajoId: number;
 }) {
   console.log('[MOCK] Eliminando técnico de grupo:', data);

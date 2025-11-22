@@ -3,15 +3,16 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useDeleteGrupo } from "@/hooks/grupos-trabajo/useDeleteGrupo";
+import type { GrupoTrabajo } from "@/types/grupostrabajo.types";
 
-interface EliminarGrupoFormProps {
-  grupo: any;
-  onClose: () => void;
+export interface EliminarGrupoFormProps {
+  grupo: GrupoTrabajo | null;
+  setGrupo: (grupo: GrupoTrabajo | null) => void;
 }
 
 export const EliminarGrupoForm: React.FC<EliminarGrupoFormProps> = ({
   grupo,
-  onClose,
+  setGrupo,
 }) => {
   const deleteGrupoMutation = useDeleteGrupo();
 
@@ -19,13 +20,15 @@ export const EliminarGrupoForm: React.FC<EliminarGrupoFormProps> = ({
     if (!grupo) return;
     deleteGrupoMutation.mutate(grupo.id, {
       onSuccess: () => {
-        onClose();
+        setGrupo(null);
       }
     });
   };
 
   return (
-    <Dialog open={grupo !== null} onOpenChange={onClose}>
+    <Dialog open={grupo !== null} onOpenChange={(open) => {
+      if (!open) setGrupo(null);
+    }}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Eliminar Grupo</DialogTitle>
@@ -39,7 +42,7 @@ export const EliminarGrupoForm: React.FC<EliminarGrupoFormProps> = ({
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={() => setGrupo(null)}
               disabled={deleteGrupoMutation.isPending}
             >
               Cancelar

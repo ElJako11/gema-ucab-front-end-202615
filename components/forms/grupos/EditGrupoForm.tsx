@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEditGrupo } from "@/hooks/grupos-trabajo/useEditGrupo";
+import { type Tecnico } from "@/types/tecnicos.types";
+import { type GrupoTrabajo } from "@/types/grupostrabajo.types";
 
 const grupoTrabajoSchema = z.object({
   codigo: z.string().min(1, "El código es requerido"),
@@ -16,15 +18,15 @@ const grupoTrabajoSchema = z.object({
   supervisor: z.string().min(1, "El supervisor es requerido"),
 });
 
-interface EditGrupoFormProps {
-  grupo: any;
-  onClose: () => void;
-  tecnicosDisponibles: any[];
+export interface EditGrupoFormProps {
+  grupo: GrupoTrabajo | null;
+  setGrupo: (grupo: GrupoTrabajo | null) => void;
+  tecnicosDisponibles: Tecnico[];
 }
 
 export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
   grupo,
-  onClose,
+  setGrupo,
   tecnicosDisponibles,
 }) => {
   const form = useForm<z.infer<typeof grupoTrabajoSchema>>({
@@ -40,7 +42,7 @@ export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
 
   const handleSubmit = (values: z.infer<typeof grupoTrabajoSchema>) => {
     if (!grupo) return;
-    
+
     editGrupoMutation.mutate({
       id: grupo.id,
       codigo: values.codigo,
@@ -49,13 +51,13 @@ export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
     }, {
       onSuccess: () => {
         form.reset();
-        onClose();
+        setGrupo(null);
       }
     });
   };
 
   return (
-    <Dialog open={grupo !== null} onOpenChange={onClose}>
+    <Dialog open={!!grupo} onOpenChange={(open) => { !open && setGrupo(null) }}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Editar Grupo</DialogTitle>
@@ -119,7 +121,7 @@ export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
               <Button
                 type="button"
                 variant="outline"
-                onClick={onClose}
+                onClick={() => setGrupo(null)}
               >
                 Cancelar
               </Button>
