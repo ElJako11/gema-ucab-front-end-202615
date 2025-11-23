@@ -54,13 +54,13 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <div className="py-4 px-6 flex items-center h-fit">
+              <div className="py-4 px-10 flex items-center h-fit">
                 <UserCircle size={24} />
-                <div className="flex flex-col">
-                  <span className="text-[1.05rem] font-semibold group-data-[collapsible=icon]:hidden">
+                <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+                  <span className="text-[1.05rem] font-semibold">
                     {user?.nombre || "Usuario"}
                   </span>
-                  <span className="text-sm group-data-[collapsible=icon]:hidden">Coordinador</span>
+                  <span className="text-sm">Coordinador</span>
                 </div>
               </div>
             </SidebarMenuButton>
@@ -98,7 +98,7 @@ export function AppSidebar() {
                 onClick={handleLogout}
               >
                 <LogOut size={20} className="text-neutral-600" />
-                <span className="text-neutral-600">Cerrar sesión</span>
+                <span className="text-neutral-600 group-data-[collapsible=icon]:hidden">Cerrar sesión</span>
               </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
