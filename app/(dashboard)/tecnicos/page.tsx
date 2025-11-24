@@ -94,8 +94,8 @@ const Tecnicos = () => {
   const gruposDeTecnico = modalTecnicoId ? tecnicoGruposMap[modalTecnicoId] || [] : [];
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-6 max-w-6xl">
+      <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold">Técnicos</h1>
 
         <Dialog open={open} onOpenChange={setOpen}>

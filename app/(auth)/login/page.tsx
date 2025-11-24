@@ -44,12 +44,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-gray-50">
       {/* Fondo de la imagen */}
       <div
         className="absolute inset-0 z-0 bg-center bg-no-repeat bg-cover"
         style={{
-          backgroundImage: "url('/UCAB-Guayana.webp')",
+          backgroundImage: "url('/assets/UCAB-Guayana.webp')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -61,7 +61,7 @@ export default function LoginPage() {
         <Card className="md:w-96 w-2/3 shadow-xl">
           <CardHeader>
             <div className="flex flex-1 justify-center items-center gap-2 pb-1">
-              <img src="/gema-icono2.png" width="64" />
+              <img src="/assets/gema-icono2.png" width="64" />
               <h1 className="text-3xl font-bold mr-4 text-neutral-700">GEMA</h1>
             </div>
             <hr className="pb-2"></hr>
