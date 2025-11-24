@@ -426,8 +426,8 @@ const FormNuevaUbicacion: React.FC<Props> = ({
         {mutation.isError && <p className="text-red-600 text-sm">{mutation.error instanceof Error ? mutation.error.message : "Error al crear la ubicación técnica, por favor intente de nuevo."}</p>}
 
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={closeModal} className="px-8">Cancelar</Button>
-          <Button className="bg-gema-green hover:bg-green-700 text-white px-8" onClick={onSubmit} disabled={status === "pending" || mutation.isPending}>
+          <Button variant="outline" onClick={closeModal} className="px-4 md:px-8">Cancelar</Button>
+          <Button className="bg-gema-green/80 hover:bg-gema-green text-white px-4 md:px-8" onClick={onSubmit} disabled={status === "pending" || mutation.isPending}>
             {status === "pending" ? "Creando..." : "Crear Ubicación"}
           </Button>
         </div>
