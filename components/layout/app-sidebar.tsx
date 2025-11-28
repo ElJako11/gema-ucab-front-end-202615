@@ -1,7 +1,7 @@
 // components/layout/app-sidebar.tsx - RUTAS CORREGIDAS
 'use client'
 
-import { LogOut, MapPin, UserCircle, Users, UserPlus } from "lucide-react"
+import { LogOut, MapPin, UserCircle, Users, UserPlus, Calendar } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -31,6 +31,11 @@ const items = [
     icon: UserPlus,
     label: 'Tecnicos',
     path: '/tecnicos' // ← SIN /dashboard
+  },
+  {
+    icon: Calendar,
+    label: 'Calendario',
+    path: '/calendario' // ← SIN /dashboard
   },
 ]
 
