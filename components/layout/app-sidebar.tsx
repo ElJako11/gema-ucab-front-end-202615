@@ -30,9 +30,6 @@ const items = [
   {
     icon: UserPlus,
     label: 'Tecnicos',
-  {
-    icon: UserPlus,
-    label: 'Tecnicos',
     path: '/tecnicos' // ← SIN /dashboard
   },
 ]

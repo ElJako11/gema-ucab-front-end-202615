@@ -7,7 +7,7 @@ import {
   Building,
   LoaderCircle,
   Trash,
-  FileSpreadsheet,
+  FileSpreadsheet
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import FormNuevaUbicacion from "@/components/forms/ubicaciones-tecnicas/FormNuevaUbicacion";
@@ -39,7 +39,7 @@ import VerManualDialog from "@/components/VerManualDialog";
 import { mockUbicaciones } from "./mockData";
 import { UbicacionHierarchy } from "./components/UbicacionHierarchy";
 import { UbicacionesFilters } from "./components/UbicacionesFilters";
-import { NIVELES, type Filters } from "./components/constants";
+import { Nivel, NIVELES, type Filters } from "./components/constants";
 
 const UbicacionesTecnicas: React.FC = () => {
   // Estados para modales
