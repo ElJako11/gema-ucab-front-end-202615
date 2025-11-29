@@ -47,6 +47,9 @@
   --color-gema-yellow: #fbc22f;
   --color-gema-blue: #36b3e1;
   --color-gema-green: #0ead69;
+  --color-gema-darkgrey: #c9c9c9;
+  --color-gema-lightgrey: #f2eeee;
+  --color-gema-grey-text: #a1a1a1;
 
   --font-sans: 'Poppins', 'Inter', sans-serif;
 }
