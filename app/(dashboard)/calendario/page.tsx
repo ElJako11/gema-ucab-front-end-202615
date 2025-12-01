@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { MonthlyCalendar } from "@/components/monthlyCalendar";
 import { WeeklyCalendar } from "@/components/weeklyCalendar";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,18 @@ import {
 } from "lucide-react";
 
 const Calendario = () => {
+    //Vista Actual del Calendario (Mensual o Semanal) por defecto es mensual
+    const [vistaActual, setVistaActual] = useState('mensual');
+
+    // Función para alternar (toggle)
+    const alternarVista = () => {
+        if (vistaActual === 'mensual') {
+            setVistaActual('semanal');
+        } else {
+            setVistaActual('mensual');
+        }
+    };
+
     return (
         <div className="p-6 max-w-7.5xl">
             <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 mb-6">
@@ -19,15 +32,10 @@ const Calendario = () => {
                     <h2 className="text-lg text-gray-500">Gestiona los mantenimientos preventivos e inspecciones programados por semana</h2>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                    <Dialog /*open={open} onOpenChange={setOpen}*/>
-                        <DialogTrigger asChild>
-                            <Button className="bg-sidebar-border text-black hover:bg-gray-300">
-                            <Calendar className="mr-2 h-4 w-4" />
-                            Vista Semanal
-                            </Button>
-                        </DialogTrigger>
-                        {/*Accion a ejecutar al presionar el boton*/}
-                    </Dialog>
+                    <Button onClick={alternarVista} className="bg-sidebar-border text-black hover:bg-gray-300">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {vistaActual === 'mensual' ? 'Vista Semanal' : 'Vista Mensual'}
+                    </Button>
                     <Dialog /*open={open} onOpenChange={setOpen}*/>
                         <DialogTrigger asChild>
                             <Button className="bg-gema-blue hover:bg-blue-700">
@@ -50,10 +58,8 @@ const Calendario = () => {
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 w-full">
-                {/**Calendario Mensual*/}
-                {/*<MonthlyCalendar />*/}
-                {/**Calendario Semanal*/}
-                <WeeklyCalendar />
+                {/**Renderizado del componente del calendario segun la vista actual*/}
+                {vistaActual === 'mensual' ? <MonthlyCalendar /> : <WeeklyCalendar />}
             </div>
         </div>
     )
