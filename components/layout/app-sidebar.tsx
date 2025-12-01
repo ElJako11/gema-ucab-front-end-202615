@@ -1,7 +1,7 @@
 // components/layout/app-sidebar.tsx - RUTAS CORREGIDAS
 'use client'
 
-import { LogOut, MapPin, UserCircle, Users, UserPlus, Calendar, FileText, ClipboardCheck } from "lucide-react"
+import { LogOut, MapPin, UserCircle, Users, UserPlus, Calendar } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -20,32 +20,22 @@ const items = [
   {
     icon: MapPin,
     label: "Ubicaciones Técnicas",
-    path: "/ubicaciones-tecnicas",
+    path: "/ubicaciones-tecnicas", // ← SIN /dashboard
   },
   {
     icon: Users,
     label: "Grupos de Trabajo",
-    path: "/grupos-trabajo"
+    path: "/grupos-trabajo" // ← SIN /dashboard
   },
   {
     icon: UserPlus,
     label: 'Tecnicos',
-    path: '/tecnicos'
-  },
-  {
-    icon: FileText,
-    label: 'Plantillas',
-    path: '/plantillas'
-  },
-  {
-    icon: ClipboardCheck,
-    label: 'Mantenimientos por Inspección',
-    path: '/mantenimientos-inspeccion'
+    path: '/tecnicos' // ← SIN /dashboard
   },
   {
     icon: Calendar,
     label: 'Calendario',
-    path: '/calendario'
+    path: '/calendario' // ← SIN /dashboard
   },
 ]
 

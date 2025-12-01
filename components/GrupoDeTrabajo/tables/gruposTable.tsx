@@ -10,7 +10,7 @@ interface GruposTableProps {
   onDeleteGrupo: (grupo: any) => void;
   onOpenTecnicos: (grupoId: number) => void;
 }
-  
+
 export const GruposTable: React.FC<GruposTableProps> = ({
   grupos,
   trabajadoresPorGrupo,

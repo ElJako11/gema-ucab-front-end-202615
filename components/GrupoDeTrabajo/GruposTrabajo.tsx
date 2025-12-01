@@ -108,5 +108,5 @@ const GruposTrabajo: React.FC = () => {
     </div>
   );
 };
- 
+
 export default GruposTrabajo;
