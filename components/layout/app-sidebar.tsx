@@ -2,7 +2,7 @@
 'use client'
 
 import { useEffect, useRef } from "react"
-import { LogOut, MapPin, UserCircle, Users, UserPlus } from "lucide-react"
+import { LogOut, MapPin, UserCircle, Users, UserPlus, FileText, ClipboardCheck, Calendar } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -22,17 +22,32 @@ const items = [
   {
     icon: MapPin,
     label: "Ubicaciones Técnicas",
-    path: "/ubicaciones-tecnicas", // ← SIN /dashboard
+    path: "/ubicaciones-tecnicas",
   },
   {
     icon: Users,
     label: "Grupos de Trabajo",
-    path: "/grupos-trabajo" // ← SIN /dashboard
+    path: "/grupos-trabajo"
   },
   {
     icon: UserPlus,
     label: 'Tecnicos',
-    path: '/tecnicos' // ← SIN /dashboard
+    path: '/tecnicos'
+  },
+  {
+    icon: FileText,
+    label: 'Plantillas',
+    path: '/plantillas'
+  },
+  {
+    icon: ClipboardCheck,
+    label: 'Mantenimientos por Inspección',
+    path: '/mantenimientos-inspeccion'
+  },
+  {
+    icon: Calendar,
+    label: 'Calendario',
+    path: '/calendario'
   },
 ]
 

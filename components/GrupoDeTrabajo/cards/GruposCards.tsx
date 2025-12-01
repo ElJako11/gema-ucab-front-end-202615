@@ -34,7 +34,7 @@ export const GruposCards: React.FC<GruposCardsProps> = ({
                 {grupo.codigo}
               </div>
               <div className="flex space-x-2">
-                <Tooltip>
+                <Tooltip> 
                   <TooltipTrigger asChild>
                     <button
                       className="p-1 border-2 border-gray-200 rounded-sm hover:bg-gray-100"
@@ -42,7 +42,7 @@ export const GruposCards: React.FC<GruposCardsProps> = ({
                     >
                       <ClipboardPen className="h-5 w-5 text-blue-500" />
                     </button>
-                  </TooltipTrigger>
+                  </TooltipTrigger> 
                   <TooltipContent>
                     <span>Editar grupo</span>
                   </TooltipContent>

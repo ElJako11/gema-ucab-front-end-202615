@@ -13,7 +13,7 @@ import { addTecnicoToGrupo, deleteTecnicoFromGrupo } from "@/services/gruposTrab
 interface GestionTecnicosFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  grupoTrabajo: any;
+  grupoTrabajo: any; 
   tecnicosDisponibles: any[];
   trabajadoresPorGrupo: Record<number, any[]>;
 }
