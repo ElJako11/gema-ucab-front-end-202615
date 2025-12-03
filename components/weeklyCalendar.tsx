@@ -128,7 +128,7 @@ const WeeklyCalendar = () => {
       
       {/* Título */}
       <h3 className="text-lg font-bold text-gray-900 mb-4">
-        Estados de Mantenimientos
+        Estados de Mantenimientos e Inspecciones
       </h3>
 
       {/* Contenedor de los items (Fila flexible) */}
