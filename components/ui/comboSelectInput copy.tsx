@@ -61,7 +61,7 @@ const ComboSelectInput: React.FC<ComboSelectInputProps> = ({
             }
           }}
           className={cn(
-            "border-input flex h-9 w-full items-center justify-between rounded border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+            "border-border flex h-9 w-full items-center justify-between rounded border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
             "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
             "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
             className
@@ -105,7 +105,7 @@ const ComboSelectInput: React.FC<ComboSelectInputProps> = ({
           style={{ width: anchorWidth }}
           onOpenAutoFocus={(e) => e.preventDefault()}
           className={cn(
-            "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 relative z-50 rounded-md border shadow-md p-1",
+            "bg-popover text-popover-foreground border border-border data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 relative z-50 rounded-md border shadow-md p-1",
             "max-h-[10rem] overflow-y-auto"
           )}
         >

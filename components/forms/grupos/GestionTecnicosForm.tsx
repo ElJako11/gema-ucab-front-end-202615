@@ -120,7 +120,7 @@ export const GestionTecnicosForm: React.FC<GestionTecnicosFormProps> = ({
             </div>
 
             {/* Lista de técnicos */}
-            <div className="border rounded-lg divide-y">
+            <div className="border border-border rounded-lg divide-y">
               {trabajadoresPorGrupo[grupoTrabajo.id]?.length ? (
                 trabajadoresPorGrupo[grupoTrabajo.id].map((tecnico) => (
                   <div

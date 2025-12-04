@@ -49,7 +49,7 @@ export const UbicacionesFilters: React.FC<UbicacionesFiltersProps> = ({
             <p className="text-sm font-medium text-gray-700 mb-3">
                 Filtrar por niveles:
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3    ">
                 {NIVELES.map((nivel, idx) => {
                     if (idx > 0 && !filters[NIVELES[idx - 1]]) return null;
                     const opciones = getOptions(nivel, filters);

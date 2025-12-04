@@ -7,7 +7,7 @@ import {
   Building,
   LoaderCircle,
   Trash,
-  FileSpreadsheet,
+  FileSpreadsheet
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import FormNuevaUbicacion from "@/components/forms/ubicaciones-tecnicas/FormNuevaUbicacion";
@@ -40,6 +40,8 @@ import { mockUbicaciones } from "./mockData";
 import { UbicacionHierarchy } from "./components/UbicacionHierarchy";
 import { UbicacionesFilters } from "./components/UbicacionesFilters";
 import { NIVELES, type Filters } from "./components/constants";
+import { DialogTitle } from "@/components/ui/dialog";
+
 
 const UbicacionesTecnicas: React.FC = () => {
   // Estados para modales
@@ -282,6 +284,7 @@ const UbicacionesTecnicas: React.FC = () => {
 
       <div className="flex flex-col md:flex-row gap-2 mb-6">
         <Dialog open={open && !manualOpen} onOpenChange={setOpen}>
+
           <DialogTrigger asChild>
             <Button className="bg-gema-green/80 hover:bg-gema-green ">
               <CirclePlus className="mr-2 h-4 w-4" />
@@ -318,9 +321,8 @@ const UbicacionesTecnicas: React.FC = () => {
       >
         <DialogContent className="max-w-2xl bg-white w-[95vw] sm:w-full">
           <div className="space-y-4">
-            <h2 className="font-semibold text-lg text-center">
-              Detalles de la Ubicación
-            </h2>
+            <DialogTitle>Detalles de la Ubicación</DialogTitle>
+
             {verDetalle && (
               <div className="space-y-3">
                 <div className="text-sm wrap-break-word">
@@ -341,7 +343,7 @@ const UbicacionesTecnicas: React.FC = () => {
                 {padresData.data.map((padre: PadreUbicacion) => (
                   <div
                     key={padre.idUbicacion}
-                    className="text-sm p-3 border rounded-lg bg-gray-50"
+                    className="text-sm p-3 border border-border rounded-lg bg-gray-50"
                   >
                     <div className="font-medium wrap-break-word">{padre.codigo_Identificacion}</div>
                     <div className="text-gray-600 wrap-break-word">{padre.descripcion}</div>
@@ -376,11 +378,11 @@ const UbicacionesTecnicas: React.FC = () => {
       >
         <DialogContent className="max-w-2xl bg-white w-[95vw] sm:w-full">
           <div className="space-y-4">
-            <h2 className="font-semibold text-lg text-center">
+            <DialogTitle>
               ¿Seguro que desea eliminar esta ubicación técnica?
-            </h2>
+            </DialogTitle>
 
-            <div className="space-y-3 p-4 border rounded-lg bg-gray-50">
+            <div className="space-y-3 p-4 border border-border rounded-lg bg-gray-50">
               <div className="text-sm wrap-break-word">
                 <span className="font-medium">Nombre:</span> {borrarUbicacion?.descripcion}
               </div>
@@ -402,7 +404,7 @@ const UbicacionesTecnicas: React.FC = () => {
                 {dependencias.data.data.map((dep: UbicacionTecnica) => (
                   <div
                     key={dep.idUbicacion}
-                    className="text-sm p-2 border rounded bg-white wrap-break-word"
+                    className="text-sm p-2 border border-border rounded bg-white wrap-break-word"
                   >
                     {dep.descripcion} ({dep.codigo_Identificacion})
                   </div>
@@ -482,15 +484,15 @@ const UbicacionesTecnicas: React.FC = () => {
       <Accordion
         type="single"
         collapsible
-        className="w-full bg-white rounded-lg border"
+        className="w-full bg-white rounded-lg border border-border"
       >
         {filteredData.map((ubicacion) => (
           <AccordionItem
             key={ubicacion.idUbicacion}
             value={ubicacion.codigo_Identificacion}
-            className="border-b last:border-b-0"
+            className="border-b border-border last:border-b-0"
           >
-            <AccordionTrigger className="bg-desplegable-background/80 hover:bg-desplegable-background border-b px-4 sm:px-6 py-4">
+            <AccordionTrigger className="bg-desplegable-background/80 hover:bg-desplegable-background border-b border-border px-4 sm:px-6 py-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full">
                 <div className="flex items-center gap-2">
                   <Building className="text-blue-600 w-5 h-5 shrink-0" />
@@ -498,7 +500,7 @@ const UbicacionesTecnicas: React.FC = () => {
                     {ubicacion.codigo_Identificacion}
                   </span>
                 </div>
-                <span className="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap">
+                <span className="bg-gray-300 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap">
                   {1 + countChildren(ubicacion)} ubicaciones
                 </span>
               </div>

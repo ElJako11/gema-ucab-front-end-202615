@@ -293,7 +293,7 @@ const FormNuevaUbicacion: React.FC<Props> = ({
             label: `${u.abreviacion} - ${u.descripcion}`,
           })) || []}
           disabled={dependiente?.loading}
-          className="w-full border rounded p-2"
+          className="w-full border border-border rounded p-2"
         />
       </div>
     );
@@ -329,7 +329,7 @@ const FormNuevaUbicacion: React.FC<Props> = ({
                   label: `${u.abreviacion} - ${u.descripcion}`,
                 })) || []}
                 disabled={isLoading}
-                className="w-full border rounded p-2"
+                className="w-full border border-border rounded p-2"
               />
             </div>
 
@@ -367,11 +367,11 @@ const FormNuevaUbicacion: React.FC<Props> = ({
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 flex-1">
             <div>
               <Label htmlFor="descripcion">Descripción <span className="text-red-500">*</span></Label>
               <Input name="descripcion" placeholder="Ejemplo: Módulo 2, Planta 1, Aula A2-14"
-                value={formValues.descripcion} onChange={handleChange} className="w-full border rounded p-2" />
+                value={formValues.descripcion} onChange={handleChange} className="w-full border border-border rounded p-2" />
             </div>
 
             <div className="bg-slate-200 p-4 pt-3 rounded-sm">
@@ -381,7 +381,7 @@ const FormNuevaUbicacion: React.FC<Props> = ({
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1">
               <div className="flex items-center space-x-2">
                 <Switch id="agregar-padres" checked={esEquipo} onCheckedChange={setEsEquipo} />
                 <Label htmlFor="agregar-padres" className="text-sm text-neutral-700">¿Es un equipo?</Label>
@@ -425,7 +425,7 @@ const FormNuevaUbicacion: React.FC<Props> = ({
 
         {mutation.isError && <p className="text-red-600 text-sm">{mutation.error instanceof Error ? mutation.error.message : "Error al crear la ubicación técnica, por favor intente de nuevo."}</p>}
 
-        <div className="flex justify-end gap-2">
+        <div className="flex  justify-end gap-2">
           <Button variant="outline" onClick={closeModal} className="px-4 md:px-8">Cancelar</Button>
           <Button className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground px-4 md:px-8" onClick={onSubmit} disabled={status === "pending" || mutation.isPending}>
             {status === "pending" ? "Creando..." : "Crear Ubicación"}
