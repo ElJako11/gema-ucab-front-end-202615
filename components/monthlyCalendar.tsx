@@ -1,5 +1,4 @@
 import { Button } from "./ui/button";
-import { Dialog, DialogTrigger } from "./ui/dialog";
 import { 
     FileSearchCorner, 
     FileCog, 
