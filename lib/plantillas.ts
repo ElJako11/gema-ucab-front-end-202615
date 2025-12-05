@@ -54,3 +54,38 @@ export async function getPlantillas() {
   */
 }
 
+/**
+ * Crea una nueva plantilla
+ */
+export async function createPlantilla(data: Omit<Plantilla, "id">) {
+  // Simulando llamada al API
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id: Date.now(), ...data });
+    }, 1000);
+  });
+}
+
+/**
+ * Actualiza una plantilla existente
+ */
+export async function updatePlantilla(id: number, data: Partial<Plantilla>) {
+  // Simulando llamada al API
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id, ...data });
+    }, 1000);
+  });
+}
+
+/**
+ * Elimina una plantilla
+ */
+export async function deletePlantilla(id: number) {
+  // Simulando llamada al API
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ success: true, id });
+    }, 1000);
+  });
+}

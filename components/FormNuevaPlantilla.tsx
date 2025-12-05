@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createPlantilla, updatePlantilla } from "@/lib/plantillas";
+import type { Plantilla } from "@/types/models/plantillas.types";
 import {
   Form,
   FormControl,
@@ -40,11 +43,12 @@ type PlantillaForm = z.infer<typeof plantillaSchema>;
 interface Props {
   open: boolean;
   onClose: () => void;
+  initialData?: Plantilla | null;
 }
 
-const FormNuevaPlantilla: React.FC<Props> = ({ open, onClose }) => {
+const FormNuevaPlantilla: React.FC<Props> = ({ open, onClose, initialData }) => {
   const queryClient = useQueryClient();
-  
+
   const form = useForm<PlantillaForm>({
     resolver: zodResolver(plantillaSchema),
     defaultValues: {
@@ -53,26 +57,40 @@ const FormNuevaPlantilla: React.FC<Props> = ({ open, onClose }) => {
     },
   });
 
+  useEffect(() => {
+    if (open) {
+      if (initialData) {
+        form.reset({
+          nombre: initialData.plantilla, // Mapear propiedad plantilla a nombre
+          tipo: initialData.tipo,
+        });
+      } else {
+        form.reset({
+          nombre: "",
+          tipo: "Checklist",
+        });
+      }
+    }
+  }, [open, initialData, form]);
+
   const mutation = useMutation({
     mutationFn: async (data: PlantillaForm) => {
-      // Aquí iría la llamada a la API para crear la plantilla
-      console.log("Creando plantilla:", data);
-      // Simulando una llamada a la API
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({ id: Date.now(), ...data });
-        }, 1000);
-      });
+      const payload = { plantilla: data.nombre, tipo: data.tipo };
+      if (initialData) {
+        return await updatePlantilla(initialData.id, payload);
+      } else {
+        return await createPlantilla(payload);
+      }
     },
     onSuccess: () => {
-      toast.success("Plantilla creada exitosamente");
+      toast.success(initialData ? "Plantilla actualizada exitosamente" : "Plantilla creada exitosamente");
       queryClient.invalidateQueries({ queryKey: ["plantillas"] });
       form.reset();
       onClose();
     },
     onError: (error: Error) => {
-      console.error("Error creando plantilla:", error);
-      toast.error("Error al crear la plantilla");
+      console.error("Error guardando plantilla:", error);
+      toast.error("Error al guardar la plantilla");
     },
   });
 
@@ -88,6 +106,9 @@ const FormNuevaPlantilla: React.FC<Props> = ({ open, onClose }) => {
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
       <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>{initialData ? "Editar Plantilla" : "Nueva Plantilla"}</DialogTitle>
+        </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
