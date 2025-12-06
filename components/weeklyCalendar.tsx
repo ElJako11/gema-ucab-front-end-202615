@@ -1,4 +1,11 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import DateNavigator from "./ui/dateNavigator";
+
+/*Nombres de los meses */
+const MONTH_NAMES = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+];
 
 /* Data Simulada */
 const semanaData = [
@@ -48,24 +55,46 @@ const cardColors = {
 };
 
 const WeeklyCalendar = () => {
+    // Estado para la fecha actual (mes y semana)
+    const [currentDate, setCurrentDate] = useState(new Date());
+
+    // Lógica específica de la SEMANA: sumar/restar 7 días
+    const handlePrevWeek = () => {
+      const newDate = new Date(currentDate);
+      newDate.setDate(newDate.getDate() - 7);
+      setCurrentDate(newDate);
+    };
+
+    const handleNextWeek = () => {
+      const newDate = new Date(currentDate);
+      newDate.setDate(newDate.getDate() + 7);
+      setCurrentDate(newDate);
+    };
+
+    // Formateo para mostrar rango de semana (simplificado)
+    const startOfWeek = new Date(currentDate);
+    
+    // Asumiendo LUNES como inicio de semana
+    const currentDay = currentDate.getDay(); // 0 es Domingo, 1 es Lunes...
+    // Si es domingo (0), queremos restar 6 días para llegar al lunes anterior.
+    // Si es cualquier otro día, restamos (día - 1).
+    const diffToMonday = currentDay === 0 ? 6 : currentDay - 1;
+    
+    startOfWeek.setDate(currentDate.getDate() - diffToMonday);
+    
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6); // Sumamos 6 días para llegar al domingo
+
+    const label = `Semana ${startOfWeek.getDate()} - ${endOfWeek.getDate()} ${MONTH_NAMES[endOfWeek.getMonth()]}`;
+
     return(
         <div>
             {/*--- CABECERA DEL CALENDARIO SEMANAL ---*/}
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                <h2 className="text-xl font-bold text-gray-900">Semana del 3 de Noviembre</h2>
+                <h2 className="text-xl font-bold text-gray-900">{label}</h2>
                 
                 {/* Navegación de Semanas */}
-                <div className="flex items-center gap-2">
-                <button className="h-10 w-10 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
-                    <ChevronLeft className="h-5 w-5 text-gray-600" />
-                </button>
-                <button className="h-10 px-6 flex items-center justify-center rounded-lg bg-gray-200 hover:bg-gray-300 font-medium text-gray-700 transition-colors">
-                    Semanas
-                </button>
-                <button className="h-10 w-10 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
-                    <ChevronRight className="h-5 w-5 text-gray-600" />
-                </button>
-                </div>
+                <DateNavigator label='Semana' onPrev={handlePrevWeek} onNext={handleNextWeek}></DateNavigator>
             </div>
 
             {/* --- GRID DE LA SEMANA --- */}

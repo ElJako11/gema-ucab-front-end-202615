@@ -3,16 +3,19 @@ import { useState } from "react";
 
 import { 
     FileSearchCorner, 
-    FileCog, 
-    Funnel, 
-    ChevronRight,
-    ChevronLeft,
-    Settings
+    FileCog
 } from "lucide-react";
 import DropdownFilter from "./ui/dropdownFilter";
+import DateNavigator from "./ui/dateNavigator";
 
 /*Dias de la semana */
 const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+/*Nombres de los meses */
+const MONTH_NAMES = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+];
 
 /*Array simulado */
 const diasSimulados = [
@@ -61,11 +64,30 @@ const MonthlyCalendar = () => {
     // Este estado controla qué iconos se ven en TODO el calendario
     const [filtroActivo, setFiltroActivo] = useState('todos');
 
+    // Estado para la fecha actual (mes y año)
+    const [currentDate, setCurrentDate] = useState(new Date());
+
+    // Lógica específica del MES: sumar/restar el mes
+    const handlePrevMonth = () => {
+        const newDate = new Date(currentDate);
+        newDate.setMonth(newDate.getMonth() - 1);
+        setCurrentDate(newDate);
+    };
+
+    const handleNextMonth = () => {
+        const newDate = new Date(currentDate);
+        newDate.setMonth(newDate.getMonth() + 1);
+        setCurrentDate(newDate);
+    };
+
+    // Formateo para la etiqueta
+    const labelHeader = `${MONTH_NAMES[currentDate.getMonth()]} ${currentDate.getFullYear()}`;  //currentDate.getMonth() devuelve un número de 0 a 11 (0 es enero y 11 es diciembre)
+
     return(
         <div>
             {/*--- CABECERA DEL CALENDARIO ---*/}
             <div className="flex flex-col md:flex-row md:justify-between items-start">
-                <h2 className="text-xl font-semibold mb-4">Noviembre 2025</h2>
+                <h2 className="text-xl font-semibold mb-4">{labelHeader}</h2>
                 <div className="flex flex-col md:flex-row md:justify-between gap-4">
                     {/* Boton de filtro dinamico */}
                     <DropdownFilter 
@@ -73,17 +95,7 @@ const MonthlyCalendar = () => {
                         onFiltroChange={setFiltroActivo} 
                     />
                     {/* Navegación de Meses */}
-                    <div className="flex items-center gap-2">
-                        <button className="h-10 w-10 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
-                            <ChevronLeft className="h-5 w-5 text-gray-600" />
-                        </button>
-                        <button className="h-10 px-6 flex items-center justify-center rounded-lg bg-gray-200 hover:bg-gray-300 font-medium text-gray-700 transition-colors">
-                            Mes
-                        </button>
-                        <button className="h-10 w-10 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
-                            <ChevronRight className="h-5 w-5 text-gray-600" />
-                        </button>
-                    </div>
+                    <DateNavigator label='Mes' onPrev={handlePrevMonth} onNext={handleNextMonth}></DateNavigator>
                 </div>
             </div>
 
