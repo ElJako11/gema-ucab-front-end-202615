@@ -1,22 +1,23 @@
 // Usuario que viene del backend
 export interface User {
-  id: string;
-  email: string;
-  nombre: string;
-  rol: string;
+  Id: number;
+  Nombre: string;
+  Correo: string;
+  Tipo: string;
 }
 
 // Datos para login
 export interface LoginRequest {
-  email: string;
-  password: string;
+  Correo: string;
+  Contraseña: string;
 }
 
 // Respuesta del endpoint de login
 export interface AuthResponse {
-  user: User;
-  token: string;
-  refreshToken?: string;
+  data: {
+    token: string;
+    usuario: User;
+  }
 }
 
 // Estado de autenticación
