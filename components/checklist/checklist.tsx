@@ -116,9 +116,9 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"><Pencil size={18} /></button>
-                        <button onClick={() => deleteTask(task.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={18} /></button>
+                    <div className="flex items-center gap-1 transition-opacity">
+                        <button className="p-2 text-slate-400 hover:text-gema-blue hover:bg-blue-50 rounded-lg transition-colors"><Pencil size={18} /></button>
+                        <button onClick={() => deleteTask(task.id)} className="p-2 text-slate-400 hover:text-gema-red hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={18} /></button>
                     </div>
                     </div>
                 ))}
