@@ -4,16 +4,22 @@ import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
   // Verificar si el usuario está autenticado
-  const token = request.cookies.get('auth-token')?.value
-  
-  // Si no hay token y está intentando acceder a rutas protegidas
-  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/iniciar-sesion', request.url))
+  const token = request.cookies.get('accessToken')?.value
+
+  const { pathname } = request.nextUrl
+
+  // Rutas públicas que no requieren autenticación
+  const publicRoutes = ['/login']
+  const isPublicRoute = publicRoutes.includes(pathname)
+
+  // Si no hay token y NO es ruta pública, redirigir al login
+  if (!token && !isPublicRoute) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Si ya está autenticado y va a login, redirigir al dashboard
-  if (token && request.nextUrl.pathname === '/iniciar-sesion') {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+  // Si ya está autenticado y va a login, redirigir al inicio
+  if (token && isPublicRoute) {
+    return NextResponse.redirect(new URL('/ubicaciones-tecnicas', request.url))
   }
 
   return NextResponse.next()
@@ -21,7 +27,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/login'
+    // Proteger todas las rutas excepto assets, API y archivos estáticos
+    '/((?!api|_next/static|_next/image|favicon.ico|assets).*)',
   ]
 }

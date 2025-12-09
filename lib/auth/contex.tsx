@@ -77,9 +77,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Verificar autenticación al cargar
+  // TODO: Descomentar cuando el backend implemente /auth/me
   useEffect(() => {
     const initializeAuth = async () => {
-      await checkAuth()
+      // await checkAuth()  // Comentado temporalmente - backend no tiene /auth/me aún
       setIsLoading(false)
     }
 
