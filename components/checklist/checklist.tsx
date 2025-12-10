@@ -1,5 +1,7 @@
-import type { Checklist } from "@/types/checklist.types";
+import type { Actividad, Checklist } from "@/types/checklist.types";
 import Card from "./card";
+import { EliminarChecklistItem} from "../forms/checklist/EliminarChecklistItemForm";
+import { Button } from "../ui/button";
 
 import { useEffect, useState } from "react";
 
@@ -11,8 +13,6 @@ import { ArrowLeft,
     Trash2 
 } from "lucide-react";
 
-import { Button } from "../ui/button";
-
 interface ChecklistProps {
     checklist: Checklist;
     onBack : () => void;
@@ -20,6 +20,7 @@ interface ChecklistProps {
 
 const Checklist = ({ checklist, onBack }: ChecklistProps) => {
     const [tasks, setTasks] = useState(checklist.tareas);
+    const [activityToDelete, setActivityToDelete] = useState<Actividad | null>(null);
 
     // Actualizar tareas si el checklist cambia
     useEffect(() => {
@@ -40,12 +41,9 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
         );
     };
 
-    //CAMBIAR POR EL MODAL DE CONFIRMACION AL ELIMINAR
-    const deleteTask = (id:number) => {
-        // Usamos window.confirm para evitar errores de linter si confirm no está explícito
-        if (window.confirm('¿Estás seguro de eliminar esta actividad?')) {
-        setTasks(currentTasks => currentTasks.filter(t => t.id !== id));
-        }
+    //Eliminar tarea
+    const handleDeleteClick = (task: Actividad) => {
+        setActivityToDelete(task);
     };
 
     return (
@@ -118,7 +116,7 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
 
                     <div className="flex items-center gap-1 transition-opacity">
                         <button className="inline-block p-1 border-2 border-gray-200 rounded-sm text-blue-500"><Pencil size={18} /></button>
-                        <button onClick={() => deleteTask(task.id)} className="inline-block p-1 border-2 border-gray-200 rounded-sm text-gema-red"><Trash2 size={18} /></button>
+                        <button onClick={() => handleDeleteClick(task)} className="inline-block p-1 border-2 border-gray-200 rounded-sm text-gema-red"><Trash2 size={18} /></button>
                     </div>
                     </div>
                 ))}
@@ -134,6 +132,14 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
                 <Card label="Pendientes" value={pendingTasks} colorClass="text-gema-red" />
                 </div>
             </div>
+
+            <EliminarChecklistItem
+                actividad={activityToDelete} 
+                setActividad={setActivityToDelete}
+                onDelete={(id) => {
+                   console.log("Elemento eliminado:", id);
+                }}
+            />
         </div>
     )
 }
