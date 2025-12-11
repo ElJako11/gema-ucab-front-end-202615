@@ -1,6 +1,7 @@
 import type { Actividad, Checklist } from "@/types/checklist.types";
 import Card from "./card";
 import { EliminarChecklistItem} from "../forms/checklist/EliminarChecklistItemForm";
+import { AgregarChecklistItemForm } from "../forms/checklist/AgregarChecklistItemForm";
 import { Button } from "../ui/button";
 
 import { useEffect, useState } from "react";
@@ -21,6 +22,7 @@ interface ChecklistProps {
 const Checklist = ({ checklist, onBack }: ChecklistProps) => {
     const [tasks, setTasks] = useState(checklist.tareas);
     const [activityToDelete, setActivityToDelete] = useState<Actividad | null>(null);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     // Actualizar tareas si el checklist cambia
     useEffect(() => {
@@ -86,7 +88,8 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
             <section className="m-2 mt-6">
                 <div className="flex justify-between items-center mb-4">
                <h2 className="text-xl font-semibold ml-2">Lista de Actividades</h2>
-                <Button className="bg-gema-green hover:bg-green-700 text-white">
+                <Button className="bg-gema-green hover:bg-green-700 text-white"
+                onClick={() => setIsAddModalOpen(true)}>
                     <CirclePlus className="mr-2 h-4 w-4"/>
                     Nueva Actividad
                 </Button>
@@ -132,6 +135,12 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
                 <Card label="Pendientes" value={pendingTasks} colorClass="text-gema-red" />
                 </div>
             </div>
+
+            <AgregarChecklistItemForm 
+                open={isAddModalOpen} 
+                onClose={() => setIsAddModalOpen(false)}
+                checklistId={checklist.id}
+            />
 
             <EliminarChecklistItem
                 actividad={activityToDelete} 
