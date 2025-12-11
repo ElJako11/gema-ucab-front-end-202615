@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useCreateChecklistItem } from "@/hooks/checklist/useCreateChecklistItem";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,14 @@ import { DialogHeader, Dialog, DialogContent, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "../form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useUpdateChecklistItem } from "@/hooks/checklist/useUpdateChecklistItem";
+import { Actividad } from "@/types/checklist.types";
 
 interface ChecklistProps {
     open: boolean;
     onClose: () => void;
     onSuccess?: () => void;
-    checklistId: number;
+    actividad: Actividad | null;
 }
 
 //Esquema de validacion
@@ -27,14 +29,14 @@ const actividadSchema = z.object({
         .max(500, "La descripción no puede exceder los 500 caracteres")
 });
 
-export const AgregarChecklistItemForm: React.FC<ChecklistProps> = ({
+export const EditarChecklistItemForm: React.FC<ChecklistProps> = ({
     open,
     onClose,
     onSuccess,
-    checklistId
+    actividad,
 }) => {
     const queryClient = useQueryClient();
-    const createMutation = useCreateChecklistItem();
+    const updateMutation = useUpdateChecklistItem();
 
     type FormValues = z.infer<typeof actividadSchema>;
 
@@ -42,23 +44,28 @@ export const AgregarChecklistItemForm: React.FC<ChecklistProps> = ({
         resolver: zodResolver(actividadSchema),
         defaultValues: {
             nombre: "",
-            descripcion: ""},
+            descripcion: ""
+        },
         mode: "onChange", // Validación en cada cambio    
     });
 
-    const handleSubmit = form.handleSubmit((values) => {
-        createMutation.mutate({
-            id: checklistId,
-            nombre: values.nombre,
-            descripcion: values.descripcion || "",
-            estado: "PENDIENTE"
-        }, {
-            onSuccess: () => {
-                form.reset();
-                onClose();
-            }
+    useEffect(() => {
+        if (actividad) {
+            // Esto actualiza los campos cuando llega la actividad
+            form.reset({
+                nombre: actividad.nombre || "",
+                descripcion: actividad.descripcion || ""
+            });
         }
-        );
+    }, [actividad, form]); //se ejecuta cuando cambia la actividad
+
+    const handleSubmit = form.handleSubmit(() => {
+        updateMutation.mutate({
+            id: actividad?.id || 0,
+            nombre: actividad?.nombre || "", 
+            descripcion: actividad?.descripcion || "",
+            estado: actividad?.estado || "PENDIENTE"
+        });
     });
 
     const handleClose = () => {
@@ -83,10 +90,9 @@ export const AgregarChecklistItemForm: React.FC<ChecklistProps> = ({
                         <FormLabel>Nombre de la Actividad</FormLabel>
                         <FormControl>
                             <Input
-                            placeholder="Ej: Revisar filtros de aires acondicionados"
                             autoComplete="name"
                             {...field}
-                            disabled={createMutation.isPending}
+                            disabled={updateMutation.isPending}
                             />
                         </FormControl>
                         <FormMessage />
@@ -102,10 +108,9 @@ export const AgregarChecklistItemForm: React.FC<ChecklistProps> = ({
                         <FormLabel>Descripción</FormLabel>
                         <FormControl>
                             <Input
-                            placeholder="Ej: Verificar que los filtros estén limpios y en buen estado"
                             autoComplete="name"
                             {...field}
-                            disabled={createMutation.isPending}
+                            disabled={updateMutation.isPending}
                             />
                         </FormControl>
                         <FormMessage />
@@ -118,16 +123,16 @@ export const AgregarChecklistItemForm: React.FC<ChecklistProps> = ({
                         type="button"
                         variant="outline"
                         onClick={handleClose}
-                        disabled={createMutation.isPending}
+                        disabled={updateMutation.isPending}
                     >
                         Cancelar
                     </Button>
                     <Button
                         type="submit"
                         className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground"
-                        disabled={createMutation.isPending || !form.formState.isValid}
+                        disabled={updateMutation.isPending || !form.formState.isValid}
                     >
-                        {createMutation.isPending ? "Creando..." : "Guardar"}
+                        {updateMutation.isPending ? "Actualizando..." : "Guardar"}
                     </Button>
                     </div>
                 </form>

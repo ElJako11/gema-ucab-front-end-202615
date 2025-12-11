@@ -2,6 +2,7 @@ import type { Actividad, Checklist } from "@/types/checklist.types";
 import Card from "./card";
 import { EliminarChecklistItem} from "../forms/checklist/EliminarChecklistItemForm";
 import { AgregarChecklistItemForm } from "../forms/checklist/AgregarChecklistItemForm";
+import { EditarChecklistItemForm } from "../forms/checklist/EditarChecklistItemForm";
 import { Button } from "../ui/button";
 
 import { useEffect, useState } from "react";
@@ -9,6 +10,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, 
     Check, 
     CirclePlus, 
+    Edit, 
     Pencil, 
     Share, 
     Trash2 
@@ -23,6 +25,8 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
     const [tasks, setTasks] = useState(checklist.tareas);
     const [activityToDelete, setActivityToDelete] = useState<Actividad | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [activityToEdit, setActivityToEdit] = useState<Actividad | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     // Actualizar tareas si el checklist cambia
     useEffect(() => {
@@ -46,6 +50,12 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
     //Eliminar tarea
     const handleDeleteClick = (task: Actividad) => {
         setActivityToDelete(task);
+    };
+
+    // Función para abrir el modal de edición
+    const handleEditClick = (task: Actividad) => {
+        setActivityToEdit(task); // Guardamos la tarea seleccionada en el estado
+        setIsEditModalOpen(true); // Abrimos el modal
     };
 
     return (
@@ -118,8 +128,18 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
                     </div>
 
                     <div className="flex items-center gap-1 transition-opacity">
-                        <button className="inline-block p-1 border-2 border-gray-200 rounded-sm text-blue-500"><Pencil size={18} /></button>
-                        <button onClick={() => handleDeleteClick(task)} className="inline-block p-1 border-2 border-gray-200 rounded-sm text-gema-red"><Trash2 size={18} /></button>
+                        <button 
+                        onClick={() => handleEditClick(task)}
+                        className="inline-block p-1 border-2 border-gray-200 rounded-sm text-blue-500"
+                        >
+                            <Pencil size={18} />
+                        </button>
+                        <button 
+                        onClick={() => handleDeleteClick(task)} 
+                        className="inline-block p-1 border-2 border-gray-200 rounded-sm text-gema-red"
+                        >
+                            <Trash2 size={18} />
+                        </button>
                     </div>
                     </div>
                 ))}
@@ -140,6 +160,12 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
                 open={isAddModalOpen} 
                 onClose={() => setIsAddModalOpen(false)}
                 checklistId={checklist.id}
+            />
+
+            <EditarChecklistItemForm
+                open={isEditModalOpen} 
+                onClose={() => setIsEditModalOpen(false)}
+                actividad={activityToEdit}
             />
 
             <EliminarChecklistItem
