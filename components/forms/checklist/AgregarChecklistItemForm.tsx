@@ -1,7 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createChecklistItem } from "@/services/checklist";
 import { useCreateChecklistItem } from "@/hooks/checklist/useCreateChecklistItem";
-import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
