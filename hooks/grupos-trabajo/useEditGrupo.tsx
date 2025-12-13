@@ -1,21 +1,26 @@
-// src/hooks/grupos-trabajo/useEditGrupo.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { editGrupoDeTrabajo } from "@/services/gruposTrabajo";
+import { gruposAPI, type UpdateGrupoRequest } from "@/lib/api/grupos";
 
-export const useEditGrupo = () => {
+interface UpdateGrupoParams {
+  id: number;
+  data: UpdateGrupoRequest;
+}
+
+export const useUpdateGrupo = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: editGrupoDeTrabajo,
+    mutationFn: ({ id, data }: UpdateGrupoParams) => gruposAPI.update(id, data),
     onSuccess: () => {
-      toast.success("Grupo editado exitosamente");
-      queryClient.invalidateQueries({ queryKey: ["gruposTrabajo"] });
+      queryClient.invalidateQueries({ queryKey: ["grupos"] });
+      queryClient.invalidateQueries({ queryKey: ["grupo"] });
       queryClient.invalidateQueries({ queryKey: ["trabajadoresPorGrupo"] });
+      toast.success("Grupo de trabajo actualizado correctamente");
     },
-    onError: (error: Error) => {
-      console.error("Error al editar el grupo:", error);
-      toast.error(error.message || "Error al editar el grupo");
+    onError: (error: any) => {
+      console.error("Error al actualizar grupo:", error);
+      toast.error("Error al actualizar el grupo de trabajo");
     },
   });
 };

@@ -32,7 +32,7 @@ const items = [
   {
     icon: Users,
     label: "Grupos de Trabajo",
-    path: "/grupos-trabajo"
+    path: "/grupos-de-trabajo"
   },
   {
     icon: UserPlus,

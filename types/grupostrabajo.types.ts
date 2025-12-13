@@ -5,6 +5,7 @@ export type GrupoTrabajo = {
   codigo: string;
   nombre: string;
   supervisorId: number;
+  area: string;
 };
 
 export type TrabajaEnGrupo = {

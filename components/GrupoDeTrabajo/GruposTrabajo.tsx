@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { UserCheck, CirclePlus, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useGruposTrabajo } from "@/hooks/grupos-trabajo/useGrupoTrabajo";
+import { useGruposTrabajo } from "@/hooks/grupos-de-trabajo/useGrupoTrabajo";
 import { useTecnicos } from "@/hooks/grupos-trabajo/useTecnicos";
 import { useTrabajadoresPorGrupo } from "@/hooks/grupos-trabajo/useTrabajadoresPorGrupo";
 import { CreateGrupoForm } from "@/components/forms/grupos/CreateGrupoForm";
@@ -68,7 +68,6 @@ const GruposTrabajo: React.FC = () => {
         open={isTecnicosModalOpen}
         onOpenChange={setIsTecnicosModalOpen}
         grupoTrabajo={selectedGrupo}
-        tecnicosDisponibles={tecnicos || []}
         trabajadoresPorGrupo={trabajadoresPorGrupo || {}}
       />
 

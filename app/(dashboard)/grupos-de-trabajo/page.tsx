@@ -9,14 +9,12 @@ import {
 } from "lucide-react";
 
 
-import {
-    getAllWorkersInALLGroups,
-    getGruposDeTrabajo,
-} from "@/services/gruposTrabajo";
-
-
 import { Button } from "@/components/ui/button";
-import { getTecnicos } from "@/services/tecnicos";
+
+// ✅ Usar hooks organizados
+import { useGrupos } from "@/hooks/grupos-trabajo/useGrupoTrabajo";
+import { useTrabajadoresPorGrupo } from "@/hooks/grupos-trabajo/useTrabajadoresPorGrupo";
+import { tecnicosAPI } from "@/lib/api/tecnicos";
 import { useQuery } from "@tanstack/react-query";
 import type { Usuario } from "@/types/usuarios.types";
 import type { Tecnico } from "@/types/models/tecnicos.types";
@@ -34,33 +32,16 @@ const GruposTrabajo: React.FC = () => {
     const [grupoEditar, setGrupoEditar] = useState<GrupoTrabajo | null>(null);
     const [grupoEliminar, setGrupoEliminar] = useState<GrupoTrabajo | null>(null);
 
-    const gruposTrabajo = useQuery({
-        queryKey: ["gruposTrabajo"],
-        queryFn: () => getGruposDeTrabajo(),
-    });
+    // ✅ Usar hooks organizados
+    const { data: grupos, isLoading: isLoadingGrupos } = useGrupos();
+    const { data: trabajadoresPorGrupo, isLoading: isLoadingTrabajadores } = useTrabajadoresPorGrupo();
 
-    const tecnicos = useQuery({
+    const { data: tecnicos, isLoading: isLoadingTecnicos } = useQuery({
         queryKey: ["tecnicos"],
-        queryFn: () => getTecnicos(),
+        queryFn: () => tecnicosAPI.getAll(),
     });
 
-    const trabajadoresPorGrupo = useQuery({
-        queryKey: ["trabajadoresPorGrupo"],
-        queryFn: () => getAllWorkersInALLGroups(),
-        select: (data) => {
-            // Mapear la respuesta a un objeto { grupoId: usuarios[] }
-            const map: Record<number, Tecnico[]> = {};
-            data.data.forEach((item) => {
-                map[item.grupoDeTrabajoId] = item.usuarios;
-            });
-            return map;
-        },
-    });
-
-    const isLoading =
-        gruposTrabajo.isLoading ||
-        tecnicos.isLoading ||
-        trabajadoresPorGrupo.isLoading;
+    const isLoading = isLoadingGrupos || isLoadingTecnicos || isLoadingTrabajadores;
 
     const openTecnicosModal = (grupoId: number) => {
         setSelectedGrupoId(grupoId);
@@ -68,7 +49,7 @@ const GruposTrabajo: React.FC = () => {
     };
 
     const getSupervisorNombre = (id: number | null) =>
-        tecnicos.data?.data.find((s) => s.Id === id)?.Nombre || "No asignado";
+        tecnicos?.data?.find((s) => s.Id === id)?.Nombre || "No asignado";
 
     if (isLoading) {
         return (
@@ -93,24 +74,22 @@ const GruposTrabajo: React.FC = () => {
             <CreateGrupoForm
                 open={isModalOpen}
                 onOpenChange={setIsModalOpen}
-                tecnicosDisponibles={tecnicos.data?.data || []}
             />
 
             <GestionTecnicosForm
                 open={isTecnicosModalOpen}
                 onOpenChange={setIsTecnicosModalOpen}
                 grupoTrabajo={
-                    gruposTrabajo.data?.data.find((g) => g.id === selectedGrupoId) || null
+                    grupos?.find((g) => g.id === selectedGrupoId) || null
                 }
-                tecnicosDisponibles={tecnicos.data?.data || []}
-                trabajadoresPorGrupo={trabajadoresPorGrupo.data || {}}
+                trabajadoresPorGrupo={trabajadoresPorGrupo || {}}
             />
 
             {grupoEditar && (
                 <EditGrupoForm
                     grupo={grupoEditar}
                     setGrupo={setGrupoEditar}
-                    tecnicosDisponibles={tecnicos.data?.data || []}
+                    tecnicosDisponibles={tecnicos?.data || []}
                 />
             )}
 
@@ -139,7 +118,7 @@ const GruposTrabajo: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {gruposTrabajo.data?.data.map((grupo) => (
+                        {grupos?.map((grupo) => (
                             <tr key={grupo.id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     <div className="flex items-center justify-center border-2 border-gray-300 rounded-lg font-bold">
@@ -162,7 +141,7 @@ const GruposTrabajo: React.FC = () => {
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <div className="flex items-center justify-center border-2 border-gray-300 rounded-lg bg-gray-200 font-medium hover:bg-gray-300 transition">
-                                                {trabajadoresPorGrupo.data?.[grupo.id]?.length || 0}
+                                                {trabajadoresPorGrupo?.[grupo.id]?.length || 0}
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
@@ -205,7 +184,7 @@ const GruposTrabajo: React.FC = () => {
 
                 {/* Cards en móvil */}
                 <div className="md:hidden space-y-4">
-                    {gruposTrabajo.data?.data.map((grupo) => (
+                    {grupos?.map((grupo) => (
                         <div
                             key={grupo.id}
                             className="bg-white p-4 rounded-lg shadow border border-gray-200"
@@ -256,7 +235,7 @@ const GruposTrabajo: React.FC = () => {
                                 >
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <span>{trabajadoresPorGrupo.data?.[grupo.id]?.length || 0} Técnicos</span>
+                                            <span>{trabajadoresPorGrupo?.[grupo.id]?.length || 0} Técnicos</span>
                                         </TooltipTrigger>
                                         <TooltipContent>
                                             <span>Ver técnicos</span>

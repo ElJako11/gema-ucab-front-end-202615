@@ -7,25 +7,25 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCreateGrupo } from "@/hooks/grupos-trabajo/useCreateGrupo";
+import { useTecnicos } from "@/hooks/tecnicos/useTecnicos";
+import { Combobox } from "@/components/ui/combobox";
 
 const grupoTrabajoSchema = z.object({
   codigo: z.string().min(1, "El código es requerido"), 
   nombre: z.string().min(1, "El nombre es requerido"),
   supervisor: z.string().min(1, "El supervisor es requerido"),
+  area: z.string().min(1, "El área es requerida"),
 });
 
 interface CreateGrupoFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  tecnicosDisponibles: any[];
 }
 
 export const CreateGrupoForm: React.FC<CreateGrupoFormProps> = ({
   open,
   onOpenChange,
-  tecnicosDisponibles,
 }) => {
   const form = useForm<z.infer<typeof grupoTrabajoSchema>>({
     resolver: zodResolver(grupoTrabajoSchema),
@@ -33,16 +33,19 @@ export const CreateGrupoForm: React.FC<CreateGrupoFormProps> = ({
       codigo: "",
       nombre: "",
       supervisor: "",
+      area: "",
     },
   });
 
   const createGrupoMutation = useCreateGrupo();
+  const { tecnicos, isLoading: isLoadingTecnicos } = useTecnicos();
 
   const handleSubmit = (values: z.infer<typeof grupoTrabajoSchema>) => {
     createGrupoMutation.mutate({
       codigo: values.codigo,
       nombre: values.nombre,
       supervisorId: Number(values.supervisor),
+      area: values.area,
     }, {
       onSuccess: () => {
         form.reset();
@@ -90,24 +93,40 @@ export const CreateGrupoForm: React.FC<CreateGrupoFormProps> = ({
             />
             <FormField
               control={form.control}
+              name="area"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Área</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Ejemplo: Mantenimiento, Producción, Calidad"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="supervisor"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Supervisor</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione un supervisor" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {tecnicosDisponibles.map((sup) => (
-                        <SelectItem key={sup.Id} value={String(sup.Id)}>
-                          {sup.Nombre} ({sup.Correo})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Combobox
+                      data={tecnicos?.map((tecnico) => ({
+                        value: tecnico.Id,
+                        label: `${tecnico.Nombre} (${tecnico.Correo})`,
+                      })) || []}
+                      value={field.value ? Number(field.value) : null}
+                      onValueChange={(value) => field.onChange(value ? String(value) : "")}
+                      placeholder={isLoadingTecnicos ? "Cargando técnicos..." : "Seleccione un supervisor"}
+                      searchPlaceholder="Buscar supervisor..."
+                      triggerClassName="w-full"
+                      contentClassName="w-full"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

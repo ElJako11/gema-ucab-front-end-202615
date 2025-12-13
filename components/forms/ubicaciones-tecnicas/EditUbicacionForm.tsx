@@ -1,11 +1,14 @@
 import { useState } from "react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Modal } from "@/components/ui/modal";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { updateUbicacionTecnica } from "@/lib/api/ubicacionesTecnicas";
 import { toast } from "sonner";
+
+// ✅ Usar hook organizado
+import { useUpdateUbicacion } from "@/hooks/ubicaciones-tecnicas/useUpdateUbicacion";
 
 interface EditUbicacionProps {
   open: boolean;
@@ -20,26 +23,39 @@ const EditUbicacionForm: React.FC<EditUbicacionProps> = ({
   idUbicacion,
   descripcionOriginal,
 }) => {
-  const queryClient = useQueryClient();
   const [descripcion, setDescripcion] = useState(descripcionOriginal || "");
 
-  const { mutate, status } = useMutation({
-    mutationFn: ({ id, descripcion }: { id: number; descripcion: string }) =>
-      updateUbicacionTecnica(id, { descripcion }),
-    onSuccess: () => {
-      toast.success("Ubicación actualizada correctamente");
-      queryClient.invalidateQueries({ queryKey: ["ubicacionesTecnicas"] });
-      onClose();
-    },
-    onError: () => {
-      toast.error("Error al actualizar la ubicación");
-    },
-  });
+  // ✅ Usar hook organizado
+  const updateMutation = useUpdateUbicacion();
+
+  const handleClose = () => {
+    setDescripcion(descripcionOriginal || "");
+    onClose();
+  };
 
   const onSubmit = () => {
-    if (descripcion.trim()) {
-      mutate({ id: idUbicacion, descripcion });
+    if (!descripcion.trim()) {
+      toast.error("La descripción no puede estar vacía");
+      return;
     }
+
+    // ✅ Usar hook de actualización con tipado correcto
+    updateMutation.mutate(
+      { 
+        id: idUbicacion, 
+        data: { descripcion: descripcion.trim() } 
+      },
+      {
+        onSuccess: () => {
+          handleClose();
+          // El toast ya se maneja en el hook
+        },
+        onError: (error) => {
+          // El toast de error ya se maneja en el hook, pero podemos agregar lógica específica aquí si es necesario
+          console.error("Error específico del formulario:", error);
+        }
+      }
+    );
   };
 
   return (

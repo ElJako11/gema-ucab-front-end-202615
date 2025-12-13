@@ -12,8 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTecnico } from "@/lib/tecnicos";
 import {
   Form,
   FormControl,
@@ -22,6 +20,7 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
+import { useCreateTecnico } from "@/hooks/tecnicos/useCreateTecnico";
 
 // Esquema de validación
 const tecnicoSchema = z.object({
@@ -45,7 +44,7 @@ interface Props {
 }
 
 const FormNuevoTecnico: React.FC<Props> = ({ open, onClose }) => {
-  const queryClient = useQueryClient();
+  // Eliminamos useQueryClient manual porque el hook ya lo maneja
   const form = useForm<TecnicoForm>({
     resolver: zodResolver(tecnicoSchema),
     defaultValues: {
@@ -54,26 +53,30 @@ const FormNuevoTecnico: React.FC<Props> = ({ open, onClose }) => {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: createTecnico,
-    onSuccess: () => {
-      toast.success("Técnico creado exitosamente");
-      form.reset();
-      onClose();
-      queryClient.invalidateQueries({ queryKey: ["tecnicos"] });
-    },
-    onError: (error: unknown) => {
-      if (error instanceof Error) {
-        toast.error(error?.message || "Error al crear el técnico");
-      } else {
-        toast.error("Error al crear el técnico");
-      }
-    },
-  });
+  // Usamos el hook centralizado
+  const mutation = useCreateTecnico();
 
-  const handleSubmit = form.handleSubmit((values) => {
-    mutation.mutate(values);
-  });
+  // Función para manejar éxito y errores (se puede pasar al hook también, pero aquí es válido para toast/reset)
+  const onSubmit = (values: TecnicoForm) => {
+    mutation.mutate(values, {
+      onSuccess: () => {
+        toast.success("Técnico creado exitosamente");
+        form.reset();
+        onClose();
+        // invalidación ya está en el hook
+      },
+      onError: (error: unknown) => {
+        if (error instanceof Error) {
+          // Ajustar mensaje según error
+          toast.error(error?.message || "Error al crear el técnico");
+        } else {
+          toast.error("Error al crear el técnico");
+        }
+      },
+    });
+  };
+
+  const handleSubmit = form.handleSubmit(onSubmit);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

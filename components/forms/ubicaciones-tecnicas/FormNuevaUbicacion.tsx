@@ -1,4 +1,3 @@
-// components/features/ubicaciones/form-nueva-ubicacion.tsx - VERSIÓN FINAL CORREGIDA
 'use client'
 
 import * as React from "react";
@@ -8,18 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ComboSelectInput } from "@/components/ui/comboSelectInput";
-import { ubicacionesAPI } from "@/lib/api/ubicacionesTecnicas";
 import { CircleX, Info, LoaderCircle, PlusCircle, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
-import type { UbicacionTecnica } from "@/types/models/ubicacionesTecnicas.types";
+import type { UbicacionTecnica } from "@/types/models/ubicacionesTecnicas.types"; 
 import { Combobox } from "@/components/ui/combobox";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ubicacionTecnicaSchema } from "@/lib/validations/ubicacionTecnicaSchema";
-import type {
-  CreateUbicacionTecnicaPayload,
-  CreateUbicacionResponse
-} from "@/types/api/api";
+import type { CreateUbicacionTecnicaRequest } from "@/lib/api/ubicacionesTecnicas";
+
+// ✅ Usar hooks organizados
+import { 
+  useUbicaciones, 
+  useUbicacionDependientes,
+  useUbicacionesPorNivel 
+} from "@/hooks/ubicaciones-tecnicas/useUbicaciones";
+import { useCreateUbicacion } from "@/hooks/ubicaciones-tecnicas/useCreateUbicacion";
 
 type UbicacionTecnicaForm = {
   modulo: string;
@@ -41,78 +43,7 @@ interface Props {
   setDisplayedLevels: React.Dispatch<React.SetStateAction<number>>;
 }
 
-function useUbicacionesNiveles(formValues: UbicacionTecnicaForm) {
-  const { data: ubicacionesData, isLoading } = useQuery({
-    queryKey: ["ubicacionesTecnicas"],
-    queryFn: ubicacionesAPI.getUbicacionesTecnicas,
-  });
-
-  const selectedNivel1 = ubicacionesData?.data?.find(u => u.abreviacion === formValues.modulo);
-
-  const { data: dependientesNivel2, isLoading: loadingNivel2 } = useQuery({
-    queryKey: ["ubicacionesDependientes", selectedNivel1?.idUbicacion, 2],
-    queryFn: () => selectedNivel1 ? ubicacionesAPI.getUbicacionesDependientes(selectedNivel1.idUbicacion, 2) : Promise.resolve({ data: [] }),
-    enabled: !!selectedNivel1,
-  });
-
-  const selectedNivel2 = dependientesNivel2?.data?.find(u => u.abreviacion === formValues.planta);
-  const { data: dependientesNivel3, isLoading: loadingNivel3 } = useQuery({
-    queryKey: ["ubicacionesDependientes", selectedNivel2?.idUbicacion, 3],
-    queryFn: () => selectedNivel2 ? ubicacionesAPI.getUbicacionesDependientes(selectedNivel2.idUbicacion, 3) : Promise.resolve({ data: [] }),
-    enabled: !!selectedNivel2,
-  });
-
-  const selectedNivel3 = dependientesNivel3?.data?.find(u => u.abreviacion === formValues.espacio);
-  const { data: dependientesNivel4, isLoading: loadingNivel4 } = useQuery({
-    queryKey: ["ubicacionesDependientes", selectedNivel3?.idUbicacion, 4],
-    queryFn: () => selectedNivel3 ? ubicacionesAPI.getUbicacionesDependientes(selectedNivel3.idUbicacion, 4) : Promise.resolve({ data: [] }),
-    enabled: !!selectedNivel3,
-  });
-
-  const selectedNivel4 = dependientesNivel4?.data?.find(u => u.abreviacion === formValues.tipo);
-  const { data: dependientesNivel5, isLoading: loadingNivel5 } = useQuery({
-    queryKey: ["ubicacionesDependientes", selectedNivel4?.idUbicacion, 5],
-    queryFn: () => selectedNivel4 ? ubicacionesAPI.getUbicacionesDependientes(selectedNivel4.idUbicacion, 5) : Promise.resolve({ data: [] }),
-    enabled: !!selectedNivel4,
-  });
-
-  const selectedNivel5 = dependientesNivel5?.data?.find(u => u.abreviacion === formValues.subtipo);
-  const { data: dependientesNivel6, isLoading: loadingNivel6 } = useQuery({
-    queryKey: ["ubicacionesDependientes", selectedNivel5?.idUbicacion, 6],
-    queryFn: () => selectedNivel5 ? ubicacionesAPI.getUbicacionesDependientes(selectedNivel5.idUbicacion, 6) : Promise.resolve({ data: [] }),
-    enabled: !!selectedNivel5,
-  });
-
-  const selectedNivel6 = dependientesNivel6?.data?.find(u => u.abreviacion === formValues.numero);
-  const { data: dependientesNivel7, isLoading: loadingNivel7 } = useQuery({
-    queryKey: ["ubicacionesDependientes", selectedNivel6?.idUbicacion, 7],
-    queryFn: () => selectedNivel6 ? ubicacionesAPI.getUbicacionesDependientes(selectedNivel6.idUbicacion, 7) : Promise.resolve({ data: [] }),
-    enabled: !!selectedNivel6,
-  });
-
-  return {
-    ubicacionesData,
-    isLoading,
-    dependientes: {
-      2: { data: dependientesNivel2?.data, loading: loadingNivel2, selected: selectedNivel2 },
-      3: { data: dependientesNivel3?.data, loading: loadingNivel3, selected: selectedNivel3 },
-      4: { data: dependientesNivel4?.data, loading: loadingNivel4, selected: selectedNivel4 },
-      5: { data: dependientesNivel5?.data, loading: loadingNivel5, selected: selectedNivel5 },
-      6: { data: dependientesNivel6?.data, loading: loadingNivel6, selected: selectedNivel6 },
-      7: { data: dependientesNivel7?.data, loading: loadingNivel7 }
-    },
-    selectedItems: {
-      1: selectedNivel1,
-      2: selectedNivel2,
-      3: selectedNivel3,
-      4: selectedNivel4,
-      5: selectedNivel5,
-      6: selectedNivel6
-    }
-  };
-}
-
-// ✅ CORREGIDO: Helper functions extraídas
+// ✅ Helper functions extraídas
 const generarCodigo = (formValues: UbicacionTecnicaForm) => {
   const { modulo, planta, espacio, tipo, subtipo, numero, pieza } = formValues;
   const niveles = [modulo, planta, espacio, tipo, subtipo, numero, pieza];
@@ -133,7 +64,7 @@ const getAbreviacion = (formValues: UbicacionTecnicaForm) => {
   return "";
 };
 
-// ✅ CORREGIDO: Función de flatten extraída
+// ✅ Función de flatten extraída
 const flattenUbicaciones = (nodes: UbicacionTecnica[]): UbicacionTecnica[] => {
   let list: UbicacionTecnica[] = [];
   for (const node of nodes) {
@@ -146,6 +77,63 @@ const flattenUbicaciones = (nodes: UbicacionTecnica[]): UbicacionTecnica[] => {
   return list;
 };
 
+// ✅ Hook personalizado simplificado para niveles
+const useUbicacionesNiveles = (formValues: UbicacionTecnicaForm) => {
+  const { data: ubicaciones, isLoading } = useUbicaciones();
+
+  // Encontrar ubicaciones seleccionadas por nivel
+  const selectedItems = useMemo(() => {
+    if (!ubicaciones) return {};
+
+    const flat = flattenUbicaciones(ubicaciones);
+    const items: Record<number, UbicacionTecnica | undefined> = {};
+
+    // Nivel 1 - Módulo
+    items[1] = flat.find(u => u.abreviacion === formValues.modulo && u.nivel === 1);
+    
+    // Construir código progresivamente para encontrar items por nivel
+    const buildCode = (level: number) => {
+      const fields = ['modulo', 'planta', 'espacio', 'tipo', 'subtipo', 'numero', 'pieza'];
+      return fields.slice(0, level).map(field => formValues[field as keyof UbicacionTecnicaForm]).filter(Boolean).join('-');
+    };
+
+    for (let level = 2; level <= 7; level++) {
+      const code = buildCode(level);
+      if (code) {
+        items[level] = flat.find(u => u.codigo_Identificacion === code);
+      }
+    }
+
+    return items;
+  }, [ubicaciones, formValues]);
+
+  // Obtener opciones para cada nivel
+  const getOptionsForLevel = (level: number) => {
+    if (!ubicaciones) return [];
+    
+    const flat = flattenUbicaciones(ubicaciones);
+    
+    if (level === 1) {
+      return flat.filter(u => u.nivel === 1);
+    }
+
+    // Para niveles superiores, filtrar por padre
+    const parentLevel = level - 1;
+    const parent = selectedItems[parentLevel];
+    
+    if (!parent) return [];
+    
+    return flat.filter(u => u.nivel === level && u.codigo_Identificacion.startsWith(parent.codigo_Identificacion + '-'));
+  };
+
+  return {
+    ubicaciones,
+    isLoading,
+    selectedItems,
+    getOptionsForLevel
+  };
+};
+
 const FormNuevaUbicacion: React.FC<Props> = ({
   open,
   onClose,
@@ -154,19 +142,30 @@ const FormNuevaUbicacion: React.FC<Props> = ({
   displayedLevels,
   setDisplayedLevels,
 }) => {
-  const queryClient = useQueryClient();
+  // ✅ Usar hooks organizados
+  const { ubicaciones, isLoading, selectedItems, getOptionsForLevel } = useUbicacionesNiveles(formValues);
+  const createMutation = useCreateUbicacion();
 
-  // ✅ CORREGIDO: Usar custom hook
-  const { ubicacionesData, isLoading, dependientes, selectedItems } = useUbicacionesNiveles(formValues);
+  // Estados locales
+  const [esEquipo, setEsEquipo] = useState(false);
+  const [padres, setPadres] = useState<(string | number | null)[]>([null]);
 
-  // ✅ CORREGIDO: Lógica de último nivel válido simplificada
-  const isLastLevelValid = selectedItems[displayedLevels as keyof typeof selectedItems] !== undefined;
+  // ✅ Hook para obtener posibles padres (solo cuando es equipo)
+  const { data: posiblesPadres, isLoading: loadingPadres } = useUbicacionesPorNivel(
+    displayedLevels > 1 ? displayedLevels - 1 : 1
+  );
 
-  const [esEquipo, setEsEquipo] = React.useState(false);
-  const [padres, setPadres] = React.useState<(string | number | null)[]>([null]);
+  // Verificar si el último nivel es válido
+  const isLastLevelValid = selectedItems[displayedLevels] !== undefined;
 
   const closeModal = () => {
     setDisplayedLevels(1);
+    setFormValues({
+      modulo: "", planta: "", espacio: "", tipo: "", subtipo: "", 
+      numero: "", pieza: "", descripcion: ""
+    });
+    setEsEquipo(false);
+    setPadres([null]);
     onClose();
   };
 
@@ -175,125 +174,115 @@ const FormNuevaUbicacion: React.FC<Props> = ({
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ CORREGIDO: Función para resetear niveles superiores
+  // ✅ Función para resetear niveles superiores
   const resetNivelesSuperiores = (nivelInicio: number) => {
     setFormValues(prev => {
       const nuevosValores = { ...prev };
       const campos = ['planta', 'espacio', 'tipo', 'subtipo', 'numero', 'pieza'];
-
+      
       for (let i = nivelInicio - 1; i < campos.length; i++) {
         nuevosValores[campos[i] as keyof UbicacionTecnicaForm] = "";
       }
-
+      
       return nuevosValores;
     });
   };
-
-  // ✅ CORREGIDO: useMutation con tipos explícitos para resolver el error
-  const mutation = useMutation({
-    mutationFn: ubicacionesAPI.createUbicacionTecnica,
-    onSuccess: (data: any) => {
-      queryClient.invalidateQueries({ queryKey: ["ubicacionesTecnicas"] });
-      toast.success(data.data?.message || "Ubicación creada exitosamente");
-      onClose();
-      setFormValues({
-        modulo: "", planta: "", espacio: "", tipo: "", subtipo: "",
-        numero: "", pieza: "", descripcion: ""
-      });
-      setDisplayedLevels(1);
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Error al crear la ubicación técnica");
-    },
-  });
-
-  const posiblesPadres = useQuery({
-    queryFn: () => ubicacionesAPI.getUbicacionesPorNivel(displayedLevels - 1),
-    queryKey: ["ubicacionesPorNivel", displayedLevels - 1],
-    enabled: displayedLevels > 1 && esEquipo,
-  });
 
   const downloadGuia = () => {
     window.open('/guia-ubicaciones-tecnicas.pdf', '_blank');
   };
 
-  // ✅ CORREGIDO: Función onSubmit más limpia
+  // ✅ Función onSubmit simplificada usando hook
   const onSubmit = () => {
-    if (!ubicacionesData?.data) {
+    if (!ubicaciones) {
       toast.error("Los datos de ubicaciones aún no se han cargado.");
       return;
     }
 
-    const flatUbicaciones = flattenUbicaciones(ubicacionesData.data);
+    const flatUbicaciones = flattenUbicaciones(ubicaciones);
     const codigoCompleto = generarCodigo(formValues);
     const partes = codigoCompleto.split("-");
     const codigoSinUltimoNivel = partes.slice(0, -1).join("-");
 
     const padreFisico = flatUbicaciones.find(u => u.codigo_Identificacion === codigoSinUltimoNivel);
 
-    const payload: CreateUbicacionTecnicaPayload = {
+    const payload: CreateUbicacionTecnicaRequest = {
       descripcion: formValues.descripcion,
       abreviacion: getAbreviacion(formValues),
       padres: [],
     };
 
+    // Agregar padre físico si existe
     if (padreFisico) {
-      payload.padres!.push({ idPadre: padreFisico.idUbicacion, esUbicacionFisica: true });
+      payload.padres!.push({ 
+        idPadre: padreFisico.idUbicacion, 
+        esUbicacionFisica: true,
+        estaHabilitado: true 
+      });
     } else if (partes.length > 1) {
       toast.error(`Error: No se encontró la ubicación padre con código "${codigoSinUltimoNivel}".`);
       return;
     }
 
+    // Agregar padres virtuales si es equipo
     if (esEquipo) {
       const idsPadresVirtuales = padres
         .filter((p) => p !== null)
-        .map((id) => ({ idPadre: Number(id), esUbicacionFisica: false }));
+        .map((id) => ({ 
+          idPadre: Number(id), 
+          esUbicacionFisica: false,
+          estaHabilitado: true 
+        }));
 
       for (const p of idsPadresVirtuales) {
-        if (!payload.padres!.some(existente => existente.idPadre === p.idPadre)) {
-          payload.padres!.push(p);
+        if (!payload.padres!.some(existente => existente.idPadre === p.idPadre)) { 
+          payload.padres!.push(p); 
         }
       }
     }
 
-    const validationResult = ubicacionTecnicaSchema.safeParse(payload);
-    if (!validationResult.success) {
-      validationResult.error.issues.forEach((issue) => toast.error(issue.message)); // ← .issues en lugar de .errors
-      return;
-    }
-
-    mutation.mutate(payload);
+    // ✅ Usar hook de creación
+    createMutation.mutate(payload, {
+      onSuccess: () => {
+        closeModal();
+        toast.success("Ubicación técnica creada correctamente");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Error al crear la ubicación técnica");
+      }
+    });
   };
 
   const renderNivel = (nivel: number, label: string, campo: keyof UbicacionTecnicaForm, placeholder: string) => {
     if (displayedLevels < nivel) return null;
-
-    const dependiente = dependientes[nivel as keyof typeof dependientes];
-
+    
+    const options = getOptionsForLevel(nivel);
+    
     return (
-      <div>
+      <div key={nivel}>
         <Label className="text-sm">{label}</Label>
         <ComboSelectInput
           name={campo}
-          placeholder={dependiente?.loading ? "Cargando..." : placeholder}
+          placeholder={isLoading ? "Cargando..." : placeholder}
           value={formValues[campo]}
           onChange={(value) => {
             setFormValues(prev => ({
               ...prev,
               [campo]: value,
+              // Resetear niveles superiores
               ...Object.fromEntries(
                 ['planta', 'espacio', 'tipo', 'subtipo', 'numero', 'pieza']
-                  .slice(nivel)
+                  .slice(nivel - 1)
                   .map(campo => [campo, ""])
               )
-            }))
+            }));
           }}
-          options={dependiente?.data?.map((u) => ({
+          options={options.map((u) => ({
             value: u.abreviacion,
             label: `${u.abreviacion} - ${u.descripcion}`,
-          })) || []}
-          disabled={dependiente?.loading}
-          className="w-full border border-border rounded p-2"
+          }))}
+          disabled={isLoading}
+          className="w-full border rounded p-2"
         />
       </div>
     );
