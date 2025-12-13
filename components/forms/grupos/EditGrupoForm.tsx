@@ -7,8 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useEditGrupo } from "@/hooks/grupos-trabajo/useEditGrupo";
+import { useUpdateGrupo } from "@/hooks/grupos-trabajo/useEditGrupo";
+import { Combobox } from "@/components/ui/combobox";
 import { type Tecnico } from "@/types/tecnicos.types";
 import { type GrupoTrabajo } from "@/types/grupostrabajo.types";
 
@@ -16,6 +16,7 @@ const grupoTrabajoSchema = z.object({
   codigo: z.string().min(1, "El código es requerido"),
   nombre: z.string().min(1, "El nombre es requerido"),
   supervisor: z.string().min(1, "El supervisor es requerido"),
+  area: z.string().min(1, "El área es requerida"),
 });
 
 export interface EditGrupoFormProps {
@@ -35,19 +36,23 @@ export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
       codigo: grupo?.codigo || "",
       nombre: grupo?.nombre || "",
       supervisor: grupo?.supervisorId ? String(grupo.supervisorId) : "",
+      area: grupo?.area || "",
     },
   });
 
-  const editGrupoMutation = useEditGrupo();
+  const updateGrupoMutation = useUpdateGrupo();
 
   const handleSubmit = (values: z.infer<typeof grupoTrabajoSchema>) => {
     if (!grupo) return;
 
-    editGrupoMutation.mutate({
+    updateGrupoMutation.mutate({
       id: grupo.id,
-      codigo: values.codigo,
-      nombre: values.nombre,
-      supervisorId: Number(values.supervisor),
+      data: {
+        codigo: values.codigo,
+        nombre: values.nombre,
+        supervisorId: Number(values.supervisor),
+        area: values.area,
+      }
     }, {
       onSuccess: () => {
         form.reset();
@@ -95,24 +100,40 @@ export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
             />
             <FormField
               control={form.control}
+              name="area"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Área</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Ejemplo: Mantenimiento, Producción, Calidad"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="supervisor"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Supervisor</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione un supervisor" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {tecnicosDisponibles.map((sup) => (
-                        <SelectItem key={sup.Id} value={String(sup.Id)}>
-                          {sup.Nombre} ({sup.Correo})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Combobox
+                      data={tecnicosDisponibles.map((tecnico) => ({
+                        value: tecnico.Id,
+                        label: `${tecnico.Nombre} (${tecnico.Correo})`,
+                      }))}
+                      value={field.value ? Number(field.value) : null}
+                      onValueChange={(value) => field.onChange(value ? String(value) : "")}
+                      placeholder="Seleccione un supervisor"
+                      searchPlaceholder="Buscar supervisor..."
+                      triggerClassName="w-full"
+                      contentClassName="w-full"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -128,9 +149,9 @@ export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
               <Button
                 type="submit"
                 className="bg-gema-green/80 hover:bg-gema-green"
-                disabled={editGrupoMutation.isPending}
+                disabled={updateGrupoMutation.isPending}
               >
-                {editGrupoMutation.isPending ? "Guardando..." : "Guardar cambios"}
+                {updateGrupoMutation.isPending ? "Guardando..." : "Guardar cambios"}
               </Button>
             </div>
           </form>

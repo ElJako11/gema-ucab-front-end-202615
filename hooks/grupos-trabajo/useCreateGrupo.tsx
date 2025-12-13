@@ -1,21 +1,20 @@
-// src/hooks/grupos-trabajo/useCreateGrupo.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { createGrupoDeTrabajo } from "@/services/gruposTrabajo";
+import { gruposAPI } from "@/lib/api/grupos";
 
 export const useCreateGrupo = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: createGrupoDeTrabajo,
+    mutationFn: gruposAPI.create,
     onSuccess: () => {
-      toast.success("Grupo creado exitosamente");
-      queryClient.invalidateQueries({ queryKey: ["gruposTrabajo"] });
+      queryClient.invalidateQueries({ queryKey: ["grupos"] });
       queryClient.invalidateQueries({ queryKey: ["trabajadoresPorGrupo"] });
+      toast.success("Grupo de trabajo creado correctamente");
     },
-    onError: (error: Error) => {
-      console.error("Error al crear el grupo:", error);
-      toast.error(error.message || "Error al crear el grupo");
+    onError: (error: any) => {
+      console.error("Error al crear grupo:", error);
+      toast.error("Error al crear el grupo de trabajo");
     },
   });
 };

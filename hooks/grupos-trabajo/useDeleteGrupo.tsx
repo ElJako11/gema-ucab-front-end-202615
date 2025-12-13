@@ -1,21 +1,21 @@
-// src/hooks/grupos-trabajo/useDeleteGrupo.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { deleteGrupoDeTrabajo } from "@/services/gruposTrabajo";
+import { gruposAPI } from "@/lib/api/grupos";
 
 export const useDeleteGrupo = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: deleteGrupoDeTrabajo,
+    mutationFn: (id: number) => gruposAPI.delete(id),
     onSuccess: () => {
-      toast.success("Grupo eliminado exitosamente");
-      queryClient.invalidateQueries({ queryKey: ["gruposTrabajo"] });
+      queryClient.invalidateQueries({ queryKey: ["grupos"] });
+      queryClient.invalidateQueries({ queryKey: ["grupo"] });
       queryClient.invalidateQueries({ queryKey: ["trabajadoresPorGrupo"] });
+      toast.success("Grupo de trabajo eliminado correctamente");
     },
-    onError: (error: Error) => {
-      console.error("Error al eliminar el grupo:", error);
-      toast.error(error.message || "Error al eliminar el grupo");
+    onError: (error: any) => {
+      console.error("Error al eliminar grupo:", error);
+      toast.error("Error al eliminar el grupo de trabajo");
     },
   });
 };
