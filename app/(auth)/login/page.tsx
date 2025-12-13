@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "../contex";
+import { useAuth } from "../../../lib/auth/contex";
 
 export default function LoginPage() {
   const { login, isLoading, error: authError } = useAuth();
@@ -32,8 +32,8 @@ export default function LoginPage() {
   const onSubmit = async (formData: z.infer<typeof loginSchema>) => {
     try {
       await login({
-        email: formData.email,
-        password: formData.password
+        Correo: formData.email,
+        Contraseña: formData.password
       });
       // No necesitas redirigir manualmente
       // El middleware redirige automáticamente a /dashboard

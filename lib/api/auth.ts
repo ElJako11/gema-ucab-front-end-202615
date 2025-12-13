@@ -1,32 +1,38 @@
 // lib/api/auth.ts
 import { LoginRequest, AuthResponse, User } from '@/types/auth'
-import { apiClient } from './client'
+import apiClient from './client'
 
 export const authAPI = {
-  // Login
+
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/auth/login', credentials)
-    return response; 
+    // Formatear exactamente como espera el backend
+    const formattedCredentials = {
+      Correo: credentials.Correo,
+      Contraseña: credentials.Contraseña
+    }
+
+    // Las cookies se manejan automáticamente
+    const response = await apiClient.post<AuthResponse>('/auth/login', formattedCredentials)
+    return response
   },
 
-  // Verificar token
-  async verifyToken(token: string): Promise<User> {
-    const response = await apiClient.get<User>('/auth/me', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    return response;
+  async getCurrentUser(): Promise<User> {
+    // El backend valida automáticamente la cookie
+    const response = await apiClient.get<User>('/auth/me')
+    return response
   },
 
-  // Logout (opcional)
   async logout(): Promise<void> {
     await apiClient.post('/auth/logout')
+    // El backend debe limpiar la cookie
   },
 
-  // Refresh token (si tu backend lo tiene)
-  async refreshToken(refreshToken: string): Promise<{ token: string }> {
-    const response = await apiClient.post<{ token: string }>('/auth/refresh', {
-      refreshToken
-    })
-    return response;
+  async verifyAuth(): Promise<boolean> {
+    try {
+      await apiClient.get('/auth/verify')
+      return true
+    } catch {
+      return false
+    }
   }
 }

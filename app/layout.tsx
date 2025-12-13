@@ -2,7 +2,7 @@
 import type { Metadata } from 'next'
 import { Poppins, Inter } from 'next/font/google'
 import './globals.css'
-import { AuthProvider } from './(auth)/contex'
+import { AuthProvider } from '../lib/auth/contex'
 import { QueryProvider } from '@/lib/providers/query-providers'
 import { Toaster } from 'react-hot-toast'
 import { SidebarProvider } from '@/components/sidebar/sidebar' // ← AÑADE ESTO

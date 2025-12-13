@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from "@/components/sidebar/sidebar"
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/app/(auth)/contex"
+import { useAuth } from "@/lib/auth/contex"
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 
