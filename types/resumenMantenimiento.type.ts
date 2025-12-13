@@ -1,6 +1,8 @@
 export type ResumenMantenimiento = {
-    IdMantenimiento: number;
-    Estado: "NO EMPEZADO" | "EN EJECUCION" | "REPROGRAMADO" | "CULMINADO";
-    Ubicacion: string;
-    FechaLimite: Date;
+    idMantenimiento: number;
+    estado: "NO EMPEZADO" | "EN EJECUCION" | "REPROGRAMADO" | "CULMINADO";
+    ubicacion: string;
+    fechaLimite: string;
 };
+
+export type ResumenMantenimientoList = ResumenMantenimiento[];
