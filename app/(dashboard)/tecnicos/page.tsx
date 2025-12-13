@@ -3,7 +3,7 @@
 import { useState } from "react";
 import FormNuevoTecnico from "@/components/FormNuevoTecnico";
 import { useQuery } from "@tanstack/react-query";
-import { getTecnicos } from "@/lib/tecnicos";
+import { tecnicosAPI } from "@/lib/api/tecnicos";
 import {
   getAllWorkersInALLGroups,
   getGruposDeTrabajo,
@@ -44,7 +44,7 @@ const Tecnicos = () => {
   // Queries mejoradas
   const { data: tecnicosData, isLoading: isLoadingTecnicos } = useQuery({
     queryKey: ["tecnicos"],
-    queryFn: getTecnicos,
+    queryFn: tecnicosAPI.getAll,
   });
 
   const { data: gruposData, isLoading: isLoadingGrupos } = useQuery({
