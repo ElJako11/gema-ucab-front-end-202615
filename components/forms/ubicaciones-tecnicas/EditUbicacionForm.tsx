@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Modal } from "@/components/ui/modal";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -57,56 +59,34 @@ const EditUbicacionForm: React.FC<EditUbicacionProps> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg bg-white">
-        <DialogTitle className="text-lg font-semibold mb-4">
-          Editar Ubicación Técnica
-        </DialogTitle>
+    <Modal
+      title="Editar Ubicación"
+      isOpen={open}
+      onClose={onClose}
+      className="max-w-lg bg-white"
+    >
+      <div className="space-y-2">
+        <Label>Descripción</Label>
+        <Input
+          value={descripcion}
+          onChange={(e) => setDescripcion(e.target.value)}
+          placeholder="Nueva descripción"
+        />
+      </div>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="descripcion">
-              Descripción <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="descripcion"
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              placeholder="Ingrese la nueva descripción"
-              disabled={updateMutation.isPending}
-              className="w-full"
-            />
-          </div>
-
-          {/* Mostrar error si existe */}
-          {updateMutation.isError && (
-            <p className="text-red-600 text-sm">
-              {updateMutation.error instanceof Error 
-                ? updateMutation.error.message 
-                : "Error al actualizar la ubicación técnica"
-              }
-            </p>
-          )}
-        </div>
-
-        <div className="flex justify-end gap-2 mt-6">
-          <Button 
-            variant="outline" 
-            onClick={handleClose}
-            disabled={updateMutation.isPending}
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={onSubmit}
-            disabled={!descripcion.trim() || updateMutation.isPending}
-            className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground"
-          >
-            {updateMutation.isPending ? "Actualizando..." : "Actualizar"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+      <div className="flex justify-end gap-2 mt-6">
+        <Button variant="outline" onClick={onClose}>
+          Cancelar
+        </Button>
+        <Button
+          onClick={onSubmit}
+          disabled={!descripcion.trim() || status === "pending"}
+          className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground"
+        >
+          {status === "pending" ? "Actualizando..." : "Actualizar"}
+        </Button>
+      </div>
+    </Modal>
   );
 };
 

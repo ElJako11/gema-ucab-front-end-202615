@@ -20,6 +20,11 @@ import Link from "next/link"
 
 const items = [
   {
+    icon: Calendar,
+    label: 'Calendario',
+    path: '/calendario'
+  },
+  {
     icon: MapPin,
     label: "Ubicaciones Técnicas",
     path: "/ubicaciones-tecnicas",
@@ -44,11 +49,7 @@ const items = [
     label: 'Mantenimientos por Inspección',
     path: '/mantenimientos-inspeccion'
   },
-  {
-    icon: Calendar,
-    label: 'Calendario',
-    path: '/calendario'
-  },
+  
 ]
 
 export function AppSidebar() {

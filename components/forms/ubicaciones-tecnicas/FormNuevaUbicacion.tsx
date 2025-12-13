@@ -1,8 +1,8 @@
 'use client'
 
 import * as React from "react";
-import { useState, useMemo } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -289,182 +289,144 @@ const FormNuevaUbicacion: React.FC<Props> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="w-6xl md:min-w-5xl" contentClassName="space-y-2">
+    <Modal
+      open={open}
+      isOpen={open}
+      onClose={onClose}
+      className="bg-white"
+      contentClassName="space-y-2"
+      title={
         <div className="flex items-center gap-1">
-          <DialogTitle className="text-xl font-semibold">Crear Ubicación Técnica</DialogTitle>
-          <Tooltip>
+          <span className="text-xl font-semibold">Crear Ubicación Técnica</span>
+          <Tooltip >
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" onClick={downloadGuia} aria-label="Descargar guía de ubicaciones técnicas">
                 <Info />
               </Button>
             </TooltipTrigger>
-            <TooltipContent><span>Ver guía de ubicaciones técnicas</span></TooltipContent>
+            <TooltipContent ><span>Ver guía de ubicaciones técnicas</span></TooltipContent>
           </Tooltip>
         </div>
-        
-        <div className="grid grid-cols-2 gap-8">
-          <div className="space-y-2">
-            {/* Nivel 1 - Módulo */}
-            <div>
-              <Label className="text-sm">Nivel 1 <span className="text-red-500">*</span></Label>
-              <ComboSelectInput
-                name="modulo"
-                placeholder={isLoading ? "Cargando..." : "Ejemplo: M2"}
-                value={formValues.modulo}
-                onChange={(value) => {
-                  setFormValues(prev => ({
-                    ...prev,
-                    modulo: value,
-                    planta: "", espacio: "", tipo: "", subtipo: "", numero: "", pieza: ""
-                  }));
-                }}
-                options={getOptionsForLevel(1).map((u) => ({
-                  value: u.abreviacion,
-                  label: `${u.abreviacion} - ${u.descripcion}`,
-                }))}
-                disabled={isLoading}
-                className="w-full border rounded p-2"
-              />
-            </div>
+      }
+    >
+      <div className="flex flex-col md:flex-row gap-8">
+        <div className="space-y-2">
+          {/* Nivel 1 */}
+          <div>
+            <Label className="text-sm">Nivel 1 <span className="text-red-500">*</span></Label>
+            <ComboSelectInput
+              name="modulo"
+              placeholder={isLoading ? "Cargando..." : "Ejemplo: M2"}
+              value={formValues.modulo}
+              onChange={(value) => resetNivelesSuperiores(2)}
+              options={ubicacionesData?.data?.filter((u) => u.nivel === 1).map((u) => ({
+                value: u.abreviacion,
+                label: `${u.abreviacion} - ${u.descripcion}`,
+              })) || []}
+              disabled={isLoading}
+              className="w-full border rounded p-2"
+            />
+          </div>
 
-            {/* ✅ Niveles renderizados dinámicamente */}
-            {renderNivel(2, "Nivel 2", "planta", "Ejemplo: P01")}
-            {renderNivel(3, "Nivel 3", "espacio", "Ejemplo: A2-14, LABBD")}
-            {renderNivel(4, "Nivel 4", "tipo", "Ejemplo: HVAC")}
-            {renderNivel(5, "Nivel 5", "subtipo", "Ejemplo: SPLIT, CENT")}
-            {renderNivel(6, "Nivel 6", "numero", "Ejemplo: 01")}
-            {renderNivel(7, "Nivel 7", "pieza", "Ejemplo: COMP, EVAP")}
+          {/* ✅ CORREGIDO: Niveles renderizados dinámicamente */}
+          {renderNivel(2, "Nivel 2", "planta", "Ejemplo: P01")}
+          {renderNivel(3, "Nivel 3", "espacio", "Ejemplo: A2-14, LABBD")}
+          {renderNivel(4, "Nivel 4", "tipo", "Ejemplo: HVAC")}
+          {renderNivel(5, "Nivel 5", "subtipo", "Ejemplo: SPLIT, CENT")}
+          {renderNivel(6, "Nivel 6", "numero", "Ejemplo: 01")}
+          {renderNivel(7, "Nivel 7", "pieza", "Ejemplo: COMP, EVAP")}
 
-            <div className="flex gap-2 mt-1">
-              {displayedLevels >= 2 && (
-                <Button 
-                  className="flex-1 border-red-500 text-red-700 hover:text-red-800" 
-                  variant="outline"
-                  onClick={() => {
-                    setDisplayedLevels((prev) => Math.max(prev - 1, 1));
-                    resetNivelesSuperiores(displayedLevels);
-                  }}
-                >
-                  <Trash /> Eliminar último nivel
-                </Button>
-              )}
-              {displayedLevels < 7 && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="flex-1" tabIndex={0}>
-                      <Button 
-                        className="w-full border-gema-green text-green-700 hover:text-green-800" 
-                        variant="outline"
-                        onClick={() => setDisplayedLevels((prev) => prev + 1)} 
-                        disabled={!isLastLevelValid}
-                      >
-                        <PlusCircle /> Agregar nivel
-                      </Button>
-                    </span>
-                  </TooltipTrigger>
-                  {!isLastLevelValid && (
-                    <TooltipContent>
-                      <p>Debes seleccionar una ubicación ya existente para poder agregar un nivel.</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              )}
+          <div className="flex flex-col md:flex-row gap-2 mt-1">
+            {displayedLevels >= 2 && (
+              <Button className="flex-1 border border-red-500 text-red-700 hover:text-red-800" variant="outline"
+                onClick={() => {
+                  setDisplayedLevels((prev) => Math.max(prev - 1, 1));
+                  resetNivelesSuperiores(displayedLevels);
+                }}>
+                <Trash /> Eliminar último nivel
+              </Button>
+            )}
+            {displayedLevels < 7 && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex-1" tabIndex={0}>
+                    <Button className="w-full border-gema-green text-gema-green/80 hover:text-gema-green" variant="outline"
+                      onClick={() => setDisplayedLevels((prev) => prev + 1)} disabled={!isLastLevelValid}>
+                      <PlusCircle /> Agregar nivel
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {!isLastLevelValid && <TooltipContent><p>Debes seleccionar una ubicación ya existente para poder agregar un nivel.</p></TooltipContent>}
+              </Tooltip>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="descripcion">Descripción <span className="text-red-500">*</span></Label>
+            <Input name="descripcion" placeholder="Ejemplo: Módulo 2, Planta 1, Aula A2-14"
+              value={formValues.descripcion} onChange={handleChange} className="w-full border rounded p-2" />
+          </div>
+
+          <div className="bg-slate-200 p-4 pt-3 rounded-sm">
+            <span className="text-sm font-semibold">Vista previa del código:</span>
+            <div className="p-2 rounded border-2 border-neutral-300 font-mono text-sm">
+              {generarCodigo(formValues)}
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="descripcion">Descripción <span className="text-red-500">*</span></Label>
-              <Input 
-                name="descripcion" 
-                placeholder="Ejemplo: Módulo 2, Planta 1, Aula A2-14"
-                value={formValues.descripcion} 
-                onChange={handleChange} 
-                className="w-full border rounded p-2" 
-              />
-            </div>
-            
-            <div className="bg-slate-200 p-4 pt-3 rounded-sm">
-              <span className="text-sm font-semibold">Vista previa del código:</span>
-              <div className="p-2 rounded border-2 border-neutral-300 font-mono text-sm">
-                {generarCodigo(formValues)}
-              </div>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Switch id="agregar-padres" checked={esEquipo} onCheckedChange={setEsEquipo} />
+              <Label htmlFor="agregar-padres" className="text-sm text-neutral-700">¿Es un equipo?</Label>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Switch id="agregar-padres" checked={esEquipo} onCheckedChange={setEsEquipo} />
-                <Label htmlFor="agregar-padres" className="text-sm text-neutral-700">¿Es un equipo?</Label>
-              </div>
-              
-              {esEquipo && (
-                <>
-                  <p className="text-sm text-neutral-700">
-                    Si aplica, indica los espacios donde el equipo brinda servicio, además de su ubicación física
-                  </p>
-                  <div className="space-y-2">
-                    {loadingPadres ? (
-                      <LoaderCircle className="animate-spin h-5 w-5" />
-                    ) : (
-                      <>
-                        {padres.filter((p) => p !== null).map((p) => {
-                          const ubicacion = posiblesPadres?.data?.find((u: UbicacionTecnica) => u.idUbicacion == p);
-                          return ubicacion ? (
-                            <div key={ubicacion.idUbicacion} className="flex space-x-3 items-center bg-slate-200 rounded px-2 mb-3">
-                              <span className="text-sm text-neutral-700">{ubicacion.codigo_Identificacion}</span>
-                              <Button 
-                                variant="ghost" 
-                                className="text-red-500 hover:text-red-700 hover:bg-slate-100 !px-1"
-                                onClick={() => setPadres((prev) => prev.filter(id => id != ubicacion.idUbicacion))}
-                              >
+            {esEquipo && (
+              <>
+                <p className="text-sm text-neutral-700">
+                  Si aplica, indica los espacios donde el equipo brinda servicio, además de su ubicación física
+                </p>
+                <div className="space-y-2">
+                  {posiblesPadres.isLoading ? <LoaderCircle className="animate-spin h-5 w-5" />
+                    : posiblesPadres.isError ? <p className="text-red-600 text-sm">Error al cargar ubicaciones.</p>
+                      : (
+                        <>
+                          {padres.filter((p) => p !== null).map((p) => posiblesPadres.data?.data.find(ubicacion => ubicacion.idUbicacion == p)).map((ubicacion) => (
+                            <div key={ubicacion?.idUbicacion} className="flex space-x-3 items-center bg-slate-200 rounded px-2 mb-3">
+                              <span className="text-sm text-neutral-700">{ubicacion?.codigo_Identificacion}</span>
+                              <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-slate-100 px-1"
+                                onClick={() => setPadres((prev) => prev.filter(id => id != ubicacion?.idUbicacion))}>
                                 <CircleX />
                               </Button>
                             </div>
-                          ) : null;
-                        })}
-                        <Combobox
-                          triggerClassName="w-4/5" 
-                          contentClassName="w-full"
-                          data={posiblesPadres?.data?.filter((ubicacion: UbicacionTecnica) => 
-                            !generarCodigo(formValues).includes(ubicacion.codigo_Identificacion) && 
-                            !padres.includes(String(ubicacion.idUbicacion))
-                          ).map((ubicacion: UbicacionTecnica) => ({
-                            value: ubicacion.idUbicacion, 
-                            label: `${ubicacion.codigo_Identificacion} - ${ubicacion.descripcion}`,
-                          })) || []}
-                          value={padres.at(-1) || null}
-                          onValueChange={(ubicacion) => setPadres((prev) => [...prev.filter((p) => p !== null), ubicacion, null])}
-                        />
-                      </>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
+                          ))}
+                          <Combobox
+                            triggerClassName="w-4/5" contentClassName="w-full"
+                            data={posiblesPadres.data?.data.filter(ubicacion => !generarCodigo(formValues).includes(ubicacion.codigo_Identificacion) && !padres.includes(String(ubicacion.idUbicacion))).map((ubicacion) => ({
+                              value: ubicacion.idUbicacion, label: `${ubicacion.codigo_Identificacion} - ${ubicacion.descripcion}`,
+                            })) || []}
+                            value={padres.at(-1) || null}
+                            onValueChange={(ubicacion) => setPadres((prev) => [...prev.filter((p) => p !== null), ubicacion, null])}
+                          />
+                        </>
+                      )}
+                </div>
+              </>
+            )}
           </div>
         </div>
+      </div>
 
-        {createMutation.isError && (
-          <p className="text-red-600 text-sm">
-            {createMutation.error instanceof Error ? createMutation.error.message : "Error al crear la ubicación técnica, por favor intente de nuevo."}
-          </p>
-        )}
+      {mutation.isError && <p className="text-red-600 text-sm">{mutation.error instanceof Error ? mutation.error.message : "Error al crear la ubicación técnica, por favor intente de nuevo."}</p>}
 
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={closeModal} className="px-8">
-            Cancelar
-          </Button>
-          <Button 
-            className="bg-gema-green hover:bg-green-700 text-white px-8" 
-            onClick={onSubmit} 
-            disabled={createMutation.isPending}
-          >
-            {createMutation.isPending ? "Creando..." : "Crear Ubicación"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" onClick={closeModal} className="px-4 md:px-8">Cancelar</Button>
+        <Button className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground px-4 md:px-8" onClick={onSubmit} disabled={status === "pending" || mutation.isPending}>
+          {status === "pending" ? "Creando..." : "Crear Ubicación"}
+        </Button>
+      </div>
+    </Modal>
   );
 };
 
