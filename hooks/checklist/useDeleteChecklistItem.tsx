@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteChecklistItem } from "@/services/checklist";
+import { deleteChecklistItem } from "@/lib/api/checklist";
 import { QUERY_KEYS } from "../consts/queryKeys";
 import { toast } from "sonner";
 

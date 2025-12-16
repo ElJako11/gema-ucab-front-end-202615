@@ -2,7 +2,7 @@ import type { Actividad } from "@/types/checklist.types";
 import { QUERY_KEYS } from "../consts/queryKeys";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createChecklistItem } from "@/services/checklist";
+import { createChecklistItem } from "@/lib/api/checklist";
 
 export const useCreateChecklistItem = () => {
     const queryClient = useQueryClient();
