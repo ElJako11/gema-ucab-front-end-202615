@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import EditUbicacionForm from "@/components/forms/ubicaciones-tecnicas/EditUbicacionForm";
 
 import {
-  deleteUbicacionTecnica,
+  //deleteUbicacionTecnica,
   // getUbicacionesDependientes,
   // getPadresDeUbicacion,
 } from "@/lib/api/ubicacionesTecnicas";
@@ -130,6 +130,7 @@ const UbicacionesTecnicas: React.FC = () => {
 
   const queryClient = useQueryClient();
 
+  /* 
   const deleteMutation = useMutation({
     mutationFn: deleteUbicacionTecnica,
     onSuccess: () => {
@@ -139,6 +140,8 @@ const UbicacionesTecnicas: React.FC = () => {
     },
     onError: () => toast.error("Error al eliminar ubicación técnica"),
   });
+  
+  */
 
   const [filters, setFilters] = useState<Filters>({
     modulo: "",
@@ -420,7 +423,7 @@ const UbicacionesTecnicas: React.FC = () => {
               <Button
                 className="bg-gema-blue hover:bg-blue-500 text-black w-full sm:w-auto"
                 onClick={handleExportExcel}
-                disabled={isExporting || deleteMutation.isPending}
+              //disabled={isExporting || deleteMutation.isPending}
               >
                 {isExporting ? (
                   <LoaderCircle className="animate-spin mr-2 h-4 w-4" />
@@ -434,7 +437,7 @@ const UbicacionesTecnicas: React.FC = () => {
                 <Button
                   variant="outline"
                   onClick={() => setBorrarUbicacion(null)}
-                  disabled={deleteMutation.isPending}
+                  //disabled={deleteMutation.isPending}
                   className="w-full sm:w-auto"
                 >
                   Cancelar
@@ -444,16 +447,16 @@ const UbicacionesTecnicas: React.FC = () => {
                   className="bg-red-500 hover:bg-red-600 text-black w-full sm:w-auto"
                   onClick={() => {
                     if (borrarUbicacion) {
-                      deleteMutation.mutate(borrarUbicacion.idUbicacion);
+                      //deleteMutation.mutate(borrarUbicacion.idUbicacion);
                     }
                   }}
-                  disabled={deleteMutation.isPending}
+                //disabled={deleteMutation.isPending}
                 >
-                  {deleteMutation.isPending ? (
+                  {/* deleteMutation.isPending ? (
                     <LoaderCircle className="animate-spin mr-2 h-4 w-4" />
                   ) : (
                     <Trash className="mr-2 h-4 w-4" />
-                  )}
+                  )*/}
                   Eliminar
                 </Button>
               </div>

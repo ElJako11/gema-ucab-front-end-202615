@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 import { EditInspectionModal } from "@/components/forms/inspecciones/EditInspectionModal";
 import { DeleteInspectionModal } from "@/components/forms/inspecciones/DeleteInspectionModal";
 import { DeriveMaintenanceModal } from "@/components/forms/inspecciones/DeriveMaintenanceModal";
