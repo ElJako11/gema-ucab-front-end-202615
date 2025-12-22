@@ -38,7 +38,7 @@ const Calendario = () => {
                     </Button>
                     <Button className="bg-gema-blue hover:bg-blue-700 text-white">
                         <FileText className="mr-2 h-4 w-4" />
-                        Resumen Mensual
+                        {vistaActual === 'mensual' ? "Resumen Mensual" : "Resumen Semanal"}
                     </Button>
                     <Button className="bg-gema-green hover:bg-green-700 text-white">
                         <CirclePlus className="mr-2 h-4 w-4" />
