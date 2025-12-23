@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DateNavigator from "../ui/dateNavigator";
+import DropdownFilter from "../ui/dropdownFilter";
 
 /*Nombres de los meses */
 const MONTH_NAMES = [
@@ -44,11 +45,15 @@ const generateMockTasks = (date: Date) => {
     const taskIndex = Math.floor(taskRandom * TASK_TYPES.length);
     const colorIndex = Math.floor((taskRandom * 1000) % TASK_COLORS.length);
     
+    // Determinar el tipo de tarea basándose en el color
+    const taskType = TASK_COLORS[colorIndex] === 'blue' ? 'mantenimiento' : 'inspeccion';
+    
     tasks.push({
       id: `${day}-${month}-${year}-${i}`,
       titulo: TASK_TYPES[taskIndex].titulo,
       area: TASK_TYPES[taskIndex].area,
-      color: TASK_COLORS[colorIndex]
+      color: TASK_COLORS[colorIndex],
+      tipo: taskType
     });
   }
   
@@ -92,12 +97,40 @@ const cardColors = {
   green: "border-l-gema-green bg-gema-green/20",
 };
 
-const WeeklyCalendar = () => {
-    // Estado para la fecha actual (mes y semana)
-    const [currentDate, setCurrentDate] = useState(new Date());
+interface WeeklyCalendarProps {
+    initialDate?: Date | null;
+}
+
+const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
+    // Estado para la fecha actual (usar initialDate si se proporciona)
+    const [currentDate, setCurrentDate] = useState(() => {
+        return initialDate || new Date();
+    });
+
+    // Estado para el filtro activo
+    const [filtroActivo, setFiltroActivo] = useState('todos');
+
+    // Actualizar currentDate cuando cambie initialDate
+    useEffect(() => {
+        if (initialDate) {
+            setCurrentDate(initialDate);
+        }
+    }, [initialDate]);
 
     // Generar datos de la semana basándose en la fecha actual
     const semanaData = generateWeekData(currentDate);
+
+    // Función para filtrar tareas según el filtro activo
+    const filtrarTareas = (tareas: any[]) => {
+        if (filtroActivo === 'todos') return tareas;
+        if (filtroActivo === 'mantenimientos') {
+            return tareas.filter(tarea => tarea.tipo === 'mantenimiento');
+        }
+        if (filtroActivo === 'inspecciones') {
+            return tareas.filter(tarea => tarea.tipo === 'inspeccion');
+        }
+        return tareas;
+    };
 
     // Lógica específica de la SEMANA: sumar/restar 7 días
     const handlePrevWeek = () => {
@@ -134,65 +167,75 @@ const WeeklyCalendar = () => {
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                 <h2 className="text-xl font-bold text-gray-900">{label}</h2>
                 
-                {/* Navegación de Semanas */}
-                <DateNavigator label='Semana' onPrev={handlePrevWeek} onNext={handleNextWeek}></DateNavigator>
+                <div className="flex flex-col md:flex-row gap-4">
+                    {/* Filtro de mantenimientos e inspecciones */}
+                    <DropdownFilter 
+                        filtroActual={filtroActivo} 
+                        onFiltroChange={setFiltroActivo} 
+                    />
+                    {/* Navegación de Semanas */}
+                    <DateNavigator label='Semana' onPrev={handlePrevWeek} onNext={handleNextWeek}></DateNavigator>
+                </div>
             </div>
 
             {/* --- GRID DE LA SEMANA --- */}
             <div className="grid grid-cols-1 md:grid-cols-7 gap-4 min-w-[1000px] md:min-w-0 overflow-x-auto">
-              {semanaData.map((diaItem, index) => (
-                <div key={index} className="flex flex-col h-full">
-                    
-                  {/* Cabecera de la Columna (Día y Número) */}
-                  <div className="text-center mb-4">
-                    <span className="block text-sm font-bold text-gray-400 uppercase tracking-wide">
-                      {diaItem.dia}
-                    </span>
-                    <span className="block text-3xl font-bold text-gray-900 mt-1">
-                      {diaItem.fecha}
-                    </span>
-                  </div>
+              {semanaData.map((diaItem, index) => {
+                // Filtrar las tareas según el filtro activo
+                const tareasFiltradas = filtrarTareas(diaItem.tareas);
+                
+                return (
+                  <div key={index} className="flex flex-col h-full">
+                    {/* Cabecera de la Columna (Día y Número) */}
+                    <div className="text-center mb-4">
+                      <span className="block text-sm font-bold text-gray-400 uppercase tracking-wide">
+                        {diaItem.dia}
+                      </span>
+                      <span className="block text-3xl font-bold text-gray-900 mt-1">
+                        {diaItem.fecha}
+                      </span>
+                    </div>
 
-                  {/* Cuerpo de la Columna (El contenedor largo) */}
-                  <div className="flex-1 border border-gray-200 rounded-2xl min-h-[500px] bg-white flex flex-col gap-3 overflow-hidden">
-                    
-                  {/* Pill de Conteo (Encabezado gris dentro de la columna) */}
-                  <div className="bg-gray-200 py-2 text-center relative overflow-hidden">
-                    {/* Simulación del degradado superior en días con múltiples tareas */}
-                    {diaItem.tareas.length > 2 && (
-                      <div className="absolute top-0 left-0 right-0 h-1.5 bg-linear-to-r from-gema-yellow via-gema-blue to-gema-green" />
-                    )}
-                    <span className="text-xs font-bold text-gray-700">
-                      Mantenimientos - {diaItem.tareas.length}
-                    </span>
-                  </div>
-
-                  {/* Lista de Tarjetas */}
-                  <div className="flex flex-col gap-3 p-1">
-                    {diaItem.tareas.map((tarea) => (
-                      <div
-                        key={tarea.id}
-                          className={`
-                          relative p-3 rounded-r-xl rounded-l-sm border-l-[6px] shadow-sm cursor-pointer hover:opacity-90 transition-opacity
-                          ${cardColors[tarea.color as keyof typeof cardColors]}
-                        `}
-                      >
-                        <h4 className="font-bold text-gray-800 text-sm leading-tight mb-1">
-                          {tarea.titulo}
-                        </h4>
-                        {tarea.area && (
-                          <p className="text-xs text-gray-600 font-medium">
-                            {tarea.area}
-                          </p>
+                    {/* Cuerpo de la Columna (El contenedor largo) */}
+                    <div className="flex-1 border border-gray-200 rounded-2xl min-h-[500px] bg-white flex flex-col gap-3 overflow-hidden">
+                      {/* Pill de Conteo (Encabezado gris dentro de la columna) */}
+                      <div className="bg-gray-200 py-2 text-center relative overflow-hidden">
+                        {/* Simulación del degradado superior en días con múltiples tareas */}
+                        {tareasFiltradas.length > 2 && (
+                          <div className="absolute top-0 left-0 right-0 h-1.5 bg-linear-to-r from-gema-yellow via-gema-blue to-gema-green" />
                         )}
+                        <span className="text-xs font-bold text-gray-700">
+                          {filtroActivo === 'todos' ? 'Mantenimientos' : 
+                           filtroActivo === 'mantenimientos' ? 'Mantenimientos' : 'Inspecciones'} - {tareasFiltradas.length}
+                        </span>
                       </div>
-                    ))}
-                  </div>
 
-                </div>
-              </div>
-            ))}
-          </div>
+                      {/* Lista de Tarjetas */}
+                      <div className="flex flex-col gap-3 p-1">
+                        {tareasFiltradas.map((tarea) => (
+                          <div
+                            key={tarea.id}
+                            className={`
+                              relative p-3 rounded-r-xl rounded-l-sm border-l-[6px] shadow-sm cursor-pointer hover:opacity-90 transition-opacity
+                              ${cardColors[tarea.color as keyof typeof cardColors]}
+                            `}
+                          >
+                            <h4 className="font-bold text-gray-800 text-sm leading-tight mb-1">
+                              {tarea.titulo}
+                            </h4>
+                            {tarea.area && (
+                              <p className="text-xs text-gray-600 font-medium">
+                                {tarea.area}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mt-6 w-full">
       

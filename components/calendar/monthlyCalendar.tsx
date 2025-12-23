@@ -82,7 +82,11 @@ const generateCalendarDays = (date: Date) => {
     return days;
 };
 
-const MonthlyCalendar = () => {
+interface MonthlyCalendarProps {
+    onDayClick?: (date: Date) => void;
+}
+
+const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
     // Este estado controla qué iconos se ven en TODO el calendario
     const [filtroActivo, setFiltroActivo] = useState('todos');
 
@@ -91,6 +95,18 @@ const MonthlyCalendar = () => {
 
     // Generar días del calendario basándose en la fecha actual
     const diasCalendario = generateCalendarDays(currentDate);
+
+    // Función para manejar el click en un día
+    const handleDayClick = (dayItem: any, index: number) => {
+        if (!dayItem.actual || !onDayClick) return;
+        
+        // Calcular la fecha exacta del día clickeado
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const clickedDate = new Date(year, month, dayItem.dia);
+        
+        onDayClick(clickedDate);
+    };
 
     // Lógica específica del MES: sumar/restar el mes
     const handlePrevMonth = () => {
@@ -140,9 +156,10 @@ const MonthlyCalendar = () => {
                         {diasCalendario.map((item, index) => (
                             <div
                                 key={index}
+                                onClick={() => handleDayClick(item, index)}
                                 className={`
                                     relative min-h-30 max-w-full p-2 rounded-lg flex flex-col gap-2 transition-all hover:ring-2 hover:ring-blue-100 cursor-pointer 
-                                    ${item.actual ? 'bg-gema-lightgrey' : 'bg-gema-darkgrey'}
+                                    ${item.actual ? 'bg-gema-lightgrey hover:bg-gray-50' : 'bg-gema-darkgrey cursor-default'}
                                 `}
                             >
                                 {/* Barra de colores (Ejemplo del día 3) */}

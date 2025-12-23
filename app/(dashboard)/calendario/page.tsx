@@ -18,6 +18,9 @@ const Calendario = () => {
     //Vista Actual del Calendario (Mensual o Semanal) por defecto es mensual
     const [vistaActual, setVistaActual] = useState('mensual');
     
+    // Estado para la fecha seleccionada (para navegación entre vistas)
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    
     // Estado para el modal de agregar elemento
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedType, setSelectedType] = useState(0);
@@ -28,10 +31,20 @@ const Calendario = () => {
         setSelectedType(0); // Resetear la selección
     };
 
+    // Función para manejar el click en un día del calendario mensual
+    const handleDayClick = (date: Date) => {
+        setSelectedDate(date);
+        setVistaActual('semanal');
+    };
+
     // Función para alternar (toggle)
     const alternarVista = () => {
         if (vistaActual === 'mensual') {
             setVistaActual('semanal');
+            // Si no hay fecha seleccionada, usar la fecha actual
+            if (!selectedDate) {
+                setSelectedDate(new Date());
+            }
         } else {
             setVistaActual('mensual');
         }
@@ -63,7 +76,11 @@ const Calendario = () => {
 
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 w-full">
                 {/**Renderizado del componente del calendario segun la vista actual*/}
-                {vistaActual === 'mensual' ? <MonthlyCalendar /> : <WeeklyCalendar />}
+                {vistaActual === 'mensual' ? (
+                    <MonthlyCalendar onDayClick={handleDayClick} />
+                ) : (
+                    <WeeklyCalendar initialDate={selectedDate} />
+                )}
             </div>
 
             {/* Modal para agregar nuevo elemento */}
