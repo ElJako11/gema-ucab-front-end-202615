@@ -7,44 +7,82 @@ const MONTH_NAMES = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ];
 
-/* Data Simulada */
-const semanaData = [
-  { 
-    dia: "Lun", fecha: 3, 
-    tareas: [
-      { id: 1, titulo: "Revisión Grama", area: "Áreas Verdes", color: "grey" },
-      { id: 2, titulo: "Revisión Baño", area: "Mod. 4 Piso 2", color: "grey" }
-    ] 
-  },
-  { 
-    dia: "Mar", fecha: 4, 
-    tareas: [
-      { id: 3, titulo: "Revisión Poste", area: "Esc. Ing Industrial", color: "blue" }
-    ] 
-  },
-  { 
-    dia: "Mié", fecha: 5, 
-    tareas: [
-      { id: 4, titulo: "Revisión Poste", area: "Esc. Ing Industrial", color: "yellow" },
-      { id: 5, titulo: "Revisión A/A", area: "", color: "green" }, // Tarjeta pequeña
-      { id: 6, titulo: "Revisión Grama", area: "Áreas Verdes", color: "green" }
-    ] 
-  },
-  { 
-    dia: "Jue", fecha: 6, 
-    tareas: [
-      { id: 7, titulo: "Revisión Grama", area: "", color: "green" }
-    ] 
-  },
-  { 
-    dia: "Vie", fecha: 7, 
-    tareas: [
-      { id: 8, titulo: "Revisión Grama", area: "Áreas Verdes", color: "green" }
-    ] 
-  },
-  { dia: "Sab", fecha: 8, tareas: [] },
-  { dia: "Dom", fecha: 9, tareas: [] },
+// Nombres de los días de la semana
+const DAYS_OF_WEEK = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+// Tipos de tareas simuladas
+const TASK_TYPES = [
+  { titulo: "Revisión Grama", area: "Áreas Verdes" },
+  { titulo: "Revisión Baño", area: "Mod. 4 Piso 2" },
+  { titulo: "Revisión Poste", area: "Esc. Ing Industrial" },
+  { titulo: "Revisión A/A", area: "" },
+  { titulo: "Mantenimiento Bomba", area: "Planta Baja" },
+  { titulo: "Inspección Eléctrica", area: "Piso 3" },
+  { titulo: "Limpieza Filtros", area: "Azotea" }
 ];
+
+const TASK_COLORS = ["grey", "blue", "yellow", "green"];
+
+// Función para generar tareas simuladas para un día específico
+const generateMockTasks = (date: Date) => {
+  const day = date.getDate();
+  const month = date.getMonth();
+  const year = date.getFullYear();
+  
+  // Usar una función determinística para generar tareas consistentes
+  const seed = day + month * 31 + year * 365;
+  const random = Math.sin(seed) * 10000;
+  const value = Math.abs(random - Math.floor(random));
+  
+  const tasks = [];
+  const numTasks = Math.floor(value * 4); // 0-3 tareas por día
+  
+  for (let i = 0; i < numTasks; i++) {
+    const taskSeed = seed + i * 100;
+    const taskRandom = Math.abs(Math.sin(taskSeed) * 10000 - Math.floor(Math.sin(taskSeed) * 10000));
+    
+    const taskIndex = Math.floor(taskRandom * TASK_TYPES.length);
+    const colorIndex = Math.floor((taskRandom * 1000) % TASK_COLORS.length);
+    
+    tasks.push({
+      id: `${day}-${month}-${year}-${i}`,
+      titulo: TASK_TYPES[taskIndex].titulo,
+      area: TASK_TYPES[taskIndex].area,
+      color: TASK_COLORS[colorIndex]
+    });
+  }
+  
+  return tasks;
+};
+
+// Función para generar los datos de la semana dinámicamente
+const generateWeekData = (currentDate: Date) => {
+  // Calcular el inicio de la semana (lunes)
+  const startOfWeek = new Date(currentDate);
+  const currentDay = currentDate.getDay();
+  const diffToMonday = currentDay === 0 ? 6 : currentDay - 1;
+  startOfWeek.setDate(currentDate.getDate() - diffToMonday);
+  
+  const weekData = [];
+  
+  // Generar datos para cada día de la semana (Lun-Dom)
+  for (let i = 0; i < 7; i++) {
+    const dayDate = new Date(startOfWeek);
+    dayDate.setDate(startOfWeek.getDate() + i);
+    
+    // Ajustar el orden para que empiece en Lunes
+    const dayIndex = (i + 1) % 7; // 1,2,3,4,5,6,0 -> Lun,Mar,Mié,Jue,Vie,Sáb,Dom
+    const dayName = dayIndex === 0 ? "Dom" : DAYS_OF_WEEK[dayIndex];
+    
+    weekData.push({
+      dia: dayName,
+      fecha: dayDate.getDate(),
+      tareas: generateMockTasks(dayDate)
+    });
+  }
+  
+  return weekData;
+};
 
 //Tipos de colores para las tarjetas
 const cardColors = {
@@ -57,6 +95,9 @@ const cardColors = {
 const WeeklyCalendar = () => {
     // Estado para la fecha actual (mes y semana)
     const [currentDate, setCurrentDate] = useState(new Date());
+
+    // Generar datos de la semana basándose en la fecha actual
+    const semanaData = generateWeekData(currentDate);
 
     // Lógica específica de la SEMANA: sumar/restar 7 días
     const handlePrevWeek = () => {
@@ -117,8 +158,8 @@ const WeeklyCalendar = () => {
                     
                   {/* Pill de Conteo (Encabezado gris dentro de la columna) */}
                   <div className="bg-gray-200 py-2 text-center relative overflow-hidden">
-                    {/* Simulación del degradado superior en la tarjeta del Martes (opcional) */}
-                    {index === 1 && (
+                    {/* Simulación del degradado superior en días con múltiples tareas */}
+                    {diaItem.tareas.length > 2 && (
                       <div className="absolute top-0 left-0 right-0 h-1.5 bg-linear-to-r from-gema-yellow via-gema-blue to-gema-green" />
                     )}
                     <span className="text-xs font-bold text-gray-700">

@@ -17,48 +17,70 @@ const MONTH_NAMES = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ];
 
-/*Array simulado */
-const diasSimulados = [
-    // Mes anterior (Gris oscuro)
-    { dia: 26, actual: false }, { dia: 27, actual: false }, { dia: 28, actual: false },
-    { dia: 29, actual: false }, { dia: 30, actual: false }, { dia: 31, actual: false },
+// Función para generar datos simulados de actividades por día
+const generateMockData = (day: number, month: number, year: number) => {
+    // Simulamos algunos días con actividades
+    const seed = day + month * 31 + year;
+    const random = Math.sin(seed) * 10000;
+    const value = Math.abs(random - Math.floor(random));
     
-    // Noviembre (Días del 1 al 30)
-    { dia: 1, actual: true, icon: 'green' },
-    { dia: 2, actual: true },
-    { dia: 3, actual: true, icon: 'multi', hasBar: true }, // El día con la barrita de colores
-    { dia: 4, actual: true, icon: 'green' },
-    { dia: 5, actual: true, icon: 'multi' },
-    { dia: 6, actual: true, icon: 'green' },
-    { dia: 7, actual: true, icon: 'green' },
-    { dia: 8, actual: true, icon: 'green' },
-    { dia: 9, actual: true },
-    { dia: 10, actual: true, icon: 'green' },
-    { dia: 11, actual: true, icon: 'multi' },
-    { dia: 12, actual: true, icon: 'green' },
-    { dia: 13, actual: true, icon: 'green' },
-    { dia: 14, actual: true, icon: 'multi' },
-    { dia: 15, actual: true },
-    { dia: 16, actual: true },
-    { dia: 17, actual: true, icon: 'green' },
-    { dia: 18, actual: true, icon: 'green' },
-    { dia: 19, actual: true, icon: 'multi' },
-    { dia: 20, actual: true, icon: 'green' },
-    { dia: 21, actual: true, icon: 'green' },
-    { dia: 22, actual: true },
-    { dia: 23, actual: true },
-    { dia: 24, actual: true, icon: 'green' },
-    { dia: 25, actual: true, icon: 'multi' },
-    { dia: 26, actual: true, icon: 'green' },
-    { dia: 27, actual: true, icon: 'green' },
-    { dia: 28, actual: true, icon: 'green' },
-    { dia: 29, actual: true },
-    { dia: 30, actual: true }, // Fin de Noviembre
+    if (value < 0.3) return {}; // Sin actividades
+    if (value < 0.6) return { icon: 'green' }; // Solo inspecciones
+    if (value < 0.8) return { icon: 'multi' }; // Mantenimientos e inspecciones
+    if (value < 0.9) return { icon: 'multi', hasBar: true }; // Con barra de colores
+    return {}; // Sin actividades
+};
 
-    // Mes siguiente (Gris oscuro)
-    { dia: 1, actual: false }, { dia: 2, actual: false }, { dia: 3, actual: false },
-    { dia: 4, actual: false }, { dia: 5, actual: false }, { dia: 6, actual: false },
-  ];
+// Función para generar los días del calendario dinámicamente
+const generateCalendarDays = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    
+    // Primer día del mes y qué día de la semana es (0 = domingo)
+    const firstDay = new Date(year, month, 1);
+    const startingDayOfWeek = firstDay.getDay();
+    
+    // Días en el mes actual
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    // Días en el mes anterior
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+    
+    const days = [];
+    
+    // Días del mes anterior (para completar la primera semana)
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+        const day = daysInPrevMonth - i;
+        days.push({
+            dia: day,
+            actual: false,
+            ...generateMockData(day, month - 1, year)
+        });
+    }
+    
+    // Días del mes actual
+    for (let day = 1; day <= daysInMonth; day++) {
+        days.push({
+            dia: day,
+            actual: true,
+            ...generateMockData(day, month, year)
+        });
+    }
+    
+    // Días del mes siguiente (para completar la última semana)
+    const totalCells = Math.ceil(days.length / 7) * 7;
+    const remainingCells = totalCells - days.length;
+    
+    for (let day = 1; day <= remainingCells; day++) {
+        days.push({
+            dia: day,
+            actual: false,
+            ...generateMockData(day, month + 1, year)
+        });
+    }
+    
+    return days;
+};
 
 const MonthlyCalendar = () => {
     // Este estado controla qué iconos se ven en TODO el calendario
@@ -66,6 +88,9 @@ const MonthlyCalendar = () => {
 
     // Estado para la fecha actual (mes y año)
     const [currentDate, setCurrentDate] = useState(new Date());
+
+    // Generar días del calendario basándose en la fecha actual
+    const diasCalendario = generateCalendarDays(currentDate);
 
     // Lógica específica del MES: sumar/restar el mes
     const handlePrevMonth = () => {
@@ -112,7 +137,7 @@ const MonthlyCalendar = () => {
                     
                     {/* --- CUADRÍCULA DEL CALENDARIO (GRID) --- */}
                     <div className="hidden md:grid grid-cols-7 gap-2 auto-rows-fr justify-center">
-                        {diasSimulados.map((item, index) => (
+                        {diasCalendario.map((item, index) => (
                             <div
                                 key={index}
                                 className={`
