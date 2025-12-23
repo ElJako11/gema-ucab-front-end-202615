@@ -4,7 +4,10 @@ import { useState } from 'react';
 import { MonthlyCalendar } from "@/components/calendar/monthlyCalendar";
 import { WeeklyCalendar } from "@/components/calendar/weeklyCalendar";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
+import { Modal } from '@/components/ui/modal';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { InspectionFormContent } from "@/components/forms/inspecciones/InspectionFormModal";
+import { MaintenanceFormContent } from "@/components/forms/mantenimientos/MaintenanceFormContent";
 import { 
     CirclePlus, 
     FileText, 
@@ -14,6 +17,16 @@ import {
 const Calendario = () => {
     //Vista Actual del Calendario (Mensual o Semanal) por defecto es mensual
     const [vistaActual, setVistaActual] = useState('mensual');
+    
+    // Estado para el modal de agregar elemento
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedType, setSelectedType] = useState(0);
+
+    // Función para cerrar el modal y resetear el estado
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedType(0); // Resetear la selección
+    };
 
     // Función para alternar (toggle)
     const alternarVista = () => {
@@ -26,6 +39,7 @@ const Calendario = () => {
 
     return (
         <div className="p-6 max-w-7.5xl">
+            
             <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 mb-6">
                 <div className="items-center gap-1">
                     <h1 className="text-2xl font-bold">Calendario de Mantenimiento e Inspecciones</h1>
@@ -40,7 +54,7 @@ const Calendario = () => {
                         <FileText className="mr-2 h-4 w-4" />
                         Resumen Mensual
                     </Button>
-                    <Button className="bg-gema-green hover:bg-green-700 text-white">
+                    <Button className="bg-gema-green hover:bg-green-700 text-white" onClick={() => setIsModalOpen(true)}>
                         <CirclePlus className="mr-2 h-4 w-4" />
                         Nuevo Elemento
                     </Button>
@@ -51,6 +65,31 @@ const Calendario = () => {
                 {/**Renderizado del componente del calendario segun la vista actual*/}
                 {vistaActual === 'mensual' ? <MonthlyCalendar /> : <WeeklyCalendar />}
             </div>
+
+            {/* Modal para agregar nuevo elemento */}
+            <Modal
+                title="Agregar elemento"
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                className="bg-white max-w-4xl"
+            >
+                <div>
+                    <div className="my-4">
+                        <label className="block text-sm font-medium mb-1">Elemento a agregar</label>
+                        <Select onValueChange={(value) => setSelectedType(parseInt(value))}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Tipo de elemento" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="1">Mantenimiento</SelectItem>
+                                <SelectItem value="2">Inspección</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    {selectedType === 1 && <MaintenanceFormContent />}
+                    {selectedType === 2 && <InspectionFormContent />}
+                </div>
+            </Modal>
         </div>
     )
 }
