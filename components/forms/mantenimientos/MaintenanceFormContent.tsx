@@ -12,6 +12,9 @@ interface MaintenanceFormContentProps {
 export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({ initialValues, onClose }) => {
     const [frequency, setSelectedFrequency] = useState(initialValues?.repeticion === 'periodico' ? 'periodico' : 'unico');
 
+    // Array de supervisores (mismo que en inspecciones)
+    const encargados = ['Juan Pérez', 'Maria Garcia', 'Carlos Lopez', 'Ana Rodriguez'];
+
     return (
         <div className="space-y-4 text-left">
             <div className="grid grid-cols-2 gap-6 my-2">
@@ -39,6 +42,19 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({ 
                             <SelectItem value="reprogramado">Reprogramado</SelectItem>
                             <SelectItem value="en_ejecucion">En ejecuciones</SelectItem>
                             <SelectItem value="culminado">Culminado</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <Label>Supervisor Asignado</Label>
+                    <Select defaultValue={initialValues?.supervisor}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Seleccionar supervisor" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {encargados.map((enc) => (
+                                <SelectItem key={enc} value={enc}>{enc}</SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                 </div>

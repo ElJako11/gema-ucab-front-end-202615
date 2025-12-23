@@ -43,7 +43,7 @@ export const InspectionFormContent: React.FC<{ initialValues?: any, onClose?: ()
 
                 {/* Supervision */}
                 <div className="space-y-2">
-                    <Label htmlFor="supervision">Supervisión</Label>
+                    <Label htmlFor="supervision">Supervisor Asignado</Label>
                     <Select defaultValue={initialValues?.supervision}>
                         <SelectTrigger id="supervision">
                             <SelectValue placeholder="Seleccionar encargado" />

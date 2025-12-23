@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import DateNavigator from "../ui/dateNavigator";
 import DropdownFilter from "../ui/dropdownFilter";
+import { MaintenanceSummaryModal } from "@/components/forms/mantenimientos/MaintenanceSummaryModal";
+import { InspectionSummaryModal } from "@/components/forms/inspecciones/InspectionSummaryModal";
 
 /*Nombres de los meses */
 const MONTH_NAMES = [
@@ -110,6 +112,14 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
     // Estado para el filtro activo
     const [filtroActivo, setFiltroActivo] = useState('todos');
 
+    // Estados para el modal de resumen de mantenimiento
+    const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
+    const [selectedMaintenanceData, setSelectedMaintenanceData] = useState<any>(null);
+
+    // Estados para el modal de resumen de inspección
+    const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
+    const [selectedInspectionData, setSelectedInspectionData] = useState<any>(null);
+
     // Actualizar currentDate cuando cambie initialDate
     useEffect(() => {
         if (initialDate) {
@@ -130,6 +140,82 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
             return tareas.filter(tarea => tarea.tipo === 'inspeccion');
         }
         return tareas;
+    };
+
+    // Función para generar datos simulados del mantenimiento
+    const generateMaintenanceData = (tarea: any, fecha: Date) => {
+        const day = fecha.getDate();
+        const month = fecha.getMonth();
+        const year = fecha.getFullYear();
+        
+        // Usar el ID de la tarea para generar datos consistentes
+        const seed = parseInt(tarea.id.replace(/\D/g, '')) || day + month * 31;
+        const random = Math.abs(Math.sin(seed) * 10000 - Math.floor(Math.sin(seed) * 10000));
+        
+        const estados = ['Programado', 'En Progreso', 'Completado', 'Reprogramado'];
+        const prioridades = ['Alta', 'Media', 'Baja'];
+        const frecuencias = ['Diaria', 'Semanal', 'Mensual', 'Trimestral', 'Anual'];
+        const repeticiones = ['Sí', 'No'];
+        
+        // Generar fecha límite (entre 1-30 días después de la fecha actual)
+        const fechaLimite = new Date(fecha);
+        fechaLimite.setDate(fecha.getDate() + Math.floor(random * 30) + 1);
+        
+        return {
+            estado: estados[Math.floor(random * estados.length)],
+            prioridad: prioridades[Math.floor((random * 100) % prioridades.length)],
+            frecuencia: frecuencias[Math.floor((random * 1000) % frecuencias.length)],
+            repeticion: repeticiones[Math.floor((random * 10) % repeticiones.length)],
+            ubicacion: tarea.area || `${tarea.titulo} - Ubicación Técnica`,
+            fechaLimite: fechaLimite.toLocaleDateString('es-ES')
+        };
+    };
+
+    // Función para generar datos simulados de la inspección
+    const generateInspectionData = (tarea: any, fecha: Date) => {
+        const day = fecha.getDate();
+        const month = fecha.getMonth();
+        const year = fecha.getFullYear();
+        
+        // Usar el ID de la tarea para generar datos consistentes
+        const seed = parseInt(tarea.id.replace(/\D/g, '')) || day + month * 31 + 100; // +100 para diferenciarlo del mantenimiento
+        const random = Math.abs(Math.sin(seed) * 10000 - Math.floor(Math.sin(seed) * 10000));
+        
+        const estados = ['Realizado', 'Programado', 'En Proceso', 'Pendiente'];
+        const supervisores = ['Ana Gómez', 'Carlos Ruiz', 'María López', 'Juan Pérez', 'Luis Martín'];
+        const areas = ['Higiene y Seguridad', 'Mantenimiento General', 'Control de Calidad', 'Seguridad Industrial', 'Medio Ambiente'];
+        const frecuencias = ['Diaria', 'Semanal', 'Mensual', 'Trimestral', 'Semestral'];
+        const observaciones = [
+            'Todo en orden, sin observaciones.',
+            'Se requiere atención menor en algunos puntos.',
+            'Revisar extintores el próximo mes.',
+            'Equipos funcionando correctamente.',
+            'Se detectaron algunas irregularidades menores.',
+            'Inspección completada satisfactoriamente.',
+            'Requiere seguimiento en próxima inspección.'
+        ];
+        
+        return {
+            estado: estados[Math.floor(random * estados.length)],
+            supervisor: supervisores[Math.floor((random * 100) % supervisores.length)],
+            area: areas[Math.floor((random * 1000) % areas.length)],
+            frecuencia: frecuencias[Math.floor((random * 10000) % frecuencias.length)],
+            ubicacion: tarea.area || `${tarea.titulo} - Ubicación de Inspección`,
+            observacion: observaciones[Math.floor((random * 100000) % observaciones.length)]
+        };
+    };
+
+    // Función para manejar el click en una tarea
+    const handleTaskClick = (tarea: any, fecha: Date) => {
+        if (tarea.tipo === 'mantenimiento') {
+            const maintenanceData = generateMaintenanceData(tarea, fecha);
+            setSelectedMaintenanceData(maintenanceData);
+            setIsMaintenanceModalOpen(true);
+        } else if (tarea.tipo === 'inspeccion') {
+            const inspectionData = generateInspectionData(tarea, fecha);
+            setSelectedInspectionData(inspectionData);
+            setIsInspectionModalOpen(true);
+        }
     };
 
     // Lógica específica de la SEMANA: sumar/restar 7 días
@@ -184,6 +270,15 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
                 // Filtrar las tareas según el filtro activo
                 const tareasFiltradas = filtrarTareas(diaItem.tareas);
                 
+                // Calcular la fecha exacta del día
+                const dayDate = new Date(currentDate);
+                const currentDay = currentDate.getDay();
+                const diffToMonday = currentDay === 0 ? 6 : currentDay - 1;
+                const startOfWeek = new Date(currentDate);
+                startOfWeek.setDate(currentDate.getDate() - diffToMonday);
+                const exactDate = new Date(startOfWeek);
+                exactDate.setDate(startOfWeek.getDate() + index);
+                
                 return (
                   <div key={index} className="flex flex-col h-full">
                     {/* Cabecera de la Columna (Día y Número) */}
@@ -215,8 +310,10 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
                         {tareasFiltradas.map((tarea) => (
                           <div
                             key={tarea.id}
+                            onClick={() => handleTaskClick(tarea, exactDate)}
                             className={`
                               relative p-3 rounded-r-xl rounded-l-sm border-l-[6px] shadow-sm cursor-pointer hover:opacity-90 transition-opacity
+                              ${tarea.tipo === 'mantenimiento' || tarea.tipo === 'inspeccion' ? 'hover:shadow-md hover:scale-[1.02] transition-all' : ''}
                               ${cardColors[tarea.color as keyof typeof cardColors]}
                             `}
                           >
@@ -227,6 +324,13 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
                               <p className="text-xs text-gray-600 font-medium">
                                 {tarea.area}
                               </p>
+                            )}
+                            {/* Indicador visual para tareas clickeables */}
+                            {tarea.tipo === 'mantenimiento' && (
+                              <div className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full opacity-60"></div>
+                            )}
+                            {tarea.tipo === 'inspeccion' && (
+                              <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full opacity-60"></div>
                             )}
                           </div>
                         ))}
@@ -272,6 +376,20 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
 
       </div>
     </div>
+
+    {/* Modal de Resumen de Mantenimiento */}
+    <MaintenanceSummaryModal
+      open={isMaintenanceModalOpen}
+      onClose={() => setIsMaintenanceModalOpen(false)}
+      data={selectedMaintenanceData}
+    />
+
+    {/* Modal de Resumen de Inspección */}
+    <InspectionSummaryModal
+      open={isInspectionModalOpen}
+      onClose={() => setIsInspectionModalOpen(false)}
+      data={selectedInspectionData}
+    />
     </div>
   )
 };
