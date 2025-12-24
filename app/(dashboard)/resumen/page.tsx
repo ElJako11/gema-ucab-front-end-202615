@@ -180,7 +180,7 @@ const resumen = () => {
             </div>
             <div className="w-full flex justify-end items-center gap-4 mb-4">
                 {/* Navegación de Meses */}
-                <DateNavigator label='Mes' onPrev={handlePrevMonth} onNext={handleNextMonth}></DateNavigator>
+                <DateNavigator label={vistaActual === 'mensual' ? 'Mes' : 'Semana'} onPrev={handlePrev} onNext={handleNext}></DateNavigator>
                 {/* Boton de filtro dinamico */}
                 <DropdownFilter 
                     opciones={opcionesFiltro}
