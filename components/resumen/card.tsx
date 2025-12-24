@@ -1,11 +1,16 @@
-import { MapPin, Calendar } from "lucide-react";
+import { 
+    MapPin, 
+    Calendar,
+    FileSearchCorner, 
+    FileCog
+} from "lucide-react";
 
 interface MaintenanceCardProps {
   title: string;
   location: string; 
   date: string;
   status: 'No empezado' | 'Reprogramado' | 'En ejecucion' | 'Culminado';
-  isSelected?: boolean; // Para el borde azul cuando está seleccionada
+  type: 'Mantenimiento' | 'Inspección';
   onClick?: () => void;
 }
 
@@ -14,7 +19,7 @@ const Card = ({
     location, 
     date, 
     status, 
-    isSelected = false, 
+    type,
     onClick 
 }: MaintenanceCardProps) => {
     // Diccionario para asignar colores según el estado
@@ -32,9 +37,12 @@ const Card = ({
         `}>
             {/* Columna Izquierda: Información */}
             <div className="flex flex-col gap-2">
-                <h3 className="font-bold text-lg">{title}</h3>
+                <div className="flex justify-between gap-x-2">
+                    {type === "Mantenimiento" ? <FileCog ></FileCog> : <FileSearchCorner ></FileSearchCorner>}
+                    <h3 className="font-bold text-lg">{title}</h3>
+                </div>
                 
-                <div className="flex flex-col gap-1 text-sm ml-1">
+                <div className="flex flex-col gap-1 text-sm ml-6">
                 {/* Fila de Ubicación */}
                 <div className="flex items-center gap-2">
                     <MapPin size={16}></MapPin>

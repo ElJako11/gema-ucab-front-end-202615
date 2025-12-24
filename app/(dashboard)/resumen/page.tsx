@@ -17,6 +17,7 @@ const tasks = [
       title: "Mantenimiento de Aire Acondicionado",
       location: " M1-P01 Módulo 1 Piso 1",
       date: "Martes 4 de Noviembre de 2025",
+      type: "Mantenimiento",
       status: "No empezado"
     },
     {
@@ -24,15 +25,25 @@ const tasks = [
       title: "Instalación de Circuito Eléctrico",
       location: " M2-P2 Módulo 2 Piso 2",
       date: "Miercoles 5 de Noviembre de 2025",
-      status: "Reprogramado"
+      status: "Reprogramado",
+      type: "Inspección"
     },
      {
       id: 3,
       title: "Mantenimiento Preventivo HVAC",
       location: " M2-P2 Módulo 2 Piso 1",
       date: "Jueves 6 de Noviembre de 2025",
-      status: "En ejecucion"
-    },
+      status: "En ejecucion",
+      type: "Mantenimiento"
+    }, 
+    {
+      id: 4,
+      title: "Inspección de Sistemas de Seguridad",
+      location: " M1-P01 Módulo 1 Piso 3",
+      date: "Viernes 7 de Noviembre de 2025",
+      status: "Culminado",
+      type: "Inspección"
+    } 
 ];
 
 /*Nombres de los meses */
@@ -115,6 +126,7 @@ const resumen = () => {
                         location={task.location}
                         date={task.date}
                         status={task.status as any} // Casting simple si TypeScript se queja
+                        type={task.type as any}
                     />
                     ))}
                 </div>
