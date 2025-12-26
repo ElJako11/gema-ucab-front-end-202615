@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { getChecklistItems } from "@/lib/api/checklist";
 
-export const useGetAllChecklistItem = (type: string, checklistId: number) => {
+export const useGetAllChecklistItem = (checklistId: number) => {
     return useQuery({
-        queryKey: ["checklistItems", type, checklistId],      
-        queryFn: () => getChecklistItems(type, checklistId),
+        queryKey: ["checklistItems",checklistId],      
+        queryFn: () => getChecklistItems(checklistId),
     });
 };  

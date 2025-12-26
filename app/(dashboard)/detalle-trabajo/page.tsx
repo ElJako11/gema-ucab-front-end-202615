@@ -17,7 +17,7 @@ const ChecklistPage = () => {
   const type = "inspecciones"; 
 
   //Usar el hook para traer los datos del Backend
-  const { data: checklist, isLoading, isError } = useGetAllChecklistItem(type, id);
+  const { data: checklist, isLoading, isError } = useGetAllChecklistItem(id);
 
   // Estado para controlar qué vista mostrar
   // false = Muestra el detalle general
