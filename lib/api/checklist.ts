@@ -11,10 +11,14 @@ export async function deleteChecklistItem(checklistId: number,checklistItemId: n
   return apiClient.delete(`/item-checklist/${checklistId}/${checklistItemId}`);
 }
 
+export async function createChecklist(nombre: string) {
+  return apiClient.post<Checklist>(`/checklist`, { nombre });
+}
+
 export async function createChecklistItem(checklistId: number, data: Actividad) {
   return apiClient.post<Checklist>(`/item-checklist/${checklistId}/item`, data);
 }
 
-export async function updateChecklistItem(checklistId: number,data: Actividad) {
+export async function updateChecklistItem(checklistId: number, data: Actividad) {
   return apiClient.put<Checklist>(`/item-checklist/${checklistId}`, data);
 }
