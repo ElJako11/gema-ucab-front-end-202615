@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -41,9 +43,9 @@ const EditUbicacionForm: React.FC<EditUbicacionProps> = ({
 
     // ✅ Usar hook de actualización con tipado correcto
     updateMutation.mutate(
-      { 
-        id: idUbicacion, 
-        data: { descripcion: descripcion.trim() } 
+      {
+        id: idUbicacion,
+        data: { descripcion: descripcion.trim() }
       },
       {
         onSuccess: () => {

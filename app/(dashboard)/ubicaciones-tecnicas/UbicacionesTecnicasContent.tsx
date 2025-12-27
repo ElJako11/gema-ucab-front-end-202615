@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   CirclePlus,
   Building,
@@ -9,21 +8,10 @@ import {
   Trash,
   FileSpreadsheet
 } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
 import FormNuevaUbicacion from "@/components/forms/ubicaciones-tecnicas/FormNuevaUbicacion";
 import { Button } from "@/components/ui/button";
 import EditUbicacionForm from "@/components/forms/ubicaciones-tecnicas/EditUbicacionForm";
-
-import {
-  deleteUbicacionTecnica,
-  // getUbicacionesDependientes,
-  // getPadresDeUbicacion,
-} from "@/lib/api/ubicacionesTecnicas";
-import {
-  getPadresDeUbicacionMock as getPadresDeUbicacion,
-  getUbicacionesDependientesMock as getUbicacionesDependientes,
-} from "./mockServices";
-
 import {
   Accordion,
   AccordionContent,
@@ -36,63 +24,43 @@ import type {
   PadreUbicacion,
 } from "@/types/models/ubicacionesTecnicas.types";
 import VerManualDialog from "@/components/VerManualDialog";
-import { mockUbicaciones } from "./mockData";
 import { UbicacionHierarchy } from "./components/UbicacionHierarchy";
 import { UbicacionesFilters } from "./components/UbicacionesFilters";
 import { NIVELES, type Filters } from "./components/constants";
-import { DialogTitle } from "@/components/ui/dialog";
 
+// ✅ Imports de hooks organizados
+import {
+  useUbicaciones,
+  useUbicacionPadres,
+  useUbicacionDependientes
+} from "@/hooks/ubicaciones-tecnicas/useUbicaciones";
+import { useCreateUbicacion } from "@/hooks/ubicaciones-tecnicas/useCreateUbicacion";
+import { useUpdateUbicacion } from "@/hooks/ubicaciones-tecnicas/useUpdateUbicacion";
+import { useDeleteUbicacion } from "@/hooks/ubicaciones-tecnicas/useDeleteUbicacion";
 
-const UbicacionesTecnicas: React.FC = () => {
+export default function UbicacionesTecnicasContent() {
+  // =================== HOOKS DE ESTADO LOCAL ===================
+
   // Estados para modales
-  const [ubicacionParaEditar, setUbicacionParaEditar] =
-    useState<UbicacionTecnica | null>(null);
+  const [ubicacionParaEditar, setUbicacionParaEditar] = useState<UbicacionTecnica | null>(null);
   const [open, setOpen] = useState(false);
-  const [borrarUbicacion, setBorrarUbicacion] =
-    useState<UbicacionTecnica | null>(null);
+  const [borrarUbicacion, setBorrarUbicacion] = useState<UbicacionTecnica | null>(null);
   const [verDetalle, setVerDetalle] = useState<UbicacionTecnica | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
 
-  // ✅ CORREGIDO: localStorage en useEffect
-  useEffect(() => {
-    const hasLoaded = localStorage.getItem("haCargadoUbicaciones");
-    setManualOpen(!hasLoaded);
-  }, []);
-
-  // ✅ CORREGIDO: Manejo mejorado del manual
-  const handleManualClose = (isOpen: boolean) => {
-    if (!isOpen) {
-      try {
-        localStorage.setItem("haCargadoUbicaciones", "true");
-      } catch (error) {
-        console.error("Error al guardar en localStorage:", error);
-      }
-      setManualOpen(false);
-    } else {
-      setManualOpen(true);
-    }
-  };
-
-  const { data: padresData, isLoading: isLoadingPadres } = useQuery({
-    queryKey: ["padresUbicacion", verDetalle?.idUbicacion],
-    queryFn: () =>
-      verDetalle
-        ? getPadresDeUbicacion(verDetalle.idUbicacion)
-        : Promise.resolve({
-          data: [],
-          success: true
-        }),
-    enabled: !!verDetalle,
+  // Estados para filtros
+  const [filters, setFilters] = useState<Filters>({
+    modulo: "",
+    planta: "",
+    espacio: "",
+    tipo: "",
+    subtipo: "",
+    numero: "",
+    pieza: "",
   });
 
-  const dependencias = useQuery({
-    queryFn: () =>
-      getUbicacionesDependientes(borrarUbicacion?.idUbicacion || 0),
-    queryKey: ["ubicacionesDependientes", borrarUbicacion?.idUbicacion],
-    enabled: !!borrarUbicacion,
-  });
-
+  // Estados para formulario
   const [formValues, setFormValues] = useState({
     modulo: "",
     planta: "",
@@ -106,52 +74,75 @@ const UbicacionesTecnicas: React.FC = () => {
 
   const [displayedLevels, setDisplayedLevels] = useState<number>(1);
 
+  // ✅ localStorage en useEffect
+  useEffect(() => {
+    const hasLoaded = localStorage.getItem("haCargadoUbicaciones");
+    setManualOpen(!hasLoaded);
+  }, []);
+
+  // ✅ Manejo del manual
+  const handleManualClose = (isOpen: boolean) => {
+    if (!isOpen) {
+      try {
+        localStorage.setItem("haCargadoUbicaciones", "true");
+      } catch (error) {
+        console.error("Error al guardar en localStorage:", error);
+      }
+      setManualOpen(false);
+    } else {
+      setManualOpen(true);
+    }
+  };
+
+  // =================== HOOKS DE API ===================
+
+  // ✅ Usando hooks organizados
+  const { data, error, isLoading } = useUbicaciones();
+  const { data: padresData, isLoading: isLoadingPadres } = useUbicacionPadres(verDetalle?.idUbicacion);
+  const dependencias = useUbicacionDependientes(borrarUbicacion?.idUbicacion);
+
+  // ✅ Hooks de mutación
+  // const createMutation = useCreateUbicacion(); // Se usa dentro del formulario, pero aquí importamos para coherencia si se necesitara
+  // const updateMutation = useUpdateUbicacion(); // Idem
+  const deleteMutation = useDeleteUbicacion();
+
+  // =================== HOOKS DE LÓGICA LOCAL ===================
+
   const initializeFormValues = (codigo: string) => {
+    console.log("🔧 Inicializando formulario desde código:", codigo);
+
     const nivelesExtraidos = codigo.split("-");
+    console.log("📋 Niveles extraídos:", nivelesExtraidos);
+
     const valoresIniciales = { ...formValues };
     let levelAmount = 0;
+
     NIVELES.forEach((nivel, index) => {
-      valoresIniciales[nivel] = nivelesExtraidos[index] || "";
-      if (nivelesExtraidos[index]) levelAmount++;
+      const valor = nivelesExtraidos[index] || "";
+      valoresIniciales[nivel] = valor;
+      if (valor) levelAmount++;
+      console.log(`📝 Nivel ${index + 1} (${nivel}): "${valor}"`);
     });
+
+    const newDisplayedLevels = Math.min(levelAmount + 1, NIVELES.length);
+
+    console.log("🎯 Configuración final:", {
+      valoresIniciales,
+      levelAmount,
+      newDisplayedLevels,
+      abrirModal: true
+    });
+
     setFormValues(valoresIniciales);
-    setDisplayedLevels(Math.min(levelAmount + 1, NIVELES.length));
+    setDisplayedLevels(newDisplayedLevels);
     setOpen(true);
   };
 
-  // const { data, error, isLoading } = useQuery({
-  //   queryKey: ["ubicacionesTecnicas"],
-  //   queryFn: getUbicacionesTecnicas,
-  // });
+  // Hook personalizado para manejar la jerarquía y filtrado
+  const { flatUbicaciones, filteredData } = useMemo(() => {
+    if (!data) return { flatUbicaciones: [], filteredData: [] };
 
-  const data = { data: mockUbicaciones };
-  const error = null;
-  const isLoading = false;
-
-  const queryClient = useQueryClient();
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteUbicacionTecnica,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["ubicacionesTecnicas"] });
-      setBorrarUbicacion(null);
-      toast.success("Ubicación técnica eliminada correctamente");
-    },
-    onError: () => toast.error("Error al eliminar ubicación técnica"),
-  });
-
-  const [filters, setFilters] = useState<Filters>({
-    modulo: "",
-    planta: "",
-    espacio: "",
-    tipo: "",
-    subtipo: "",
-    numero: "",
-    pieza: "",
-  });
-
-  const flatUbicaciones = React.useMemo(() => {
-    if (!data?.data) return [];
+    // Aplanar ubicaciones
     const flatten = (nodes: UbicacionTecnica[]): UbicacionTecnica[] => {
       let list: UbicacionTecnica[] = [];
       for (const node of nodes) {
@@ -164,12 +155,13 @@ const UbicacionesTecnicas: React.FC = () => {
       }
       return list;
     };
-    return flatten(data.data);
-  }, [data]);
 
-  const filteredData = React.useMemo(() => {
-    if (!data?.data) return [];
-    if (!Object.values(filters).some(Boolean)) return data.data;
+    const flatUbicaciones = flatten(data);
+
+    // Filtrar datos
+    if (!Object.values(filters).some(Boolean)) {
+      return { flatUbicaciones, filteredData: data };
+    }
 
     const filterTree = (nodes: UbicacionTecnica[]): UbicacionTecnica[] => {
       return nodes.reduce((acc, node) => {
@@ -186,8 +178,12 @@ const UbicacionesTecnicas: React.FC = () => {
       }, [] as UbicacionTecnica[]);
     };
 
-    return filterTree(data.data);
+    const filteredData = filterTree(data);
+
+    return { flatUbicaciones, filteredData };
   }, [data, filters]);
+
+
 
   const countChildren = (node: UbicacionTecnica): number => {
     if (!node.children || node.children.length === 0) return 0;
@@ -197,7 +193,7 @@ const UbicacionesTecnicas: React.FC = () => {
     );
   };
 
-  // ✅ CORREGIDO: Exportación simplificada
+  // ✅ Exportación simplificada
   const handleExportExcel = async () => {
     setIsExporting(true);
     try {
@@ -255,13 +251,25 @@ const UbicacionesTecnicas: React.FC = () => {
     }
   };
 
+  // =================== HANDLERS ===================
+
   const handleEditarClick = (detalle: UbicacionTecnica | null) => {
     setUbicacionParaEditar(detalle);
   };
 
   const handleCerrarEditar = () => {
     setUbicacionParaEditar(null);
-    queryClient.invalidateQueries({ queryKey: ["ubicacionesTecnicas"] });
+    // Los hooks ya manejan la invalidación automáticamente
+  };
+
+  const handleDeleteUbicacion = () => {
+    if (borrarUbicacion) {
+      deleteMutation.mutate(borrarUbicacion.idUbicacion, {
+        onSuccess: () => {
+          setBorrarUbicacion(null);
+        }
+      });
+    }
   };
 
   if (isLoading)
@@ -283,16 +291,26 @@ const UbicacionesTecnicas: React.FC = () => {
       />
 
       <div className="flex flex-col md:flex-row gap-2 mb-6">
-        <Dialog open={open && !manualOpen} onOpenChange={setOpen}>
-
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gema-green/80 hover:bg-gema-green ">
+            <Button
+              className="bg-gema-green/80 hover:bg-gema-green"
+              onClick={() => {
+                // Limpiar formulario para nueva ubicación desde cero
+                setFormValues({
+                  modulo: "", planta: "", espacio: "", tipo: "",
+                  subtipo: "", numero: "", pieza: "", descripcion: ""
+                });
+                setDisplayedLevels(1);
+                console.log("🆕 Creando nueva ubicación desde cero");
+              }}
+            >
               <CirclePlus className="mr-2 h-4 w-4" />
               Crear nueva ubicación
             </Button>
           </DialogTrigger>
           <FormNuevaUbicacion
-            open={open && !manualOpen}
+            open={open}
             onClose={() => setOpen(false)}
             formValues={formValues}
             setFormValues={setFormValues}
@@ -442,11 +460,7 @@ const UbicacionesTecnicas: React.FC = () => {
                 <Button
                   variant="destructive"
                   className="bg-red-500 hover:bg-red-600 text-black w-full sm:w-auto"
-                  onClick={() => {
-                    if (borrarUbicacion) {
-                      deleteMutation.mutate(borrarUbicacion.idUbicacion);
-                    }
-                  }}
+                  onClick={handleDeleteUbicacion}
                   disabled={deleteMutation.isPending}
                 >
                   {deleteMutation.isPending ? (
@@ -465,7 +479,6 @@ const UbicacionesTecnicas: React.FC = () => {
       {/* Modal de edición */}
       {ubicacionParaEditar && (
         <EditUbicacionForm
-
           open={!!ubicacionParaEditar}
           onClose={handleCerrarEditar}
           idUbicacion={ubicacionParaEditar.idUbicacion}
@@ -528,6 +541,4 @@ const UbicacionesTecnicas: React.FC = () => {
       )}
     </div>
   );
-};
-
-export default UbicacionesTecnicas;
+}

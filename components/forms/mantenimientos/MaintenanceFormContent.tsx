@@ -9,6 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { mantenimientoSchema, type MantenimientoFormData } from "@/lib/validations/mantenimientoSchema";
 import { useCreateMantenimiento } from "@/hooks/mantenimientos/useCreateMantenimientos";
+import { useUbicaciones } from "@/hooks/ubicaciones-tecnicas/useUbicaciones";
+import { ComboSelectInput } from "@/components/ui/comboSelectInput";
+import { useSupervisores } from "@/hooks/usuarios/useUsuarios";
 
 interface MaintenanceFormContentProps {
     initialValues?: Partial<MantenimientoFormData>;
@@ -16,15 +19,14 @@ interface MaintenanceFormContentProps {
     onSuccess?: () => void;
 }
 
-export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({ 
-    initialValues, 
-    onClose, 
-    onSuccess 
+export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
+    initialValues,
+    onClose,
+    onSuccess
 }) => {
-    const [frequency, setSelectedFrequency] = useState<"unico" | "periodico">(
-        (initialValues?.repeticion as "unico" | "periodico") || 'unico'
-    );
     const createMantenimientoMutation = useCreateMantenimiento();
+    const { data: ubicaciones } = useUbicaciones();
+    const { supervisores, isLoading: isLoadingSupervisores } = useSupervisores();
 
     const form = useForm<MantenimientoFormData>({
         resolver: zodResolver(mantenimientoSchema),
@@ -38,14 +40,15 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
             tipoMantenimiento: initialValues?.tipoMantenimiento || 'Periodico',
             repeticion: initialValues?.repeticion || 'unico',
             frecuencia: initialValues?.frecuencia,
-            idUbicacionTecnica: initialValues?.idUbicacionTecnica || 1,
+            idUbicacionTecnica: initialValues?.idUbicacionTecnica || 0, // 0 as empty/initial
             idGrupo: initialValues?.idGrupo || 1,
             especificacion: initialValues?.especificacion || ''
         }
     });
 
-    // Array de supervisores (mismo que en inspecciones)
-    const encargados = ['Juan Pérez', 'Maria Garcia', 'Carlos Lopez', 'Ana Rodriguez'];
+    const tipoMantenimiento = form.watch("tipoMantenimiento");
+
+    // eliminar array de encargados hardcoded
 
     const onSubmit = (data: MantenimientoFormData) => {
         // Mapear los datos del formulario al formato que espera el backend
@@ -58,6 +61,8 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
             fechaLimite: data.fechaFin,
             frecuencia: data.frecuencia || "Mensual",
             tipoMantenimiento: data.tipoMantenimiento,
+            repeticion: data.tipoMantenimiento === 'Periodico' ? 'periodico' : 'unico',
+            estado: 'no_empezado' as const, // Default
             especificacion: data.especificacion
         };
 
@@ -90,6 +95,31 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                     />
                 </div>
 
+                {/* Ubicación Técnica */}
+                <div className="col-span-2">
+                    <FormField
+                        control={form.control}
+                        name="idUbicacionTecnica"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                                <FormLabel>Ubicación Técnica</FormLabel>
+                                <FormControl>
+                                    <ComboSelectInput
+                                        value={field.value?.toString() || ""}
+                                        onChange={(val) => field.onChange(Number(val))}
+                                        options={ubicaciones?.map(u => ({
+                                            value: u.idUbicacion.toString(),
+                                            label: `${u.codigo_Identificacion} - ${u.descripcion}`
+                                        })) || []}
+                                        placeholder="Buscar ubicación..."
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
                 <div className="grid grid-cols-2 gap-6 my-2">
                     {/* Prioridad */}
                     <FormField
@@ -115,31 +145,6 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                         )}
                     />
 
-                    {/* Estado */}
-                    <FormField
-                        control={form.control}
-                        name="estado"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Estado</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Seleccionar estado" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="no_empezado">No empezado</SelectItem>
-                                        <SelectItem value="reprogramado">Reprogramado</SelectItem>
-                                        <SelectItem value="en_ejecucion">En ejecución</SelectItem>
-                                        <SelectItem value="culminado">Culminado</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
                     {/* Supervisor */}
                     <FormField
                         control={form.control}
@@ -154,8 +159,10 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {encargados.map((enc) => (
-                                            <SelectItem key={enc} value={enc}>{enc}</SelectItem>
+                                        {supervisores?.map((supervisor: any) => (
+                                            <SelectItem key={supervisor.Id} value={supervisor.Nombre}>
+                                                {supervisor.Nombre}
+                                            </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
@@ -208,7 +215,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <SelectItem value="Periodico">Preventivo</SelectItem>
+                                        <SelectItem value="Periodico">Periódico</SelectItem>
                                         <SelectItem value="Condicion">Por Condición</SelectItem>
                                     </SelectContent>
                                 </Select>
@@ -217,34 +224,8 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                         )}
                     />
 
-                    {/* Repetición */}
-                    <FormField
-                        control={form.control}
-                        name="repeticion"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Repetición</FormLabel>
-                                <Select onValueChange={(value) => {
-                                    field.onChange(value);
-                                    setSelectedFrequency(value as "unico" | "periodico");
-                                }} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Tipo de repetición" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="unico">Único</SelectItem>
-                                        <SelectItem value="periodico">Periódico</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
                     {/* Frecuencia (solo si es periódico) */}
-                    {frequency === "periodico" && (
+                    {tipoMantenimiento === "Periodico" && (
                         <FormField
                             control={form.control}
                             name="frecuencia"
@@ -282,10 +263,10 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                         <FormItem>
                             <FormLabel>Especificación</FormLabel>
                             <FormControl>
-                                <Textarea 
+                                <Textarea
                                     placeholder="Describe las tareas específicas del mantenimiento..."
                                     className="min-h-[100px]"
-                                    {...field} 
+                                    {...field}
                                 />
                             </FormControl>
                             <FormMessage />
@@ -295,16 +276,16 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
 
                 <div className="flex justify-end gap-2 mt-4">
                     {onClose && (
-                        <Button 
-                            type="button" 
-                            variant="outline" 
+                        <Button
+                            type="button"
+                            variant="outline"
                             onClick={onClose}
                             disabled={createMantenimientoMutation.isPending}
                         >
                             Cancelar
                         </Button>
                     )}
-                    <Button 
+                    <Button
                         type="submit"
                         className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground"
                         disabled={createMantenimientoMutation.isPending}
