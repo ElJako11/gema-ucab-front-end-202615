@@ -45,6 +45,19 @@ const Tecnicos = () => {
   const { data: tecnicosData, isLoading: isLoadingTecnicos } = useQuery({
     queryKey: ["tecnicos"],
     queryFn: tecnicosAPI.getAll,
+    select: (data) => {
+      // Debug: Ver la respuesta de la API de técnicos
+      console.log("Respuesta API técnicos:", data);
+      
+      // La API devuelve { data: [...] } con estructura: { idTecnico, idGT, nombre }
+      if (data?.data) {
+        console.log("✅ API devuelve objeto con propiedad data");
+        return data;
+      }
+      
+      console.log("❌ Estructura inesperada");
+      return { data: [] };
+    }
   });
 
   const { data: gruposData, isLoading: isLoadingGrupos } = useQuery({
@@ -69,12 +82,13 @@ const Tecnicos = () => {
   if (trabajadoresData && gruposData?.data) {
     Object.entries(trabajadoresData).forEach(([grupoId, usuarios]) => {
       usuarios.forEach((usuario) => {
-        if (!tecnicoGruposMap[usuario.Id]) {
-          tecnicoGruposMap[usuario.Id] = [];
+        // Usar idTecnico en lugar de Id
+        if (!tecnicoGruposMap[usuario.idTecnico]) {
+          tecnicoGruposMap[usuario.idTecnico] = [];
         }
         const grupo = gruposData.data.find((g) => g.id === Number(grupoId));
         if (grupo) {
-          tecnicoGruposMap[usuario.Id].push(grupo);
+          tecnicoGruposMap[usuario.idTecnico].push(grupo);
         }
       });
     });
@@ -130,22 +144,22 @@ const Tecnicos = () => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {tecnicos.map((tecnico) => (
-              <tr key={tecnico.Id} className="hover:bg-gray-50">
+              <tr key={tecnico.idTecnico} className="hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                  {tecnico.Nombre}
+                  {tecnico.nombre}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">
-                  {tecnico.Correo}
+                  {tecnico.correo || "No disponible"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button
                         className="flex items-center justify-center border-2 border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-300 transition px-4 py-2 min-w-[120px]"
-                        onClick={() => setModalTecnicoId(tecnico.Id)}
+                        onClick={() => setModalTecnicoId(tecnico.idTecnico)}
                       >
-                        {tecnicoGruposMap[tecnico.Id]?.length || 0} grupo
-                        {(tecnicoGruposMap[tecnico.Id]?.length || 0) !== 1 ? 's' : ''}
+                        {tecnicoGruposMap[tecnico.idTecnico]?.length || 0} grupo
+                        {(tecnicoGruposMap[tecnico.idTecnico]?.length || 0) !== 1 ? 's' : ''}
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -162,18 +176,18 @@ const Tecnicos = () => {
       {/* Vista móvil (opcional) */}
       <div className="md:hidden space-y-4">
         {tecnicos.map((tecnico) => (
-          <div key={tecnico.Id} className="bg-white p-4 rounded-lg border border-gray-200">
+          <div key={tecnico.idTecnico} className="bg-white p-4 rounded-lg border border-gray-200">
             <div className="space-y-2">
               <div>
-                <p className="font-medium text-gray-900">{tecnico.Nombre}</p>
-                <p className="text-sm text-gray-600">{tecnico.Correo}</p>
+                <p className="font-medium text-gray-900">{tecnico.nombre}</p>
+                <p className="text-sm text-gray-600">{tecnico.correo || "No disponible"}</p>
               </div>
               <button
                 className="w-full border-2 border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-300 transition px-4 py-2 text-sm"
-                onClick={() => setModalTecnicoId(tecnico.Id)}
+                onClick={() => setModalTecnicoId(tecnico.idTecnico)}
               >
-                {tecnicoGruposMap[tecnico.Id]?.length || 0} grupo
-                {(tecnicoGruposMap[tecnico.Id]?.length || 0) !== 1 ? 's' : ''}
+                {tecnicoGruposMap[tecnico.idTecnico]?.length || 0} grupo
+                {(tecnicoGruposMap[tecnico.idTecnico]?.length || 0) !== 1 ? 's' : ''}
               </button>
             </div>
           </div>

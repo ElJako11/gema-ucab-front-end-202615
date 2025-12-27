@@ -152,9 +152,11 @@ const FormNuevaUbicacion: React.FC<Props> = ({
   const [padres, setPadres] = useState<(string | number | null)[]>([null]);
 
   // ✅ Hook para obtener posibles padres (solo cuando es equipo)
-  const { data: posiblesPadres, isLoading: loadingPadres } = useUbicacionesPorNivel(
+  const { data: posiblesPadresResponse, isLoading: loadingPadres, isError: errorPadres } = useUbicacionesPorNivel(
     displayedLevels > 1 ? displayedLevels - 1 : 1
   );
+
+  const posiblesPadres = posiblesPadresResponse?.data || [];
 
   // Verificar si el último nivel es válido
   const isLastLevelValid = selectedItems[displayedLevels] !== undefined;
@@ -388,11 +390,11 @@ const FormNuevaUbicacion: React.FC<Props> = ({
                   Si aplica, indica los espacios donde el equipo brinda servicio, además de su ubicación física
                 </p>
                 <div className="space-y-2">
-                  {posiblesPadres.isLoading ? <LoaderCircle className="animate-spin h-5 w-5" />
-                    : posiblesPadres.isError ? <p className="text-red-600 text-sm">Error al cargar ubicaciones.</p>
+                  {loadingPadres ? <LoaderCircle className="animate-spin h-5 w-5" />
+                    : errorPadres ? <p className="text-red-600 text-sm">Error al cargar ubicaciones.</p>
                       : (
                         <>
-                          {padres.filter((p) => p !== null).map((p) => posiblesPadres.data?.data.find(ubicacion => ubicacion.idUbicacion == p)).map((ubicacion) => (
+                          {padres.filter((p) => p !== null).map((p) => posiblesPadres.find((ubicacion: UbicacionTecnica) => ubicacion.idUbicacion == p)).map((ubicacion: UbicacionTecnica | undefined) => (
                             <div key={ubicacion?.idUbicacion} className="flex space-x-3 items-center bg-slate-200 rounded px-2 mb-3">
                               <span className="text-sm text-neutral-700">{ubicacion?.codigo_Identificacion}</span>
                               <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-slate-100 px-1"
@@ -403,7 +405,7 @@ const FormNuevaUbicacion: React.FC<Props> = ({
                           ))}
                           <Combobox
                             triggerClassName="w-4/5" contentClassName="w-full"
-                            data={posiblesPadres.data?.data.filter(ubicacion => !generarCodigo(formValues).includes(ubicacion.codigo_Identificacion) && !padres.includes(String(ubicacion.idUbicacion))).map((ubicacion) => ({
+                            data={posiblesPadres.filter((ubicacion: UbicacionTecnica) => !generarCodigo(formValues).includes(ubicacion.codigo_Identificacion) && !padres.includes(String(ubicacion.idUbicacion))).map((ubicacion: UbicacionTecnica) => ({
                               value: ubicacion.idUbicacion, label: `${ubicacion.codigo_Identificacion} - ${ubicacion.descripcion}`,
                             })) || []}
                             value={padres.at(-1) || null}
@@ -422,8 +424,8 @@ const FormNuevaUbicacion: React.FC<Props> = ({
 
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={closeModal} className="px-4 md:px-8">Cancelar</Button>
-        <Button className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground px-4 md:px-8" onClick={onSubmit} disabled={status === "pending" || createMutation.isPending}>
-          {status === "pending" ? "Creando..." : "Crear Ubicación"}
+        <Button className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground px-4 md:px-8" onClick={onSubmit} disabled={createMutation.isPending}>
+          {createMutation.isPending ? "Creando..." : "Crear Ubicación"}
         </Button>
       </div>
     </Modal>
