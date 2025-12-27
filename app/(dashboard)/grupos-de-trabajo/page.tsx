@@ -16,8 +16,6 @@ import { useGrupos } from "@/hooks/grupos-trabajo/useGrupoTrabajo";
 import { useTrabajadoresPorGrupo } from "@/hooks/grupos-trabajo/useTrabajadoresPorGrupo";
 import { tecnicosAPI } from "@/lib/api/tecnicos";
 import { useQuery } from "@tanstack/react-query";
-import type { Usuario } from "@/types/usuarios.types";
-import type { Tecnico } from "@/types/models/tecnicos.types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CreateGrupoForm } from "@/components/forms/grupos/CreateGrupoForm";
 import { GestionTecnicosForm } from "@/components/forms/grupos/GestionTecnicosForm";

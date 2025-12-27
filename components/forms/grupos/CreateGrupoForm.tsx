@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useCreateGrupo } from "@/hooks/grupos-trabajo/useCreateGrupo";
-import { useTecnicos } from "@/hooks/tecnicos/useTecnicos";
+import { useSupervisores } from "@/hooks/usuarios/useUsuarios";
 import { Combobox } from "@/components/ui/combobox";
 
 const grupoTrabajoSchema = z.object({
@@ -38,7 +38,7 @@ export const CreateGrupoForm: React.FC<CreateGrupoFormProps> = ({
   });
 
   const createGrupoMutation = useCreateGrupo();
-  const { tecnicos, isLoading: isLoadingTecnicos } = useTecnicos();
+  const { supervisores, isLoading: isLoadingTecnicos } = useSupervisores();
 
   const handleSubmit = (values: z.infer<typeof grupoTrabajoSchema>) => {
     createGrupoMutation.mutate({
@@ -115,9 +115,9 @@ export const CreateGrupoForm: React.FC<CreateGrupoFormProps> = ({
                   <FormLabel>Supervisor</FormLabel>
                   <FormControl>
                     <Combobox
-                      data={tecnicos?.map((tecnico) => ({
-                        value: tecnico.Id,
-                        label: `${tecnico.Nombre} (${tecnico.Correo})`,
+                      data={supervisores?.map((supervisor) => ({
+                        value: supervisor.Id,
+                        label: `${supervisor.Nombre} (${supervisor.Correo})`,
                       })) || []}
                       value={field.value ? Number(field.value) : null}
                       onValueChange={(value) => field.onChange(value ? String(value) : "")}

@@ -2,6 +2,6 @@ export type Usuario = {
   Id: number;
   Nombre: string;
   Correo: string;
-  Tipo: "TECNICO" | "COORDINADOR";
-  Contraseña: string | undefined;
+  Tipo: "DIRECTOR" | "COORDINADOR" | "SUPERVISOR";
+  Contraseña?: string; // Opcional para mayor flexibilidad
 };
