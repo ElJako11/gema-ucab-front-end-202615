@@ -10,21 +10,27 @@ interface EliminarChecklistItemProps {
     actividad: Actividad | null;
     setActividad: (actividad: Actividad | null) => void;
     onDelete: (id: number) => void;
+    checklistId: number;
 }
 
 const EliminarChecklistItem: React.FC<EliminarChecklistItemProps> = ({
     actividad,
     setActividad,
     onDelete,
+    checklistId
 }) => {
     const deleteGrupoMutation = useEliminarChecklistItem();
 
     const handleDelete = () => {
         if (!actividad) return;
-        deleteGrupoMutation.mutate(actividad.id, {
-        onSuccess: () => {
-            setActividad(null);
-        }
+        deleteGrupoMutation.mutate({
+            checklistId: checklistId, // ID del padre
+            itemId: actividad.id      // ID del hijo
+        }, {
+            onSuccess: () => {
+                if (onDelete) onDelete(actividad.id);
+                setActividad(null); // Cerrar el modal
+            }
         });
     };
 

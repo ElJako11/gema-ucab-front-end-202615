@@ -172,6 +172,7 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
             <EliminarChecklistItem
                 actividad={activityToDelete} 
                 setActividad={setActivityToDelete}
+                checklistId={checklist.id}
                 onDelete={(id) => {
                    console.log("Elemento eliminado:", id);
                 }}

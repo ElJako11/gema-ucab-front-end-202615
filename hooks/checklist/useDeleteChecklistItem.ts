@@ -1,20 +1,24 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteChecklistItem } from "@/lib/api/checklist";
-import { QUERY_KEYS } from "../consts/queryKeys";
-import { toast } from "sonner";
+
+type DeleteParams = {
+    checklistId: number;
+    itemId: number;
+};
 
 export const useEliminarChecklistItem = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: deleteChecklistItem,
+        mutationFn: ({ checklistId, itemId }: DeleteParams) => 
+            deleteChecklistItem(checklistId, itemId),
+
         onSuccess: () => {
-            toast.success("Item del checklist eliminado exitosamente");
-            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CHECKLIST_ITEMS });
+            queryClient.invalidateQueries({ queryKey: ["checklistItems"] });
+            console.log("Elemento eliminado correctamente");
         },
-        onError: (error: Error) => {
-            console.error("Error al eliminar el item del checklist:", error);
-            toast.error(error.message || "Error al eliminar el item del checklist");
+        onError: (error) => {
+            console.error("Error al eliminar:", error);
         }
     });
 }
