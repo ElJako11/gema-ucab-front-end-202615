@@ -1,10 +1,26 @@
 "use client";
 
 import apiClient from "@/lib/api/client";
-import type { Actividad, Checklist } from "@/types/checklist.types";
+import type { Actividad, ApiChecklistResponse, Checklist } from "@/types/checklist.types";
 
 export async function getChecklistItems(checklistId: number) {
-  return apiClient.get<Checklist>(`/checklist/${checklistId}`);
+  const response = await apiClient.get<ApiChecklistResponse>(`/checklists/${checklistId}`);
+
+  const serverData = response.data;
+
+  const checklistAdaptado: Checklist = {
+    id: serverData.idChecklist,
+    titulo: serverData.nombre,
+    ubicacion: "Ubicación no disponible", 
+    tareas: serverData.items.map(item => ({
+      id: item.idItemCheck,
+      nombre: item.titulo,          
+      descripcion: item.descripcion,
+      estado: "PENDIENTE"            // ⚠️ IMPORTANTE: Como la API no trae estado, forzamos uno por defecto
+    }))
+  };
+
+  return checklistAdaptado;
 }
 
 export async function deleteChecklistItem(checklistId: number,checklistItemId: number) {
@@ -12,7 +28,7 @@ export async function deleteChecklistItem(checklistId: number,checklistItemId: n
 }
 
 export async function createChecklist(nombre: string) {
-  return apiClient.post<Checklist>(`/checklist`, { nombre });
+  return apiClient.post<Checklist>(`/checklists`, { nombre });
 }
 
 export async function createChecklistItem(checklistId: number, data: Actividad) {

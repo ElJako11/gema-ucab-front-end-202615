@@ -21,7 +21,7 @@ interface ChecklistProps {
 }
 
 const Checklist = ({ checklist, onBack }: ChecklistProps) => {
-    const [tasks, setTasks] = useState(checklist.tareas);
+    const [tasks, setTasks] = useState(checklist.tareas || []);
     const [activityToDelete, setActivityToDelete] = useState<Actividad | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [activityToEdit, setActivityToEdit] = useState<Actividad | null>(null);
@@ -29,11 +29,12 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
 
     // Actualizar tareas si el checklist cambia
     useEffect(() => {
-        setTasks(checklist.tareas);
+        setTasks(checklist.tareas || []);
     }, [checklist.tareas]);
 
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter(t => t.estado == "COMPLETADA").length;
+    const safeTasks = tasks || []; 
+    const totalTasks = safeTasks.length;
+    const completedTasks = safeTasks.filter(t => t.estado == "COMPLETADA").length;
     const pendingTasks = totalTasks - completedTasks;
     const progressPercentage = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
@@ -165,6 +166,7 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
                 open={isEditModalOpen} 
                 onClose={() => setIsEditModalOpen(false)}
                 actividad={activityToEdit}
+                checklistId={checklist.id}
             />
 
             <EliminarChecklistItem

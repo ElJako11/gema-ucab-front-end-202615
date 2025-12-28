@@ -13,9 +13,6 @@ const ChecklistPage = () => {
   //const id = Number(params.id); // Convertir a número
   const id = 1; // Temporalmente fijo para pruebas  
 
-  // Definir el tipo (esto podrías hacerlo dinámico si tienes inspecciones también)
-  const type = "inspecciones"; 
-
   //Usar el hook para traer los datos del Backend
   const { data: checklist, isLoading, isError } = useGetAllChecklistItem(id);
 

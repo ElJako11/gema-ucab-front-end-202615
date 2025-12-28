@@ -1,14 +1,18 @@
-import type { Actividad } from "@/types/checklist.types";
-import { QUERY_KEYS } from "../consts/queryKeys";
+import type { Actividad } from "@/types/checklist.types";import { QUERY_KEYS } from "../consts/queryKeys";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateChecklistItem } from "@/lib/api/checklist";
+
+type UpdateParams = {
+    checklistId: number;
+    data: Actividad;
+};
 
 export const useUpdateChecklistItem = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: Actividad) => updateChecklistItem(data),
+        mutationFn: ({ checklistId, data }: UpdateParams) => updateChecklistItem(checklistId, data),
         
         onSuccess: () => {
             toast.success("Actividad actualizada correctamente");
