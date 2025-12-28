@@ -15,9 +15,13 @@ export const useCreateChecklistItem = () => {
         mutationFn: ({ checklistId, data }: CreateParams) => 
             createChecklistItem(checklistId, data),
 
-        onSuccess: () => {
+        onSuccess: async () => {
             toast.success("Actividad creada exitosamente");
-            queryClient.invalidateQueries({ queryKey: ["checklistItems"] });
+            // Usamos await para asegurar que se dispare la recarga
+            await queryClient.invalidateQueries({ 
+                queryKey: ["checklistItems"],
+                refetchType: 'active' // Fuerza la recarga inmediata de las consultas activas en pantalla
+            });
         },
         onError: (error) => {
             console.error("Error al crear:", error);

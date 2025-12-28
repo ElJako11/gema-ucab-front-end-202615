@@ -22,7 +22,9 @@ export async function createChecklistItem(checklistId: number, data: Actividad) 
     descripcion: data.descripcion
   };
 
-  return apiClient.post<Checklist>(`/item-checklist`, payload);
+  console.log("Payload para crear actividad:", payload); // Debug
+
+  return apiClient.post<Actividad>(`/item-checklist`, payload);
 }
 
 export async function updateChecklistItem(checklistId: number, data: Actividad) {
@@ -31,5 +33,5 @@ export async function updateChecklistItem(checklistId: number, data: Actividad) 
     descripcion: data.descripcion
   };
 
-  return apiClient.patch<Checklist>(`/item-checklist/${checklistId}/${data.id}`, payload);
+  return apiClient.patch<Actividad>(`/item-checklist/${checklistId}/${data.id}`, payload);
 }

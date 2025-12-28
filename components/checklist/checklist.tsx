@@ -29,6 +29,7 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
 
     // Actualizar tareas si el checklist cambia
     useEffect(() => {
+        console.log("Datos actualizados recibidos:", checklist.tareas); // Debug
         setTasks(checklist.tareas || []);
     }, [checklist.tareas]);
 
