@@ -43,3 +43,7 @@ export async function exportChecklistPDF(checklistId: number) {
     responseType: 'blob'
   });
 }
+
+export async function updateChecklistStatus(idTrabajo: number,checklistId: number, itemId: number) {
+  return apiClient.patch(`/estado-item/${idTrabajo}/${checklistId}/${itemId}`,undefined);
+}

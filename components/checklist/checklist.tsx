@@ -2,7 +2,10 @@ import type { Actividad, Checklist } from "@/types/checklist.types";
 import Card from "./card";
 import { EliminarChecklistItem} from "../forms/checklist/EliminarChecklistItemForm";
 import { AgregarChecklistItemForm } from "../forms/checklist/AgregarChecklistItemForm";
+import { useUpdateChecklistItem } from "@/hooks/checklist/useUpdateChecklistItem";
+import { exportChecklistPDF } from "@/lib/api/checklist";
 import { EditarChecklistItemForm } from "../forms/checklist/EditarChecklistItemForm";
+import { useUpdateStatus } from "@/hooks/checklist/useUpdateStatusChecklistItem";
 import { Button } from "../ui/button";
 
 import { useEffect, useState } from "react";
@@ -14,15 +17,14 @@ import { ArrowLeft,
     Share, 
     Trash2 
 } from "lucide-react";
-import { useUpdateChecklistItem } from "@/hooks/checklist/useUpdateChecklistItem";
-import { exportChecklistPDF } from "@/lib/api/checklist";
 
 interface ChecklistProps {
+    idTrabajo: number;
     checklist: Checklist;
     onBack : () => void;
 }
 
-const Checklist = ({ checklist, onBack }: ChecklistProps) => {
+const Checklist = ({ idTrabajo, checklist, onBack }: ChecklistProps) => {
     const [tasks, setTasks] = useState(checklist.tareas || []);
     const [activityToDelete, setActivityToDelete] = useState<Actividad | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -41,30 +43,31 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
     const pendingTasks = totalTasks - completedTasks;
     const progressPercentage = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
-    const { mutate: updateTask } = useUpdateChecklistItem();
+    const { mutate: updateTask } = useUpdateStatus();
 
 
     //Marcar o desmarcar tarea completada
-    const toggleTask = (id:number) => {
-        // Encontramos la tarea actual para obtener sus datos
-        const taskToUpdate = tasks.find(t => t.id === id);
-        if (!taskToUpdate) return;
+    const toggleTask = (id: number) => {
+        // Buscamos la tarea actual para saber su estado
+        const currentTask = tasks.find(t => t.id === id);
+        if (!currentTask) return;
 
-        // Calculamos el nuevo estado
-        const newStatus = taskToUpdate.estado === "COMPLETADA" ? "PENDIENTE" : "COMPLETADA";
+        // Determinamos el nuevo estado contrario al actual
+        const newStatus = currentTask.estado === "COMPLETADA" ? "PENDIENTE" : "COMPLETADA";
 
+        // PASO A: Actualización Optimista (Visualmente instantáneo)
         setTasks(currentTasks => 
             currentTasks.map(task => 
                 task.id === id ? { ...task, estado: newStatus } : task
             )
         );
 
+        // PASO B: Llamada a la API (Segundo plano)
+        // Solo enviamos el estado, el ID del checklist y el ID del item
         updateTask({
+            trabajoId: idTrabajo,
             checklistId: checklist.id,
-            data: {
-                ...taskToUpdate,
-                estado: newStatus // Enviamos el nuevo estado
-            }
+            itemId: id,
         });
     };
 

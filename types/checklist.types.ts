@@ -5,6 +5,7 @@ export type Actividad = {
     estado: 'COMPLETADA' | 'PENDIENTE';
 }
 export type Checklist = {
+    idTrabajo: number;
     id: number;
     titulo: string;
     ubicacion: string;

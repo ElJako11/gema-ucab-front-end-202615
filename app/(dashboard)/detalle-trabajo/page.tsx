@@ -40,8 +40,10 @@ const ChecklistPage = () => {
 
   return (
         <div>
-            <ChecklistComponent checklist={checklist} 
-                onBack={() => setShowChecklist(false)} // Función para volver 
+            <ChecklistComponent 
+              idTrabajo={checklist.idTrabajo}
+              checklist={checklist} 
+              onBack={() => setShowChecklist(false)} // Función para volver 
             />
         </div>
     )
