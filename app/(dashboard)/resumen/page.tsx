@@ -4,46 +4,58 @@ import { Button } from "@/components/ui/button";
 import DateNavigator from "@/components/ui/dateNavigator";
 import DropdownFilter from "@/components/ui/dropdownFilter";
 import MaintenanceCard from "@/components/resumen/maintenanceCard";
+import type { resumen } from "@/types/resume.types";
+import type { ResumenInspeccion } from "@/types/resumenInspeccion.types";
+import type { ResumenMantenimiento } from "@/types/resumenMantenimiento.type";
 import { 
     Calendar, 
     Upload
 } from "lucide-react";
 import { useState } from "react";
 
-// DATA SIMULADA
-const tasks = [
+//DATA SIMULADA DE MANTENIMIENTOS E INSPECCIONES
+export const resumenData: resumen = {
+  mantenimientos: [
     {
-      id: 1,
-      title: "Mantenimiento de Aire Acondicionado",
-      location: " M1-P01 Módulo 1 Piso 1",
-      date: "Martes 4 de Noviembre de 2025",
-      type: "Mantenimiento",
-      status: "No empezado"
+      idMantenimiento: 1,
+      titulo: "Mantenimiento de Aire Acondicionado",
+      ubicacion: "M1-P01 Módulo 1 Piso 1",
+      fechaLimite: new Date("2025-11-04"), // Martes 4 de Noviembre de 2025
+      estado: "No Empezado",
     },
     {
-      id: 2,
-      title: "Instalación de Circuito Eléctrico",
-      location: " M2-P2 Módulo 2 Piso 2",
-      date: "Miercoles 5 de Noviembre de 2025",
-      status: "Reprogramado",
-      type: "Inspección"
+      idMantenimiento: 3,
+      titulo: "Mantenimiento Preventivo HVAC",
+      ubicacion: "M2-P2 Módulo 2 Piso 1",
+      fechaLimite: new Date("2025-11-06"), // Jueves 6 de Noviembre de 2025
+      estado: "En Ejecucion",
     },
-     {
-      id: 3,
-      title: "Mantenimiento Preventivo HVAC",
-      location: " M2-P2 Módulo 2 Piso 1",
-      date: "Jueves 6 de Noviembre de 2025",
-      status: "En ejecucion",
-      type: "Mantenimiento"
-    }, 
+  ],
+  inspecciones: [
     {
-      id: 4,
-      title: "Inspección de Sistemas de Seguridad",
-      location: " M1-P01 Módulo 1 Piso 3",
-      date: "Viernes 7 de Noviembre de 2025",
-      status: "Culminado",
-      type: "Inspección"
-    } 
+      idInspeccion: 2,
+      // La data original era 'Instalación de Circuito', asumo área Electricidad
+      areaEncargada: "Electricidad", 
+      supervisor: "Ing. Carlos Pérez", // Dato generado para cumplir el type
+      ubicacion: "M2-P2 Módulo 2 Piso 2",
+      frecuencia: "Semestral", // Dato generado
+      estado: "REPROGRAMADO", // Nota: El type de inspección exige MAYÚSCULAS
+    },
+    {
+      idInspeccion: 4,
+      // La data original era 'Sistemas de Seguridad', asumo área Seguridad
+      areaEncargada: "Seguridad Industrial",
+      supervisor: "Lic. Ana Rodríguez", // Dato generado para cumplir el type
+      ubicacion: "M1-P01 Módulo 1 Piso 3",
+      frecuencia: "Mensual", // Dato generado
+      estado: "CULMINADO", // Nota: El type de inspección exige MAYÚSCULAS
+    },
+  ],
+};
+
+const allTasks = [
+  ...resumenData.inspecciones, 
+  ...resumenData.mantenimientos
 ];
 
 /*Nombres de los meses */
@@ -134,7 +146,6 @@ const resumen = () => {
     };
 
     // --- HEADER DINÁMICO ---
-    // Esta es la parte clave que pediste
     let labelHeader = '';
     
     if (vistaActual === 'mensual') {
@@ -157,11 +168,11 @@ const resumen = () => {
     }
 
     //logica de filtrado
-    const filteredTasks = tasks.filter((task) => {
+    const filteredTasks = allTasks.filter((task) => {
         if (filtroActivo === 'todos') return true;
 
         // Normalizar: minúsculas y reemplazamos espacios por guiones
-        const statusNormalizado = task.status.toLowerCase().replace(/\s+/g, '-');
+        const statusNormalizado = task.estado.toLowerCase().replace(/\s+/g, '-');
         
         return statusNormalizado === filtroActivo;
     });
@@ -199,23 +210,26 @@ const resumen = () => {
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 w-full">
                 {/*CARDS CON LOS DATOS */}
                 <div className="flex flex-col gap-2">
-                    {filteredTasks.length > 0 ? (
+                    {/*{filteredTasks.length > 0 ? (
                         filteredTasks.map((task) => (
-                            <MaintenanceCard
-                                key={task.id}
-                                title={task.title}
+                            {task typeof ResumenMantenimiento ? (
+                                <MaintenanceCard
+                                key={task.idMantenimiento}
+                                title={task.titulo}
                                 location={task.location}
                                 date={task.date}
-                                status={task.status as any}
-                                type={task.type as any}
+                                status={task.estado as any}
+                                type={task.tipo as any}
                             />
+                            ) : ()}
+                            
                         ))
                     ) : (
                         // Mensaje opcional cuando no hay resultados
                         <div className="text-center py-10 text-gray-400">
                             No hay tareas con el estado "{opcionesFiltro.find(o => o.id === filtroActivo)?.label}"
                         </div>
-                    )}
+                    )}*/}
                 </div>
             </div>
         </div>
