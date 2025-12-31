@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import InspeccionCard from "@/components/resumen/inspeccionCard";
+import { useGetResumen } from "@/hooks/resumen/useGetResumen";
 
 //DATA SIMULADA DE MANTENIMIENTOS E INSPECCIONES
 export const resumenData: resumen = {
@@ -54,11 +55,6 @@ export const resumenData: resumen = {
     },
   ],
 };
-
-const allTasks = [
-  ...resumenData.inspecciones, 
-  ...resumenData.mantenimientos
-];
 
 /*Nombres de los meses */
 const MONTH_NAMES = [
@@ -149,9 +145,16 @@ const resumen = () => {
 
     // --- HEADER DINÁMICO ---
     let labelHeader = '';
+
+    let date = "";
     
     if (vistaActual === 'mensual') {
         labelHeader = `${MONTH_NAMES[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+
+        date = `${currentDate.getFullYear()}-${MONTH_NAMES[currentDate.getMonth()]}-01`;
+
+        //Usar el hook para traer los datos del Backend
+        const { data: resumenData, isLoading, isError } = useGetResumen(date, vistaActual);
     } else {
         // Lógica para vista semanal (calcular inicio y fin de semana)
         const startOfWeek = new Date(currentDate);
@@ -167,7 +170,16 @@ const resumen = () => {
         const yearStr = endOfWeek.getFullYear();
         
         labelHeader = `${startOfWeek.getDate()} de ${MONTH_NAMES[startOfWeek.getMonth()]} - ${endOfWeek.getDate()} de ${MONTH_NAMES[endOfWeek.getMonth()]} ${yearStr}`;
+        date = `${currentDate.getFullYear()}-${MONTH_NAMES[currentDate.getMonth()]}-${startOfWeek.getDate()}`;
+
+        //Usar el hook para traer los datos del Backend
+        const { data: resumenData, isLoading, isError } = useGetResumen(date, "semanal");
     }
+
+    const allTasks = [
+        ...resumenData.inspecciones, 
+        ...resumenData.mantenimientos
+    ];
 
     //logica de filtrado
     const filteredTasks = allTasks.filter((task) => {
