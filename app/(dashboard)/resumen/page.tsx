@@ -14,6 +14,7 @@ import {
 import { useMemo, useState } from "react";
 import InspeccionCard from "@/components/resumen/inspeccionCard";
 import { useGetResumen } from "@/hooks/resumen/useGetResumen";
+import { exportResumenPDF } from "@/lib/api/resumen";
 
 /*Nombres de los meses */
 const MONTH_NAMES = [
@@ -168,6 +169,31 @@ const resumen = () => {
         return statusNormalizado === filtroActivo;
     });
 
+    const handleExport = async () => {
+        try {
+            console.log("Generando PDF..."); // Feedback visual opcional
+
+            // response SERÁ el objeto Blob directamente gracias al cambio en client.ts
+            const blob = await exportResumenPDF(apiDateParams, vistaActual);
+            
+            // Crear URL y descargar
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `pdf`);
+            document.body.appendChild(link);
+            link.click();
+            
+            link.parentNode?.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            
+            console.log("PDF descargado correctamente");
+        } catch (error) {
+            console.error("Error al exportar PDF:", error);
+            console.log("Error al descargar el PDF");
+        }
+    };
+
     return(
         <div className="p-6 max-w-7.5xl">
             <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 mb-6">
@@ -175,7 +201,8 @@ const resumen = () => {
                     <h1 className="text-2xl font-bold">Resumen de Mantenimientos e Inspecciones</h1>
                     <h2 className="text-lg text-gray-500">{labelHeader}</h2>
                 </div>
-                <Button className="bg-sidebar-border text-black hover:bg-gray-300">
+                <Button className="bg-sidebar-border text-black hover:bg-gray-300"
+                onClick={handleExport}>
                     <Upload className="mr-2 h-4 w-4" />
                     Exportar
                 </Button>
