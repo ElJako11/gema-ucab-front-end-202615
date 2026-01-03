@@ -2,7 +2,7 @@
 
 import ChecklistComponent from "@/components/checklist/checklist";
 import type { Checklist } from "@/types/checklist.types";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 //DATA Simulada
 const MANTENIMIENTO_DATA: Checklist = {
@@ -19,17 +19,17 @@ const MANTENIMIENTO_DATA: Checklist = {
 };
 
 const ChecklistPage = () => {
-    // Estado para controlar qué vista mostrar
-    // false = Muestra el detalle general
-    // true = Muestra la pantalla de checklist (tareas)
-    const [showChecklist, setShowChecklist] = useState(false);
+  const router = useRouter();
 
-    return (
-        <div>
-            <ChecklistComponent checklist={MANTENIMIENTO_DATA} onBack={() => setShowChecklist(false)} // Función para volver 
-            />
-        </div>
-    )
+  const handleBack = () => {
+    router.push('/plantillas');
+  };
+
+  return (
+    <div>
+      <ChecklistComponent checklist={MANTENIMIENTO_DATA} onBack={handleBack} />
+    </div>
+  )
 }
 
 export default ChecklistPage;

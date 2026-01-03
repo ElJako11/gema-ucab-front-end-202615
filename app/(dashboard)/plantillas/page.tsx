@@ -112,7 +112,7 @@ const Plantillas = () => {
               plantillas.map((plantilla) => (
                 <tr key={plantilla.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <Link href={`/plantillas/${plantilla.id}`} className="flex items-center border-2 border-gray-500 rounded-lg px-3 py-2 bg-gray-100">
+                    <Link href="/detalle-trabajo" className="flex items-center border-2 border-gray-500 rounded-lg px-3 py-2 bg-gray-100">
                       {plantilla.plantilla}
                     </Link>
                   </td>
