@@ -12,7 +12,6 @@ export interface CreateUbicacionTecnicaRequest {
   padres?: Array<{
     idPadre: number;
     esUbicacionFisica?: boolean;
-    estaHabilitado?: boolean;
   }>;
 }
 

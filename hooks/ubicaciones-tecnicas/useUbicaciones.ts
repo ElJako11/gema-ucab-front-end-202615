@@ -4,8 +4,21 @@ import { ubicacionesTecnicasAPI } from "@/lib/api/ubicacionesTecnicas";
 export const useUbicaciones = () => {
     return useQuery({
         queryKey: ["ubicacionesTecnicas"],
-        queryFn: ubicacionesTecnicasAPI.getAll,
-        select: (data) => data.data,
+        queryFn: async () => {
+            console.log("🔄 Llamando a ubicacionesTecnicasAPI.getAll()");
+            try {
+                const result = await ubicacionesTecnicasAPI.getAll();
+                console.log("✅ Respuesta exitosa de ubicaciones:", result);
+                return result;
+            } catch (error) {
+                console.error("❌ Error al obtener ubicaciones:", error);
+                throw error;
+            }
+        },
+        select: (data) => {
+            console.log("🔍 Procesando data en select:", data);
+            return data.data;
+        },
     });
 };
 

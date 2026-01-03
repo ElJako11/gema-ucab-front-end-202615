@@ -1,19 +1,29 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ubicacionesTecnicasAPI } from "@/lib/api/ubicacionesTecnicas";
-import { toast } from "sonner";
 
 export const useCreateUbicacion = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ubicacionesTecnicasAPI.create,
-        onSuccess: () => {
+        mutationFn: async (data: any) => {
+            console.log("🔄 Enviando datos al API:", data);
+            try {
+                const result = await ubicacionesTecnicasAPI.create(data);
+                console.log("✅ Respuesta exitosa del API:", result);
+                return result;
+            } catch (error) {
+                console.error("❌ Error en API:", error);
+                throw error;
+            }
+        },
+        onSuccess: (data) => {
+            console.log("✅ Mutación exitosa:", data);
             queryClient.invalidateQueries({ queryKey: ["ubicacionesTecnicas"] });
-            toast.success("Ubicación técnica creada correctamente");
+            // No mostrar toast aquí, se maneja en el componente
         },
         onError: (error: any) => {
-            console.error("Error al crear ubicación:", error);
-            toast.error("Error al crear ubicación técnica");
+            console.error("❌ Error en mutación:", error);
+            // No mostrar toast aquí, se maneja en el componente
         },
     });
 };

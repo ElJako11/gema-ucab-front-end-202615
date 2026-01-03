@@ -11,7 +11,6 @@ import { ComboSelectInput } from "@/components/ui/comboSelectInput";
 import { CircleX, Info, LoaderCircle, PlusCircle, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
-import * as z from "zod";
 import type { UbicacionTecnica } from "@/types/models/ubicacionesTecnicas.types";
 import { Combobox } from "@/components/ui/combobox";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -44,14 +43,6 @@ interface Props {
   displayedLevels: number;
   setDisplayedLevels: React.Dispatch<React.SetStateAction<number>>;
 }
-
-// ✅ Esquema de validación con Zod
-const ubicacionSchema = z.object({
-  descripcion: z.string().min(1, "La descripción es obligatoria"),
-  abreviacion: z.string()
-    .min(1, "Debes definir al menos un nivel para la ubicación (Abreviación).")
-    .max(5, "La abreviación no debe ser mayor a 5 caracteres"),
-});
 
 // ✅ Helper functions extraídas
 const generarCodigo = (formValues: UbicacionTecnicaForm) => {
@@ -159,6 +150,7 @@ const FormNuevaUbicacion: React.FC<Props> = ({
   // Estados locales
   const [esEquipo, setEsEquipo] = useState(false);
   const [padres, setPadres] = useState<(string | number | null)[]>([null]);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   // ✅ Hook para obtener posibles padres (solo cuando es equipo)
   const { data: posiblesPadresResponse, isLoading: loadingPadres, isError: errorPadres } = useUbicacionesPorNivel(
@@ -178,6 +170,7 @@ const FormNuevaUbicacion: React.FC<Props> = ({
     });
     setEsEquipo(false);
     setPadres([null]);
+    setErrorMessage(""); // Limpiar mensaje de error
     onClose();
   };
 
@@ -204,85 +197,119 @@ const FormNuevaUbicacion: React.FC<Props> = ({
     window.open('/guia-ubicaciones-tecnicas.pdf', '_blank');
   };
 
-  // ✅ Función onSubmit simplificada usando hook
+  // ✅ Función onSubmit mejorada con validación de duplicados
   const onSubmit = () => {
     console.log("🚀 Iniciando envío de formulario de ubicación...");
-    if (!ubicaciones) {
-      toast.error("Los datos de ubicaciones aún no se han cargado.");
+    
+    // Limpiar mensaje de error previo
+    setErrorMessage("");
+    
+    // Validación básica
+    if (!formValues.descripcion.trim()) {
+      setErrorMessage("La descripción es requerida");
       return;
     }
 
-    // ✅ Validación con Zod
     const abreviacion = getAbreviacion(formValues);
-    const validacion = ubicacionSchema.safeParse({
-      descripcion: formValues.descripcion,
-      abreviacion: abreviacion,
-    });
+    if (!abreviacion.trim()) {
+      setErrorMessage("La abreviación es obligatoria");
+      return;
+    }
 
-    if (!validacion.success) {
-      // ✅ LOGICA DEFENSIVA: Evitamos crash si errors es undefined
-      console.error("❌ Fallo validación Zod:", validacion);
-      const errors = validacion.error?.errors || [];
-      if (Array.isArray(errors) && errors.length > 0) {
-        errors.forEach((error) => toast.error(error.message));
-      } else {
-        toast.error("Error de validación: Verifica que la abreviación no exceda los 5 caracteres.");
+    if (abreviacion.length > 5) {
+      setErrorMessage("La abreviación no puede exceder los 5 caracteres");
+      return;
+    }
+
+    // Validación de duplicados si tenemos ubicaciones cargadas
+    if (ubicaciones) {
+      const flatUbicaciones = flattenUbicaciones(ubicaciones);
+      
+      // Verificar si ya existe una ubicación con la misma abreviación
+      const duplicadoAbreviacion = flatUbicaciones.find(u => 
+        u.abreviacion.toLowerCase() === abreviacion.toLowerCase()
+      );
+      
+      if (duplicadoAbreviacion) {
+        setErrorMessage(`Ya existe una ubicación con la abreviación "${abreviacion}": ${duplicadoAbreviacion.descripcion}`);
+        return;
       }
-      return;
-    }
 
-    console.log("📝 Abreviación validada:", abreviacion);
-
-    const flatUbicaciones = flattenUbicaciones(ubicaciones);
-    const codigoCompleto = generarCodigo(formValues);
-    const partes = codigoCompleto.split("-");
-    const codigoSinUltimoNivel = partes.slice(0, -1).join("-");
-
-    const padreFisico = flatUbicaciones.find(u => u.codigo_Identificacion === codigoSinUltimoNivel);
-
-    // Validación de que no estemos intentando crear una ubicación que YA existe como padre
-    // Si la abreviación es igual a un padre existente seleccionado, estamos duplicando
-    const existeExacto = flatUbicaciones.find(u => u.codigo_Identificacion === codigoCompleto);
-    if (existeExacto) {
-      console.warn("⚠️ Advertencia: El código generado ya existe localmente:", codigoCompleto);
-    }
-
-    const payload: CreateUbicacionTecnicaRequest = {
-      descripcion: formValues.descripcion,
-      abreviacion: abreviacion, // Usamos la variable ya calculada y validada
-      padres: [],
-    };
-
-    // Agregar padre físico si existe
-    if (padreFisico) {
-      payload.padres!.push({
-        idPadre: padreFisico.idUbicacion,
-        esUbicacionFisica: true,
-        estaHabilitado: true
-      });
-    } else if (partes.length > 1) {
-      toast.error(`Error: No se encontró la ubicación padre con código "${codigoSinUltimoNivel}".`);
-      return;
-    }
-
-    // Agregar padres virtuales si es equipo
-    if (esEquipo) {
-      const idsPadresVirtuales = padres
-        .filter((p) => p !== null)
-        .map((id) => ({
-          idPadre: Number(id),
-          esUbicacionFisica: false,
-          estaHabilitado: true
-        }));
-
-      for (const p of idsPadresVirtuales) {
-        if (!payload.padres!.some(existente => existente.idPadre === p.idPadre)) {
-          payload.padres!.push(p);
+      // Si estamos creando con jerarquía, verificar el código completo
+      if (displayedLevels > 1) {
+        const codigoCompleto = generarCodigo(formValues);
+        const duplicadoCodigo = flatUbicaciones.find(u => 
+          u.codigo_Identificacion === codigoCompleto
+        );
+        
+        if (duplicadoCodigo) {
+          setErrorMessage(`Ya existe una ubicación con el código "${codigoCompleto}": ${duplicadoCodigo.descripcion}`);
+          return;
         }
       }
     }
 
+    // Construir payload según la especificación del endpoint
+    const payload: CreateUbicacionTecnicaRequest = {
+      descripcion: formValues.descripcion.trim(),
+      abreviacion: abreviacion.trim(),
+    };
+
+    // Solo agregar padres si existen
+    const padresArray: Array<{ idPadre: number; esUbicacionFisica: boolean }> = [];
+
+    // Agregar padre físico si existe (basado en la jerarquía de niveles)
+    if (ubicaciones && displayedLevels > 1) {
+      const flatUbicaciones = flattenUbicaciones(ubicaciones);
+      const codigoCompleto = generarCodigo(formValues);
+      const partes = codigoCompleto.split("-");
+      const codigoSinUltimoNivel = partes.slice(0, -1).join("-");
+      
+      const padreFisico = flatUbicaciones.find(u => u.codigo_Identificacion === codigoSinUltimoNivel);
+      
+      if (padreFisico) {
+        console.log("🔗 Agregando padre físico:", padreFisico);
+        padresArray.push({
+          idPadre: padreFisico.idUbicacion,
+          esUbicacionFisica: true
+        });
+      } else {
+        setErrorMessage(`No se encontró la ubicación padre con código "${codigoSinUltimoNivel}". Asegúrate de que exista antes de crear esta ubicación.`);
+        return;
+      }
+    }
+
+    // Agregar padres lógicos si es equipo
+    if (esEquipo) {
+      const padresLogicos = padres
+        .filter((p) => p !== null)
+        .map((id) => ({
+          idPadre: Number(id),
+          esUbicacionFisica: false
+        }));
+
+      console.log("🔗 Agregando padres lógicos:", padresLogicos);
+
+      // Evitar duplicados
+      for (const padreLogico of padresLogicos) {
+        if (!padresArray.some(p => p.idPadre === padreLogico.idPadre)) {
+          padresArray.push(padreLogico);
+        }
+      }
+    }
+
+    // Solo agregar padres al payload si existen
+    if (padresArray.length > 0) {
+      payload.padres = padresArray;
+    }
+
     console.log("📦 Enviando payload:", payload);
+    console.log("📊 Resumen:", {
+      descripcion: payload.descripcion,
+      abreviacion: payload.abreviacion,
+      cantidadPadres: payload.padres?.length || 0,
+      padres: payload.padres
+    });
 
     // ✅ Usar hook de creación
     createMutation.mutate(payload, {
@@ -293,11 +320,24 @@ const FormNuevaUbicacion: React.FC<Props> = ({
       },
       onError: (error: any) => {
         console.error("❌ Error en mutación:", error);
-        // Detectar conflicto (código duplicado)
-        if (error?.response?.status === 409 || error?.message?.includes("409")) {
-          toast.error("La ubicación técnica ya existe.");
+        console.error("❌ Detalles del error:", {
+          status: error?.response?.status,
+          statusText: error?.response?.statusText,
+          data: error?.response?.data,
+          message: error?.message
+        });
+        
+        // Manejo específico de errores
+        if (error?.response?.status === 409) {
+          const errorMessage = error?.response?.data?.message || error?.response?.data?.error || "La ubicación técnica ya existe";
+          toast.error(`Error 409: ${errorMessage}`);
+        } else if (error?.response?.status === 400) {
+          const errorMessage = error?.response?.data?.message || error?.response?.data?.error || "Datos inválidos";
+          toast.error(`Error 400: ${errorMessage}`);
+        } else if (error?.response?.status === 500) {
+          toast.error("Error interno del servidor. Por favor, intenta de nuevo más tarde.");
         } else {
-          toast.error(error.message || "Error al crear la ubicación técnica");
+          toast.error(error?.message || "Error al crear la ubicación técnica");
         }
       }
     });
@@ -492,6 +532,13 @@ const FormNuevaUbicacion: React.FC<Props> = ({
       </div>
 
       {createMutation.isError && <p className="text-red-600 text-sm">{createMutation.error instanceof Error ? createMutation.error.message : "Error al crear la ubicación técnica, por favor intente de nuevo."}</p>}
+
+      {/* Mensaje de error de validación */}
+      {errorMessage && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-3">
+          <p className="text-red-600 text-sm">{errorMessage}</p>
+        </div>
+      )}
 
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={closeModal} className="px-4 md:px-8">Cancelar</Button>
