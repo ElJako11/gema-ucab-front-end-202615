@@ -104,6 +104,17 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
             return fechaEvento === dateStr;
         });
         
+        console.log(`🔍 [CALENDARIO MENSUAL] Mantenimientos para ${dateStr}:`, {
+            cantidad: mantenimientosDelDia.length,
+            mantenimientos: mantenimientosDelDia,
+            fechaBuscada: dateStr,
+            mantenimientosDisponibles: mantenimientos.map(m => ({
+                id: m.idMantenimiento,
+                fechaLimite: m.fechaLimite,
+                titulo: m.titulo
+            }))
+        });
+        
         return mantenimientosDelDia.length > 0;
     };
 
@@ -112,8 +123,20 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
         const dateStr = date.toISOString().split('T')[0];
         
         const inspeccionesDelDia = inspecciones.filter((inspeccion: any) => {
-            const fechaEvento = inspeccion.fechaLimite || inspeccion.fecha || '';
+            // Las inspecciones usan fechaCreacion, no fechaLimite
+            const fechaEvento = inspeccion.fechaCreacion || inspeccion.fecha || '';
             return fechaEvento === dateStr;
+        });
+        
+        console.log(`🔍 [CALENDARIO MENSUAL] Inspecciones para ${dateStr}:`, {
+            cantidad: inspeccionesDelDia.length,
+            inspecciones: inspeccionesDelDia,
+            fechaBuscada: dateStr,
+            inspeccionesDisponibles: inspecciones.map(i => ({
+                id: i.idInspeccion,
+                fechaCreacion: i.fechaCreacion,
+                titulo: i.titulo
+            }))
         });
         
         return inspeccionesDelDia.length > 0;

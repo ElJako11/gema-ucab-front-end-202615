@@ -21,7 +21,11 @@ export const useMantenimientosFiltros = (date: string, filter: string = 'mensual
         },
         select: (data) => {
             // Devolver la estructura separada como la devuelve el servidor
-            const resultado = {
+            const resultado: {
+                inspecciones: EventoCalendario[];
+                mantenimientos: EventoCalendario[];
+                eventos: EventoCalendario[];
+            } = {
                 inspecciones: [],
                 mantenimientos: [],
                 // Mantener compatibilidad con componentes que esperan array único
@@ -36,7 +40,8 @@ export const useMantenimientosFiltros = (date: string, filter: string = 'mensual
                         tipo: 'Inspeccion' as const,
                         id: inspeccion.idInspeccion,
                         ubicacionTecnica: inspeccion.ubicacion,
-                        fecha: inspeccion.fechaLimite || inspeccion.fecha
+                        // Para inspecciones, usar fechaCreacion como fecha principal
+                        fecha: inspeccion.fechaCreacion || inspeccion.fecha
                     }));
                 }
                 

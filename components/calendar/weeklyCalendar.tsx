@@ -125,18 +125,6 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
       semanaDataBase: semanaDataBase.map(d => ({ dia: d.dia, fecha: d.fullDate.toISOString().split('T')[0] }))
     });
 
-    // Log adicional para ver la estructura exacta de los datos
-    if (eventos && eventos.length > 0) {
-      console.log("🔍 [CALENDARIO SEMANAL] Estructura del primer evento:", {
-        primerEvento: eventos[0],
-        campos: Object.keys(eventos[0]),
-        tieneIdMantenimiento: !!eventos[0].idMantenimiento,
-        tieneIdInspeccion: !!eventos[0].idInspeccion,
-        tieneTipo: !!eventos[0].tipo,
-        tieneFecha: !!eventos[0].fecha,
-        tieneFechaLimite: !!eventos[0].fechaLimite
-      });
-    }
 
     if (!eventos || eventos.length === 0) {
       console.log("⚠️ [CALENDARIO SEMANAL] No hay eventos para mostrar");
