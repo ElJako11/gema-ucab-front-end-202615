@@ -22,6 +22,52 @@ interface CalendarDay {
     actual: boolean;
     date: Date;
 }
+/*Opciones del filtro */
+const opcionesFiltro = [
+    { id: 'todos', label: 'Todos', color: null},
+    { id: 'mantenimientos', label: 'Mantenimientos Preventivo', color: 'bg-gema-blue' },
+    { id: 'inspecciones', label: 'Inspecciones', color: 'bg-gema-green' },
+];
+
+/*Array simulado */
+const diasSimulados = [
+    // Mes anterior (Gris oscuro)
+    { dia: 26, actual: false }, { dia: 27, actual: false }, { dia: 28, actual: false },
+    { dia: 29, actual: false }, { dia: 30, actual: false }, { dia: 31, actual: false },
+    
+    // Noviembre (Días del 1 al 30)
+    { dia: 1, actual: true, icon: 'green' },
+    { dia: 2, actual: true },
+    { dia: 3, actual: true, icon: 'multi', hasBar: true }, // El día con la barrita de colores
+    { dia: 4, actual: true, icon: 'green' },
+    { dia: 5, actual: true, icon: 'multi' },
+    { dia: 6, actual: true, icon: 'green' },
+    { dia: 7, actual: true, icon: 'green' },
+    { dia: 8, actual: true, icon: 'green' },
+    { dia: 9, actual: true },
+    { dia: 10, actual: true, icon: 'green' },
+    { dia: 11, actual: true, icon: 'multi' },
+    { dia: 12, actual: true, icon: 'green' },
+    { dia: 13, actual: true, icon: 'green' },
+    { dia: 14, actual: true, icon: 'multi' },
+    { dia: 15, actual: true },
+    { dia: 16, actual: true },
+    { dia: 17, actual: true, icon: 'green' },
+    { dia: 18, actual: true, icon: 'green' },
+    { dia: 19, actual: true, icon: 'multi' },
+    { dia: 20, actual: true, icon: 'green' },
+    { dia: 21, actual: true, icon: 'green' },
+    { dia: 22, actual: true },
+    { dia: 23, actual: true },
+    { dia: 24, actual: true, icon: 'green' },
+    { dia: 25, actual: true, icon: 'multi' },
+    { dia: 26, actual: true, icon: 'green' },
+    { dia: 27, actual: true, icon: 'green' },
+    { dia: 28, actual: true, icon: 'green' },
+    { dia: 29, actual: true },
+    { dia: 30, actual: true }, // Fin de Noviembre
+];
+
 
 // Función para generar los días del calendario dinámicamente
 const generateCalendarDays = (date: Date): CalendarDay[] => {
@@ -174,9 +220,10 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
                 <h2 className="text-xl font-semibold mb-4">{labelHeader}</h2>
                 <div className="flex flex-col md:flex-row md:justify-between gap-4">
                     {/* Boton de filtro dinamico */}
-                    <DropdownFilter
-                        filtroActual={filtroActivo}
-                        onFiltroChange={setFiltroActivo}
+                    <DropdownFilter 
+                        opciones={opcionesFiltro}
+                        filtroActual={filtroActivo} 
+                        onFiltroChange={setFiltroActivo} 
                     />
                     {/* Navegación de Meses */}
                     <DateNavigator label='Mes' onPrev={handlePrevMonth} onNext={handleNextMonth}></DateNavigator>

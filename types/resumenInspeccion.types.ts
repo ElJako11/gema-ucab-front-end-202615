@@ -1,8 +1,9 @@
 export type ResumenInspeccion = {
-    IdInspeccion: number;
-    Supervisor: string;
-    AreaEncargada: string;
-    Estado: "NO EMPEZADO" | "EN EJECUCION" | "REPROGRAMADO" | "CULMINADO";
-    Ubicacion: string;
-    Frecuencia: string;
+    idInspeccion: number;
+    titulo: string;
+    supervisor: string;
+    areaEncargada: string;
+    estado: "No Empezado" | "En Ejecucion" | "Reprogramado" | "Culminado";
+    ubicacion: string;
+    frecuencia: string;
 };
