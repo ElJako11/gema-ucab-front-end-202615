@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ComboSelectInput } from "@/components/ui/comboSelectInput"; // Using existing component for location if needed
+import { Combobox } from "@/components/ui/combobox";
+import { useUbicacionesLista } from "@/hooks/ubicaciones-tecnicas/useUbicaciones";
 
 interface InspectionFormModalProps {
     open: boolean;
@@ -16,12 +17,17 @@ interface InspectionFormModalProps {
 
 export const InspectionFormContent: React.FC<{ initialValues?: any, onClose?: () => void }> = ({ initialValues, onClose }) => {
     const [frequency, setFrequency] = useState('');
+    const [selectedUbicacionId, setSelectedUbicacionId] = useState<number | null>(
+        initialValues?.idUbicacionTecnica || null
+    );
+    
+    // Hook para obtener ubicaciones técnicas
+    const { data: ubicaciones, isLoading: isLoadingUbicaciones } = useUbicacionesLista();
 
     // Mock data for dropdowns
     const estados = ['Programado', 'En Proceso', 'Realizado', 'Cancelado'];
     const frecuencias = ['Diario', 'Semanal', 'Mensual', 'Anual']; // Removed Personalizado
     const encargados = ['Juan Pérez', 'Maria Garcia', 'Carlos Lopez', 'Ana Rodriguez'];
-    const ubicaciones = ['Edificio A', 'Sala de Máquinas', 'Planta Baja', 'Laboratorio', 'Oficina 101'];
 
     return (
         <>
@@ -59,16 +65,18 @@ export const InspectionFormContent: React.FC<{ initialValues?: any, onClose?: ()
                 {/* Technical Location */}
                 <div className="space-y-2 sm:col-span-2">
                     <Label htmlFor="ubicacion">Ubicación Técnica</Label>
-                    <Select defaultValue={initialValues?.ubicacion}>
-                        <SelectTrigger id="ubicacion">
-                            <SelectValue placeholder="Seleccionar ubicación técnica" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {ubicaciones.map((ubi) => (
-                                <SelectItem key={ubi} value={ubi}>{ubi}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <Combobox
+                        data={ubicaciones?.map(u => ({
+                            value: u.idUbicacion,
+                            label: `${u.codigo_Identificacion} - ${u.descripcion}`
+                        })) || []}
+                        value={selectedUbicacionId}
+                        onValueChange={(value) => setSelectedUbicacionId(value as number | null)}
+                        placeholder={isLoadingUbicaciones ? "Cargando ubicaciones..." : "Seleccionar ubicación técnica"}
+                        searchPlaceholder="Buscar ubicación..."
+                        triggerClassName="w-full"
+                        contentClassName="w-full"
+                    />
                 </div>
 
                 {/* Frequency */}

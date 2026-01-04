@@ -49,3 +49,14 @@ export const useUbicacionesPorNivel = (nivel: number) => {
         enabled: nivel > 0,
     });
 };
+
+// Hook para obtener lista plana de ubicaciones técnicas
+export const useUbicacionesLista = () => {
+    return useQuery({
+        queryKey: ["ubicacionesLista"],
+        queryFn: ubicacionesTecnicasAPI.getLista,
+        select: (data) => data.data,
+        staleTime: 5 * 60 * 1000, // 5 minutos
+        gcTime: 10 * 60 * 1000, // 10 minutos
+    });
+};

@@ -1,16 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { mantenimientoSchema, type MantenimientoFormData } from "@/lib/validations/mantenimientoSchema";
 import { useCreateMantenimiento } from "@/hooks/mantenimientos/useCreateMantenimientos";
-import { useUbicaciones } from "@/hooks/ubicaciones-tecnicas/useUbicaciones";
-import { ComboSelectInput } from "@/components/ui/comboSelectInput";
+import { useUbicacionesLista } from "@/hooks/ubicaciones-tecnicas/useUbicaciones";
+import { Combobox } from "@/components/ui/combobox";
 import { useSupervisores } from "@/hooks/usuarios/useUsuarios";
 import { useGrupos } from "@/hooks/grupos-trabajo/useGrupoTrabajo";
 
@@ -26,12 +25,9 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
     onSuccess
 }) => {
     const createMantenimientoMutation = useCreateMantenimiento();
-    const { data: ubicaciones } = useUbicaciones();
-
-
-
-    const { supervisores, isLoading: isLoadingSupervisores } = useSupervisores();
-    const { data: grupos, isLoading: isLoadingGrupos } = useGrupos();
+    const { data: ubicaciones, isLoading: isLoadingUbicaciones } = useUbicacionesLista();
+    const { supervisores } = useSupervisores();
+    const { data: grupos } = useGrupos();
 
     const form = useForm<MantenimientoFormData>({
         resolver: zodResolver(mantenimientoSchema),
@@ -110,14 +106,17 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                             <FormItem className="flex flex-col">
                                 <FormLabel>Ubicación Técnica</FormLabel>
                                 <FormControl>
-                                    <ComboSelectInput
-                                        value={field.value?.toString() || ""}
-                                        onChange={(val) => field.onChange(Number(val))}
-                                        options={ubicaciones?.map(u => ({
-                                            value: u.idUbicacion.toString(),
+                                    <Combobox
+                                        data={ubicaciones?.map(u => ({
+                                            value: u.idUbicacion,
                                             label: `${u.codigo_Identificacion} - ${u.descripcion}`
                                         })) || []}
-                                        placeholder="Buscar ubicación..."
+                                        value={field.value || null}
+                                        onValueChange={(value) => field.onChange(value || 0)}
+                                        placeholder={isLoadingUbicaciones ? "Cargando ubicaciones..." : "Seleccionar ubicación técnica"}
+                                        searchPlaceholder="Buscar ubicación..."
+                                        triggerClassName="w-full"
+                                        contentClassName="w-full"
                                     />
                                 </FormControl>
                                 <FormMessage />
