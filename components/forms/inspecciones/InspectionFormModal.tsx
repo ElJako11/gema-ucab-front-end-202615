@@ -1,145 +1,372 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Combobox } from "@/components/ui/combobox";
 import { useUbicacionesLista } from "@/hooks/ubicaciones-tecnicas/useUbicaciones";
+import { useSupervisores } from "@/hooks/usuarios/useUsuarios";
+import { useGrupos } from "@/hooks/grupos-trabajo/useGrupoTrabajo";
+import { useCreateInspection } from "@/hooks/inspecciones/useCreateInspection";
+import { inspeccionSchema, type InspeccionFormData } from "@/lib/validations/inspeccionSchema";
 
 interface InspectionFormModalProps {
     open: boolean;
     onClose: () => void;
-    // Intentionally loose for now as we don't have the full types integration in this pass
-    initialValues?: any;
+    initialValues?: Partial<InspeccionFormData>;
+    onSuccess?: () => void;
 }
 
-export const InspectionFormContent: React.FC<{ initialValues?: any, onClose?: () => void }> = ({ initialValues, onClose }) => {
-    const [frequency, setFrequency] = useState('');
-    const [selectedUbicacionId, setSelectedUbicacionId] = useState<number | null>(
-        initialValues?.idUbicacionTecnica || null
-    );
-    
-    // Hook para obtener ubicaciones técnicas
+export const InspectionFormContent: React.FC<{ 
+    initialValues?: Partial<InspeccionFormData>, 
+    onClose?: () => void,
+    onSuccess?: () => void 
+}> = ({ initialValues, onClose, onSuccess }) => {
+    const createInspectionMutation = useCreateInspection();
     const { data: ubicaciones, isLoading: isLoadingUbicaciones } = useUbicacionesLista();
+    const { supervisores } = useSupervisores();
+    const { data: grupos } = useGrupos();
 
-    // Mock data for dropdowns
-    const estados = ['Programado', 'En Proceso', 'Realizado', 'Cancelado'];
-    const frecuencias = ['Diario', 'Semanal', 'Mensual', 'Anual']; // Removed Personalizado
-    const encargados = ['Juan Pérez', 'Maria Garcia', 'Carlos Lopez', 'Ana Rodriguez'];
+    const form = useForm<InspeccionFormData>({
+        resolver: zodResolver(inspeccionSchema),
+        defaultValues: {
+            estado: initialValues?.estado || 'programado',
+            supervisor: initialValues?.supervisor || '',
+            idUbicacionTecnica: initialValues?.idUbicacionTecnica || 0,
+            frecuencia: initialValues?.frecuencia || '',
+            cadaCuanto: initialValues?.cadaCuanto || 1,
+            observacion: initialValues?.observacion || '',
+            prioridad: initialValues?.prioridad || 'Media',
+            fechaLimite: initialValues?.fechaLimite || '',
+            idGrupo: initialValues?.idGrupo || 1,
+        }
+    });
+
+    const frecuenciaSeleccionada = form.watch("frecuencia");
+
+    const onSubmit = (data: InspeccionFormData) => {
+        console.log("📝 [INSPECCIÓN FORM] Datos del formulario recibidos:", data);
+        
+        // Mapear los datos del formulario al formato que espera el backend
+        const inspeccionData = {
+            tipoTrabajo: "Inspeccion" as const,
+            fechaCreacion: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
+            idUbicacionTecnica: data.idUbicacionTecnica,
+            idGrupo: data.idGrupo,
+            supervisorId: supervisores?.find(s => s.Nombre === data.supervisor)?.Id || 0,
+            prioridad: data.prioridad,
+            fechaLimite: data.fechaLimite,
+            frecuencia: data.frecuencia,
+            especificacion: data.observacion
+        };
+
+        console.log("🔄 [INSPECCIÓN FORM] Datos mapeados para el backend:", inspeccionData);
+        console.log("👤 [INSPECCIÓN FORM] Supervisor encontrado:", {
+            nombreSeleccionado: data.supervisor,
+            supervisorEncontrado: supervisores?.find(s => s.Nombre === data.supervisor),
+            idSupervisor: supervisores?.find(s => s.Nombre === data.supervisor)?.Id || 0
+        });
+
+        createInspectionMutation.mutate(inspeccionData, {
+            onSuccess: () => {
+                console.log("✅ [INSPECCIÓN FORM] Éxito en la creación, reseteando formulario...");
+                form.reset();
+                onSuccess?.();
+                onClose?.();
+            }
+        });
+    };
+
+    // Datos para los dropdowns
+    const estados = [
+        { value: 'programado', label: 'Programado' },
+        { value: 'en_proceso', label: 'En Proceso' },
+        { value: 'realizado', label: 'Realizado' },
+        { value: 'cancelado', label: 'Cancelado' }
+    ];
+    
+    const frecuencias = [
+        { value: 'Diaria', label: 'Diaria' },
+        { value: 'Semanal', label: 'Semanal' },
+        { value: 'Mensual', label: 'Mensual' },
+        { value: 'Anual', label: 'Anual' }
+    ];
+
+    const prioridades = [
+        { value: 'Baja', label: 'Baja' },
+        { value: 'Media', label: 'Media' },
+        { value: 'Alta', label: 'Alta' }
+    ];
 
     return (
-        <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
-                {/* State */}
-                <div className="space-y-2">
-                    <Label htmlFor="estado">Estado</Label>
-                    <Select defaultValue={initialValues?.estado}>
-                        <SelectTrigger id="estado">
-                            <SelectValue placeholder="Seleccionar estado" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {estados.map((e) => (
-                                <SelectItem key={e} value={e.toLowerCase()}>{e}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 text-left">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Estado */}
+                    <FormField
+                        control={form.control}
+                        name="estado"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Estado</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Seleccionar estado" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {estados.map((estado) => (
+                                            <SelectItem key={estado.value} value={estado.value}>
+                                                {estado.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
-                {/* Supervision */}
-                <div className="space-y-2">
-                    <Label htmlFor="supervision">Supervisor Asignado</Label>
-                    <Select defaultValue={initialValues?.supervision}>
-                        <SelectTrigger id="supervision">
-                            <SelectValue placeholder="Seleccionar encargado" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {encargados.map((enc) => (
-                                <SelectItem key={enc} value={enc}>{enc}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                {/* Technical Location */}
-                <div className="space-y-2 sm:col-span-2">
-                    <Label htmlFor="ubicacion">Ubicación Técnica</Label>
-                    <Combobox
-                        data={ubicaciones?.map(u => ({
-                            value: u.idUbicacion,
-                            label: `${u.codigo_Identificacion} - ${u.descripcion}`
-                        })) || []}
-                        value={selectedUbicacionId}
-                        onValueChange={(value) => setSelectedUbicacionId(value as number | null)}
-                        placeholder={isLoadingUbicaciones ? "Cargando ubicaciones..." : "Seleccionar ubicación técnica"}
-                        searchPlaceholder="Buscar ubicación..."
-                        triggerClassName="w-full"
-                        contentClassName="w-full"
+                    {/* Prioridad */}
+                    <FormField
+                        control={form.control}
+                        name="prioridad"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Prioridad</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Seleccionar prioridad" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {prioridades.map((prioridad) => (
+                                            <SelectItem key={prioridad.value} value={prioridad.value}>
+                                                {prioridad.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
                 </div>
 
-                {/* Frequency */}
-                <div className="space-y-2">
-                    <Label htmlFor="frecuencia">Frecuencia</Label>
-                    <Select onValueChange={setFrequency} defaultValue={initialValues?.frecuencia}>
-                        <SelectTrigger id="frecuencia">
-                            <SelectValue placeholder="Seleccionar frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {frecuencias.map((f) => (
-                                <SelectItem key={f} value={f.toLowerCase()}>{f}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                {/* Ubicación Técnica */}
+                <FormField
+                    control={form.control}
+                    name="idUbicacionTecnica"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                            <FormLabel>Ubicación Técnica</FormLabel>
+                            <FormControl>
+                                <Combobox
+                                    data={ubicaciones?.map(u => ({
+                                        value: u.idUbicacion,
+                                        label: `${u.codigo_Identificacion} - ${u.descripcion}`
+                                    })) || []}
+                                    value={field.value || null}
+                                    onValueChange={(value) => field.onChange(value || 0)}
+                                    placeholder={isLoadingUbicaciones ? "Cargando ubicaciones..." : "Seleccionar ubicación técnica"}
+                                    searchPlaceholder="Buscar ubicación..."
+                                    triggerClassName="w-full"
+                                    contentClassName="w-full"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Supervisor */}
+                    <FormField
+                        control={form.control}
+                        name="supervisor"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Supervisor Asignado</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Seleccionar supervisor" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {supervisores?.map((supervisor: any) => (
+                                            <SelectItem key={supervisor.Id} value={supervisor.Nombre}>
+                                                {supervisor.Nombre}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* Grupo de Trabajo */}
+                    <FormField
+                        control={form.control}
+                        name="idGrupo"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Grupo de Trabajo</FormLabel>
+                                <Select
+                                    onValueChange={(val) => field.onChange(Number(val))}
+                                    defaultValue={field.value?.toString()}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Seleccionar grupo" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {grupos?.map((grupo: any) => (
+                                            <SelectItem key={grupo.id} value={grupo.id.toString()}>
+                                                {grupo.nombre} ({grupo.codigo})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* Frecuencia */}
+                    <FormField
+                        control={form.control}
+                        name="frecuencia"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Frecuencia</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Seleccionar frecuencia" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {frecuencias.map((frecuencia) => (
+                                            <SelectItem key={frecuencia.value} value={frecuencia.value}>
+                                                {frecuencia.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* Fecha Límite */}
+                    <FormField
+                        control={form.control}
+                        name="fechaLimite"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Fecha Límite</FormLabel>
+                                <FormControl>
+                                    <Input type="date" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </div>
 
-                {/* Dynamic "Every X" */}
-                {frequency && (
-                    <div className="space-y-2">
-                        <Label htmlFor="cada-cuanto">Cada cuánto</Label>
-                        <div className="flex gap-2">
-                            <Input type="number" min="0" id="cada-cuanto" className="w-20" placeholder="1" />
-                            <span className="flex items-center text-sm text-gray-500">
-                                {frequency === 'diario' ? 'días' :
-                                    frequency === 'semanal' ? 'semanas' :
-                                        frequency === 'mensual' ? 'meses' :
-                                            frequency === 'anual' ? 'años' : 'unidades'}
-                            </span>
-                        </div>
-                    </div>
+                {/* Campo dinámico "Cada cuánto" */}
+                {frecuenciaSeleccionada && (
+                    <FormField
+                        control={form.control}
+                        name="cadaCuanto"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Cada cuánto</FormLabel>
+                                <div className="flex gap-2 items-center">
+                                    <FormControl>
+                                        <Input 
+                                            type="number" 
+                                            min="1" 
+                                            className="w-20" 
+                                            placeholder="1"
+                                            {...field}
+                                            onChange={(e) => field.onChange(Number(e.target.value))}
+                                        />
+                                    </FormControl>
+                                    <span className="text-sm text-gray-500">
+                                        {frecuenciaSeleccionada === 'Diaria' ? 'días' :
+                                            frecuenciaSeleccionada === 'Semanal' ? 'semanas' :
+                                                frecuenciaSeleccionada === 'Mensual' ? 'meses' :
+                                                    frecuenciaSeleccionada === 'Anual' ? 'años' : 'unidades'}
+                                    </span>
+                                </div>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 )}
 
-                {/* Observation - Full Width */}
-                <div className="space-y-2 sm:col-span-2">
-                    <Label htmlFor="observacion">Observación</Label>
-                    <Textarea
-                        id="observacion"
-                        placeholder="Ingrese observaciones de la inspección"
-                        className="min-h-[100px]"
-                        defaultValue={initialValues?.observacion}
-                    />
+                {/* Observación/Especificación */}
+                <FormField
+                    control={form.control}
+                    name="observacion"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Especificación</FormLabel>
+                            <FormControl>
+                                <Textarea
+                                    placeholder="Describe las tareas específicas de la inspección..."
+                                    className="min-h-[100px]"
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <div className="flex justify-end gap-2 mt-4">
+                    {onClose && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={onClose}
+                            disabled={createInspectionMutation.isPending}
+                        >
+                            Cancelar
+                        </Button>
+                    )}
+                    <Button
+                        type="submit"
+                        className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground"
+                        disabled={createInspectionMutation.isPending}
+                    >
+                        {createInspectionMutation.isPending ? "Guardando..." : "Guardar"}
+                    </Button>
                 </div>
-
-            </div>
-
-            <div className="flex justify-end gap-2 mt-4">
-                {onClose && <Button variant="outline" onClick={onClose}>Cancelar</Button>}
-                <Button className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground">Guardar</Button>
-            </div>
-        </>
+            </form>
+        </Form>
     );
 };
 
-export const InspectionFormModal: React.FC<InspectionFormModalProps> = ({ open, onClose, initialValues }) => {
+export const InspectionFormModal: React.FC<InspectionFormModalProps> = ({ open, onClose, initialValues, onSuccess }) => {
     return (
         <Modal
             isOpen={open}
             onClose={onClose}
-            title={<span className="text-xl font-semibold">Inspección</span>}
+            title={<span className="text-xl font-semibold">Nueva Inspección</span>}
             className="bg-white max-w-4xl" // Wider modal
         >
-            <InspectionFormContent onClose={onClose} initialValues={initialValues} />
+            <InspectionFormContent onClose={onClose} initialValues={initialValues} onSuccess={onSuccess} />
         </Modal>
     );
 };

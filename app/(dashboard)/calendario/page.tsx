@@ -113,7 +113,15 @@ const Calendario = () => {
                             }}
                         />
                     )}
-                    {selectedType === 2 && <InspectionFormContent />}
+                    {selectedType === 2 && (
+                        <InspectionFormContent 
+                            onClose={handleCloseModal}
+                            onSuccess={() => {
+                                // Aquí puedes agregar lógica adicional después de crear la inspección
+                                console.log('Inspección creada exitosamente');
+                            }}
+                        />
+                    )}
                 </div>
             </Modal>
         </div>

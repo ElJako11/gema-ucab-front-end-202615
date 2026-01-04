@@ -1,7 +1,8 @@
 'use client';
 import { useState } from "react";
 import {
-    FileCog
+    FileCog,
+    FileSearchCorner
 } from "lucide-react";
 import DropdownFilter from "../ui/dropdownFilter";
 import DateNavigator from "../ui/dateNavigator";
@@ -87,14 +88,42 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
     // Formatear fecha para el hook (YYYY-MM-DD)
     const formattedDate = currentDate.toISOString().split('T')[0];
 
-    // Fetch de mantenimientos
-    const { data: mantenimientos } = useMantenimientosFiltros(formattedDate, "mensual");
+    // Fetch de eventos del calendario (mantenimientos e inspecciones)
+    const { data: datosCalendario, isLoading, error } = useMantenimientosFiltros(formattedDate, "mensual");
+
+    // Extraer arrays separados
+    const inspecciones = datosCalendario?.inspecciones || [];
+    const mantenimientos = datosCalendario?.mantenimientos || [];
+
+    // Helper para verificar si hay mantenimientos en una fecha
+    const hasMantenimientos = (date: Date) => {
+        const dateStr = date.toISOString().split('T')[0];
+        
+        const mantenimientosDelDia = mantenimientos.filter((mantenimiento: any) => {
+            const fechaEvento = mantenimiento.fechaLimite || mantenimiento.fecha || '';
+            return fechaEvento === dateStr;
+        });
+        
+        return mantenimientosDelDia.length > 0;
+    };
+
+    // Helper para verificar si hay inspecciones en una fecha
+    const hasInspecciones = (date: Date) => {
+        const dateStr = date.toISOString().split('T')[0];
+        
+        const inspeccionesDelDia = inspecciones.filter((inspeccion: any) => {
+            const fechaEvento = inspeccion.fechaLimite || inspeccion.fecha || '';
+            return fechaEvento === dateStr;
+        });
+        
+        return inspeccionesDelDia.length > 0;
+    };
 
     // Generar días del calendario basándose en la fecha actual
     const diasCalendario = generateCalendarDays(currentDate);
 
     // Función para manejar el click en un día
-    const handleDayClick = (dayItem: CalendarDay, index: number) => {
+    const handleDayClick = (dayItem: CalendarDay) => {
         if (!dayItem.actual || !onDayClick) return;
         onDayClick(dayItem.date);
     };
@@ -114,13 +143,6 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
 
     // Formateo para la etiqueta
     const labelHeader = `${MONTH_NAMES[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
-
-    // Helper para verificar si hay mantenimiento en una fecha
-    const hasMaintenance = (date: Date) => {
-        if (!mantenimientos) return false;
-        const dateStr = date.toISOString().split('T')[0];
-        return mantenimientos.some((m: any) => m.fechaLimite === dateStr);
-    };
 
     return (
         <div>
@@ -152,12 +174,13 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
                 {/* --- CUADRÍCULA DEL CALENDARIO (GRID) --- */}
                 <div className="hidden md:grid grid-cols-7 gap-2 auto-rows-fr justify-center">
                     {diasCalendario.map((item, index) => {
-                        const showIcon = hasMaintenance(item.date);
+                        const tieneMantenimientos = hasMantenimientos(item.date);
+                        const tieneInspecciones = hasInspecciones(item.date);
 
                         return (
                             <div
                                 key={index}
-                                onClick={() => handleDayClick(item, index)}
+                                onClick={() => handleDayClick(item)}
                                 className={`
                                         relative min-h-30 max-w-full p-2 rounded-lg flex flex-col gap-2 transition-all hover:ring-2 hover:ring-blue-100 cursor-pointer 
                                         ${item.actual ? 'bg-gema-lightgrey hover:bg-gray-50' : 'bg-gema-darkgrey cursor-default'}
@@ -170,8 +193,16 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
 
                                 {/* Iconos de contenido */}
                                 <div className="flex gap-1">
-                                    {showIcon && (
-                                        <FileCog className="w-7 h-7 text-blue-600" />
+                                    {/* Icono de Mantenimientos (azul) */}
+                                    {(filtroActivo === 'todos' || filtroActivo === 'mantenimientos') && 
+                                    tieneMantenimientos && (
+                                        <FileCog className="w-7 h-7 text-gema-blue" />
+                                    )}
+                                    
+                                    {/* Icono de Inspecciones (verde) */}
+                                    {(filtroActivo === 'todos' || filtroActivo === 'inspecciones') && 
+                                    tieneInspecciones && (
+                                        <FileSearchCorner className="w-7 h-7 text-gema-green" />
                                     )}
                                 </div>
                             </div>

@@ -2,19 +2,35 @@ import apiClient from "./client";
 
 // Tipos para el calendario
 export interface EventoCalendario {
-  id: number;
-  titulo: string;
-  fecha: string;
-  tipo: "Mantenimiento" | "Inspeccion";
-  prioridad: "Alta" | "Media" | "Baja";
-  estado: string;
+  // Campos comunes
+  id?: number;
+  titulo?: string;
+  fecha?: string;
+  tipo?: "Mantenimiento" | "Inspeccion";
+  prioridad?: "Alta" | "Media" | "Baja";
+  estado?: string;
   ubicacionTecnica?: string;
+  ubicacion?: string;
   supervisor?: string;
   grupo?: string;
+  
+  // Campos específicos de mantenimientos
+  idMantenimiento?: number;
+  fechaLimite?: string;
+  nombre?: string;
+  
+  // Campos específicos de inspecciones  
+  idInspeccion?: number;
+  
+  // Permitir campos adicionales para flexibilidad
+  [key: string]: any;
 }
 
 export interface CalendarioResponse {
-  data: EventoCalendario[];
+  inspecciones?: EventoCalendario[];
+  mantenimientos?: EventoCalendario[];
+  // Mantener compatibilidad con estructura anterior
+  data?: EventoCalendario[];
 }
 
 export type FiltroCalendario = "mensual" | "semanal";
@@ -26,14 +42,11 @@ export const calendarioAPI = {
    * @param filter - Tipo de filtro: "mensual" o "semanal"
    */
   async getEventos(date: string, filter: FiltroCalendario): Promise<CalendarioResponse> {
-    console.log(`🔄 [CALENDARIO] Obteniendo eventos para fecha: ${date}, filtro: ${filter}`);
-    
     try {
-      const response = await apiClient.get<CalendarioResponse>(`/calendario?date=${date}&filter=${filter}`);
-      console.log(`✅ [CALENDARIO] Eventos obtenidos exitosamente:`, response);
+      const endpoint = `/calendario?date=${date}&filter=${filter}`;
+      const response = await apiClient.get<CalendarioResponse>(endpoint);
       return response;
     } catch (error) {
-      console.error(`❌ [CALENDARIO] Error al obtener eventos:`, error);
       throw error;
     }
   },

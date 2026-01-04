@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Modal } from "@/components/ui/modal";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -82,10 +80,10 @@ const EditUbicacionForm: React.FC<EditUbicacionProps> = ({
         </Button>
         <Button
           onClick={onSubmit}
-          disabled={!descripcion.trim() || status === "pending"}
+          disabled={!descripcion.trim() || updateMutation.isPending}
           className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground"
         >
-          {status === "pending" ? "Actualizando..." : "Actualizar"}
+          {updateMutation.isPending ? "Actualizando..." : "Actualizar"}
         </Button>
       </div>
     </Modal>

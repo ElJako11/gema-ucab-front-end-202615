@@ -1,13 +1,64 @@
 import { useQuery } from "@tanstack/react-query";
-import { mantenimientosAPI } from "@/lib/api/mantenimientos";
+import { calendarioAPI, type FiltroCalendario, type EventoCalendario } from "@/lib/api/calendario";
 
+/**
+ * Hook para obtener eventos del calendario (mantenimientos e inspecciones)
+ * @deprecated Use useCalendario from hooks/calendario/useCalendario.ts instead
+ * Mantenido por compatibilidad con componentes existentes
+ */
 export const useMantenimientosFiltros = (date: string, filter: string = 'mensual') => {
+    const filtroCalendario = (filter === 'semanal' ? 'semanal' : 'mensual') as FiltroCalendario;
+    
     return useQuery({
-        queryKey: ["mantenimientos", "filtros", date, filter],
-        queryFn: () => mantenimientosAPI.getFiltros(date, filter),
-        select: (data) => {
-            // El API devuelve el array directamente, no envuelto en {data: [...]}
-            return Array.isArray(data) ? data : data?.data || [];
+        queryKey: ["calendario", date, filtroCalendario],
+        queryFn: async () => {
+            try {
+                const result = await calendarioAPI.getEventos(date, filtroCalendario);
+                return result;
+            } catch (error) {
+                throw error;
+            }
         },
+        select: (data) => {
+            // Devolver la estructura separada como la devuelve el servidor
+            const resultado = {
+                inspecciones: [],
+                mantenimientos: [],
+                // Mantener compatibilidad con componentes que esperan array único
+                eventos: []
+            };
+            
+            if (data && typeof data === 'object') {
+                // Procesar inspecciones
+                if (data.inspecciones && Array.isArray(data.inspecciones)) {
+                    resultado.inspecciones = data.inspecciones.map((inspeccion: any) => ({
+                        ...inspeccion,
+                        tipo: 'Inspeccion' as const,
+                        id: inspeccion.idInspeccion,
+                        ubicacionTecnica: inspeccion.ubicacion,
+                        fecha: inspeccion.fechaLimite || inspeccion.fecha
+                    }));
+                }
+                
+                // Procesar mantenimientos
+                if (data.mantenimientos && Array.isArray(data.mantenimientos)) {
+                    resultado.mantenimientos = data.mantenimientos.map((mantenimiento: any) => ({
+                        ...mantenimiento,
+                        tipo: 'Mantenimiento' as const,
+                        id: mantenimiento.idMantenimiento,
+                        ubicacionTecnica: mantenimiento.ubicacion,
+                        fecha: mantenimiento.fechaLimite || mantenimiento.fecha
+                    }));
+                }
+                
+                // Combinar para compatibilidad con componentes existentes
+                resultado.eventos = [...resultado.inspecciones, ...resultado.mantenimientos];
+            }
+            
+            return resultado;
+        },
+        enabled: !!date,
+        staleTime: 5 * 60 * 1000, // 5 minutos
+        gcTime: 10 * 60 * 1000, // 10 minutos
     });
 };
