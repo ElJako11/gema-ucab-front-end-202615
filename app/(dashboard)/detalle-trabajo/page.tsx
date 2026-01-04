@@ -1,32 +1,49 @@
 'use client';
 
 import ChecklistComponent from "@/components/checklist/checklist";
-import type { Checklist } from "@/types/checklist.types";
+import { useGetAllChecklistItem } from "@/hooks/checklist/useGetAllChecklistItem";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
-//DATA Simulada
-const MANTENIMIENTO_DATA: Checklist = {
-  id: 1,
-  titulo: "Mantenimiento de Aire Acondicionado",
-  ubicacion: "M1-P01, Módulo 1 Piso 1",
-  // Esta lista vendría de tu backend al cargar el detalle
-  tareas: [
-    { id: 1, nombre: "Revisar filtros", descripcion: "Limpieza profunda", estado: "COMPLETADA" },
-    { id: 2, nombre: "Medir voltaje", descripcion: "Verificar entrada 220V", estado: "PENDIENTE" },
-    { id: 3, nombre: "Lubricación", descripcion: "Rodamientos del motor", estado: "PENDIENTE" },
-    { id: 4, nombre: "Prueba de Sensores", descripcion: "Verificar termostatos", estado: "PENDIENTE" },
-  ]
-};
-
 const ChecklistPage = () => {
-    // Estado para controlar qué vista mostrar
-    // false = Muestra el detalle general
-    // true = Muestra la pantalla de checklist (tareas)
-    const [showChecklist, setShowChecklist] = useState(false);
+  //Obtener el ID de la URL (asumiendo ruta dinámica [id])
+  //const params = useParams();
+  //const id = Number(params.id); // Convertir a número
+  const id = 1; // Temporalmente fijo para pruebas 
+  const type = "mantenimientos"; // Temporalmente fijo para pruebas
 
+  //Usar el hook para traer los datos del Backend
+  const { data: checklist, isLoading, isError } = useGetAllChecklistItem(type,id);
+
+  // Estado para controlar qué vista mostrar
+  // false = Muestra el detalle general
+  // true = Muestra la pantalla de checklist (tareas)
+  const [showChecklist, setShowChecklist] = useState(false);
+
+  //Manejo de estados de carga y error
+  if (isLoading) {
     return (
+      <div className="flex justify-center items-center h-screen text-gema-green">
+        <Loader2 className="animate-spin h-10 w-10" />
+      </div>
+    );
+  }
+
+  // Si hay error o si la data llegó vacía (undefined)
+  if (isError || !checklist) {
+    return (
+      <div className="flex justify-center items-center h-screen text-red-500">
+        <p>No se pudo cargar la información del checklist.</p>
+      </div>
+    );
+  }
+
+  return (
         <div>
-            <ChecklistComponent checklist={MANTENIMIENTO_DATA} onBack={() => setShowChecklist(false)} // Función para volver 
+            <ChecklistComponent 
+              idTrabajo={checklist.idTrabajo}
+              checklist={checklist} 
+              onBack={() => setShowChecklist(false)} // Función para volver 
             />
         </div>
     )

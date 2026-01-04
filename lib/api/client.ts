@@ -19,24 +19,30 @@ class ApiClient {
     config?: {
       headers?: Record<string, string>;
       requiresAuth?: boolean;
+      responseType?: 'json' | 'blob';
     }
   ): Promise<T> {
-    // Preparar headers
     const headers: Record<string, string> = {
       ...this.defaultHeaders,
       ...config?.headers,
     };
 
-    // Configurar AbortController para timeout
+    if (config?.responseType === 'blob') {
+      delete headers['Accept'];
+    }
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
+    const isFormData = data instanceof FormData;
+    
     try {
       const response = await fetch(`${this.baseURL}${url}`, {
         method,
         headers,
-        body: data ? JSON.stringify(data) : undefined,
-        credentials: 'include', // ✅ ÚNICO Y CRÍTICO: Envía cookies automáticamente
+        // Si es FormData, lo pasamos directo. Si es objeto normal, lo convertimos a JSON.
+        body: isFormData ? data : (data ? JSON.stringify(data) : undefined),
+        credentials: 'include',
         signal: controller.signal,
       });
 
@@ -44,14 +50,17 @@ class ApiClient {
 
       // Manejo de errores HTTP
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({
-          message: 'Error desconocido'
-        }));
+        // Intentamos leer el error (puede fallar si la respuesta de error no es JSON válido)
+        let errorData;
+        try {
+            errorData = await response.json();
+        } catch {
+            errorData = { message: 'Error desconocido' };
+        }
 
         const errorMessage = this.getErrorMessage(response.status, errorData);
         this.showToastError(errorMessage);
 
-        // Redirigir a login si es 401
         if (response.status === 401 && typeof window !== 'undefined') {
           if (window.location.pathname !== '/login') {
             window.location.href = '/login?session=expired';
@@ -60,8 +69,14 @@ class ApiClient {
 
         throw new Error(errorMessage);
       }
+      
+      // Si la respuesta fue exitosa (ok=true), entonces decidimos cómo devolverla:
+      if (config?.responseType === 'blob') {
+        return response.blob() as unknown as T;
+      }
 
       return response.json();
+
     } catch (error) {
       clearTimeout(timeoutId);
 
@@ -113,7 +128,7 @@ class ApiClient {
   // =================== MÉTODOS PÚBLICOS ===================
   async get<T>(
     url: string,
-    config?: { headers?: Record<string, string>; requiresAuth?: boolean }
+    config?: { headers?: Record<string, string>; requiresAuth?: boolean; responseType?: 'json' | 'blob' }
   ): Promise<T> {
     return this.request<T>('GET', url, undefined, config);
   }
@@ -121,7 +136,7 @@ class ApiClient {
   async post<T>(
     url: string,
     data?: any,
-    config?: { headers?: Record<string, string>; requiresAuth?: boolean }
+    config?: { headers?: Record<string, string>; requiresAuth?: boolean; responseType?: 'json' | 'blob' }
   ): Promise<T> {
     return this.request<T>('POST', url, data, config);
   }
@@ -132,6 +147,14 @@ class ApiClient {
     config?: { headers?: Record<string, string>; requiresAuth?: boolean }
   ): Promise<T> {
     return this.request<T>('PUT', url, data, config);
+  }
+
+  async patch<T>(
+    url: string,
+    data: any,
+    config?: { headers?: Record<string, string>; requiresAuth?: boolean }
+  ): Promise<T> {
+    return this.request<T>('PATCH', url, data, config);
   }
 
   async delete<T>(

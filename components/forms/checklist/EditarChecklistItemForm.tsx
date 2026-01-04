@@ -15,6 +15,7 @@ interface ChecklistProps {
     onClose: () => void;
     onSuccess?: () => void;
     actividad: Actividad | null;
+    checklistId: number;
 }
 
 //Esquema de validacion
@@ -34,6 +35,7 @@ export const EditarChecklistItemForm: React.FC<ChecklistProps> = ({
     onClose,
     onSuccess,
     actividad,
+    checklistId
 }) => {
     const queryClient = useQueryClient();
     const updateMutation = useUpdateChecklistItem();
@@ -59,12 +61,21 @@ export const EditarChecklistItemForm: React.FC<ChecklistProps> = ({
         }
     }, [actividad, form]); //se ejecuta cuando cambia la actividad
 
-    const handleSubmit = form.handleSubmit(() => {
+    const handleSubmit = form.handleSubmit((values) => {
+        if (!actividad) return;
+
         updateMutation.mutate({
-            id: actividad?.id || 0,
-            nombre: actividad?.nombre || "", 
-            descripcion: actividad?.descripcion || "",
-            estado: actividad?.estado || "PENDIENTE"
+            checklistId: checklistId, // ID Padre
+            data: {
+                ...actividad,     // Mantenemos ID y Estado originales
+                nombre: values.nombre,
+                descripcion: values.descripcion
+            }
+        }, {
+            onSuccess: () => {
+                onClose();
+                form.reset();
+            }
         });
     });
 

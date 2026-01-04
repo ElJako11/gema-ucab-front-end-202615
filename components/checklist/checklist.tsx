@@ -2,7 +2,10 @@ import type { Actividad, Checklist } from "@/types/checklist.types";
 import Card from "./card";
 import { EliminarChecklistItem} from "../forms/checklist/EliminarChecklistItemForm";
 import { AgregarChecklistItemForm } from "../forms/checklist/AgregarChecklistItemForm";
+import { useUpdateChecklistItem } from "@/hooks/checklist/useUpdateChecklistItem";
+import { exportChecklistPDF } from "@/lib/api/checklist";
 import { EditarChecklistItemForm } from "../forms/checklist/EditarChecklistItemForm";
+import { useUpdateStatus } from "@/hooks/checklist/useUpdateStatusChecklistItem";
 import { Button } from "../ui/button";
 
 import { useEffect, useState } from "react";
@@ -10,19 +13,19 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, 
     Check, 
     CirclePlus, 
-    Edit, 
     Pencil, 
     Share, 
     Trash2 
 } from "lucide-react";
 
 interface ChecklistProps {
+    idTrabajo: number;
     checklist: Checklist;
     onBack : () => void;
 }
 
-const Checklist = ({ checklist, onBack }: ChecklistProps) => {
-    const [tasks, setTasks] = useState(checklist.tareas);
+const Checklist = ({ idTrabajo, checklist, onBack }: ChecklistProps) => {
+    const [tasks, setTasks] = useState(checklist.tareas || []);
     const [activityToDelete, setActivityToDelete] = useState<Actividad | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [activityToEdit, setActivityToEdit] = useState<Actividad | null>(null);
@@ -30,21 +33,42 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
 
     // Actualizar tareas si el checklist cambia
     useEffect(() => {
-        setTasks(checklist.tareas);
+        console.log("Datos actualizados recibidos:", checklist.tareas); // Debug
+        setTasks(checklist.tareas || []);
     }, [checklist.tareas]);
 
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter(t => t.estado == "COMPLETADA").length;
+    const safeTasks = tasks || []; 
+    const totalTasks = safeTasks.length;
+    const completedTasks = safeTasks.filter(t => t.estado == "COMPLETADA").length;
     const pendingTasks = totalTasks - completedTasks;
     const progressPercentage = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
+    const { mutate: updateTask } = useUpdateStatus();
+
+
     //Marcar o desmarcar tarea completada
-    const toggleTask = (id:number) => {
+    const toggleTask = (id: number) => {
+        // Buscamos la tarea actual para saber su estado
+        const currentTask = tasks.find(t => t.id === id);
+        if (!currentTask) return;
+
+        // Determinamos el nuevo estado contrario al actual
+        const newStatus = currentTask.estado === "COMPLETADA" ? "PENDIENTE" : "COMPLETADA";
+
+        // PASO A: Actualización Optimista (Visualmente instantáneo)
         setTasks(currentTasks => 
-        currentTasks.map(task => 
-            task.id === id ? { ...task, estado: task.estado === "COMPLETADA" ? "PENDIENTE" : "COMPLETADA" } : task
-        )
+            currentTasks.map(task => 
+                task.id === id ? { ...task, estado: newStatus } : task
+            )
         );
+
+        // PASO B: Llamada a la API (Segundo plano)
+        // Solo enviamos el estado, el ID del checklist y el ID del item
+        updateTask({
+            trabajoId: idTrabajo,
+            checklistId: checklist.id,
+            itemId: id,
+        });
     };
 
     //Eliminar tarea
@@ -56,6 +80,31 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
     const handleEditClick = (task: Actividad) => {
         setActivityToEdit(task); // Guardamos la tarea seleccionada en el estado
         setIsEditModalOpen(true); // Abrimos el modal
+    };
+
+    const handleExport = async () => {
+        try {
+            console.log("Generando PDF..."); // Feedback visual opcional
+
+            // response SERÁ el objeto Blob directamente gracias al cambio en client.ts
+            const blob = await exportChecklistPDF(checklist.id); 
+            
+            // Crear URL y descargar
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${checklist.titulo || 'Checklist'}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            
+            link.parentNode?.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            
+            console.log("PDF descargado correctamente");
+        } catch (error) {
+            console.error("Error al exportar PDF:", error);
+            console.log("Error al descargar el PDF");
+        }
     };
 
     return (
@@ -72,7 +121,8 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
                     <p className="text-slate-500 ml-10 font-medium">{checklist.ubicacion}</p>
                 </div>
                 
-                <Button className="bg-sidebar-border text-black hover:bg-gray-300">
+                <Button className="bg-sidebar-border text-black hover:bg-gray-300"
+                onClick={handleExport}>
                     <Share size={18} />
                     <span>Exportar</span>
                 </Button>
@@ -166,11 +216,13 @@ const Checklist = ({ checklist, onBack }: ChecklistProps) => {
                 open={isEditModalOpen} 
                 onClose={() => setIsEditModalOpen(false)}
                 actividad={activityToEdit}
+                checklistId={checklist.id}
             />
 
             <EliminarChecklistItem
                 actividad={activityToDelete} 
                 setActividad={setActivityToDelete}
+                checklistId={checklist.id}
                 onDelete={(id) => {
                    console.log("Elemento eliminado:", id);
                 }}

@@ -48,17 +48,19 @@ export const AgregarChecklistItemForm: React.FC<ChecklistProps> = ({
 
     const handleSubmit = form.handleSubmit((values) => {
         createMutation.mutate({
-            id: checklistId,
-            nombre: values.nombre,
-            descripcion: values.descripcion || "",
-            estado: "PENDIENTE"
+            checklistId: checklistId, // <--- 2. Pasamos el ID al hook
+            data: {
+                id: 0, // No importa, es nuevo
+                nombre: values.nombre,
+                descripcion: values.descripcion || "",
+                estado: "PENDIENTE"
+            }
         }, {
             onSuccess: () => {
                 form.reset();
                 onClose();
             }
-        }
-        );
+        });
     });
 
     const handleClose = () => {
