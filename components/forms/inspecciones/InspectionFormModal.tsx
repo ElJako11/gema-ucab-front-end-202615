@@ -51,10 +51,31 @@ export const InspectionFormContent: React.FC<{
     const onSubmit = (data: InspeccionFormData) => {
         console.log("📝 [INSPECCIÓN FORM] Datos del formulario recibidos:", data);
         
+        // Obtener la fecha actual local del computadora (sin zona horaria)
+        const ahora = new Date();
+        const año = ahora.getFullYear();
+        const mes = String(ahora.getMonth() + 1).padStart(2, '0'); // getMonth() devuelve 0-11
+        const día = String(ahora.getDate()).padStart(2, '0');
+        const fechaCreacion = `${año}-${mes}-${día}`;
+        
+        console.log("📅 [INSPECCIÓN FORM] Fecha actual del computadora:", {
+            fechaCompleta: ahora,
+            año,
+            mes,
+            día,
+            fechaCreacion,
+            método: 'getFullYear/getMonth/getDate (local)',
+            // Verificaciones adicionales
+            fechaActualToString: ahora.toString(),
+            fechaActualToDateString: ahora.toDateString(),
+            fechaActualToLocaleDateString: ahora.toLocaleDateString(),
+            timeZoneOffset: ahora.getTimezoneOffset()
+        });
+        
         // Mapear los datos del formulario al formato que espera el backend
         const inspeccionData = {
             tipoTrabajo: "Inspeccion" as const,
-            fechaCreacion: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
+            fechaCreacion: fechaCreacion,
             idUbicacionTecnica: data.idUbicacionTecnica,
             idGrupo: data.idGrupo,
             supervisorId: supervisores?.find(s => s.Nombre === data.supervisor)?.Id || 0,
@@ -65,6 +86,12 @@ export const InspectionFormContent: React.FC<{
         };
 
         console.log("🔄 [INSPECCIÓN FORM] Datos mapeados para el backend:", inspeccionData);
+        console.log("🔍 [INSPECCIÓN FORM] Verificación de fechaCreacion:", {
+            fechaCreacionEnviada: inspeccionData.fechaCreacion,
+            tipoFechaCreacion: typeof inspeccionData.fechaCreacion,
+            longitudFechaCreacion: inspeccionData.fechaCreacion.length,
+            formatoCorrecto: /^\d{4}-\d{2}-\d{2}$/.test(inspeccionData.fechaCreacion)
+        });
         console.log("👤 [INSPECCIÓN FORM] Supervisor encontrado:", {
             nombreSeleccionado: data.supervisor,
             supervisorEncontrado: supervisores?.find(s => s.Nombre === data.supervisor),

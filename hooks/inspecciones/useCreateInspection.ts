@@ -25,6 +25,11 @@ export const useCreateInspection = () => {
       try {
         const response = await apiClient.post("/work-creation", data);
         console.log("✅ [INSPECCIÓN] Respuesta exitosa del servidor:", response);
+        console.log("🔍 [INSPECCIÓN] Verificación de respuesta del servidor:", {
+          tieneData: !!response?.data,
+          fechaCreacionEnRespuesta: response?.data?.fechaCreacion || response?.fechaCreacion,
+          respuestaCompleta: response
+        });
         return response;
       } catch (error) {
         console.error("❌ [INSPECCIÓN] Error en la petición:", error);
@@ -37,11 +42,25 @@ export const useCreateInspection = () => {
       
       // Invalidar múltiples queries para refrescar datos
       console.log("🔄 [INSPECCIÓN] Invalidando queries...");
+      
+      // Invalidar queries específicas
       queryClient.invalidateQueries({ queryKey: ["inspecciones"] });
       queryClient.invalidateQueries({ queryKey: ["trabajos"] });
       queryClient.invalidateQueries({ queryKey: ["work-creation"] });
       queryClient.invalidateQueries({ queryKey: ["elementos"] });
-      queryClient.invalidateQueries({ queryKey: ["calendario"] }); // Nuevo: invalidar calendario
+      
+      // Invalidar todas las queries del calendario (importante para actualización inmediata)
+      queryClient.invalidateQueries({ queryKey: ["calendario"] });
+      
+      // También invalidar queries específicas del calendario por si acaso
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          return query.queryKey[0] === "calendario" || 
+                 query.queryKey.includes("mantenimientos") ||
+                 query.queryKey.includes("inspecciones");
+        }
+      });
+      
       console.log("✅ [INSPECCIÓN] Queries invalidadas correctamente");
     },
     onError: (error: any) => {
