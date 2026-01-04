@@ -58,7 +58,7 @@ const items = [
     icon: File,
     label: 'Plantillas',
     path: '/plantillas'
-  }
+  },
   {
     icon: BarChart3,
     label: 'Estadísticas',
