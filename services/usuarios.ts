@@ -50,7 +50,7 @@ export const crearUsuario = async (params: UsuarioResponse): Promise<Usuario | n
 };
 
 export const editUsuario = async (id: number, user: UsuarioResponse): Promise<Usuario | null> => {
-  const response = await apiClient.put<UsuarioResponse>(`/usuarios/${id}`, user);
+  const response = await apiClient.patch<UsuarioResponse>(`/usuarios/${id}`, user);
 
   return normalizeUsuario(response);
 };

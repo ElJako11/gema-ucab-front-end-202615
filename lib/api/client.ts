@@ -141,6 +141,13 @@ class ApiClient {
     return this.request<T>('DELETE', url, undefined, config);
   }
 
+  async patch<T>(
+    url: string,
+    data: any,
+    config?: { headers?: Record<string, string>; requiresAuth?: boolean }
+  ): Promise<T> {
+    return this.request<T>('PATCH', url, data, config);
+  }
   // Método especial para subida de archivos (sin Content-Type: json)
   async upload<T>(
     url: string,

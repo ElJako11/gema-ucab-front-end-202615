@@ -12,7 +12,9 @@ export const useUpdateUsuario = () => {
             queryClient.invalidateQueries({ queryKey: ["usuarios"] });
         },
         onError: (error) => {
-            toast.error("Error al actualizar usuario");
+            // Surface backend error messages (e.g., correo ya registrado) when available
+            const message = error instanceof Error && error.message ? error.message : "Error al actualizar usuario";
+            toast.error(message);
         },
     });
 };

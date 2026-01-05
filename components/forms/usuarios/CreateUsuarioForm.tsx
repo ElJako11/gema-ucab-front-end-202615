@@ -38,6 +38,8 @@ export const CreateUsuarioForm: React.FC<CreateUsuarioFormProps> = ({
         },
     });
 
+    const { errors } = form.formState;
+
     const createUsuarioMutation = useCreateUsuario();
 
     const handleSubmit = (values: z.infer<typeof usuarioSchema>) => {
@@ -50,6 +52,14 @@ export const CreateUsuarioForm: React.FC<CreateUsuarioFormProps> = ({
             onSuccess: () => {
                 form.reset();
                 onOpenChange(false);
+            },
+            onError: (error) => {
+                const message = error instanceof Error ? error.message : "Error al crear usuario";
+                const lower = message.toLowerCase();
+                if (lower.includes("correo") || lower.includes("email")) {
+                    form.setError("correo", { type: "manual", message: "El correo electrónico ya está en uso" });
+                    form.setFocus("correo");
+                }
             }
         });
     };
@@ -82,7 +92,11 @@ export const CreateUsuarioForm: React.FC<CreateUsuarioFormProps> = ({
                                 <FormItem>
                                     <FormLabel>Correo Electrónico</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Ej: juan.perez@ucab.edu.ve" {...field} />
+                                        <Input
+                                            placeholder="Ej: juan.perez@ucab.edu.ve"
+                                            className={errors.correo ? "border-red-500 focus-visible:ring-red-500" : undefined}
+                                            {...field}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

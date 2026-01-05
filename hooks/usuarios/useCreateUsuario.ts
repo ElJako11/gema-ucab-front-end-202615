@@ -12,8 +12,8 @@ export const useCreateUsuario = () => {
             queryClient.invalidateQueries({ queryKey: ["usuarios"] });
         },
         onError: (error) => {
-            console.error(error);
-            toast.error("Error al crear usuario");
+            const message = error instanceof Error && error.message ? error.message : "Error al crear usuario";
+            toast.error(message);
         },
     });
 };

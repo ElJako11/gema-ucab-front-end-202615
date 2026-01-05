@@ -73,7 +73,7 @@ export function AppSidebar() {
   const handleLogout = async () => {
     try {
       await logout()
-      router.push("/iniciar-sesion")
+      router.push("/login")
     } catch (error) {
       console.error("Error al cerrar sesión:", error)
     }
@@ -97,7 +97,7 @@ export function AppSidebar() {
                 <UserCircle size={24} />
                 <div className="flex flex-col group-data-[collapsible=icon]:hidden">
                   <span className="text-[1.05rem] font-semibold text-wrap!">
-                    {user?.nombre || "Usuario"}
+                    {user?.Nombre || "Usuario"}
                   </span>
                   <span className="text-sm">Coordinador</span>
                 </div>
