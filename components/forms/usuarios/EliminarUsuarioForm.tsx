@@ -3,10 +3,11 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useDeleteUsuario } from "@/hooks/usuarios/useDeleteUsuario";
+import { Usuario } from "@/types/usuarios.types";
 
 interface EliminarUsuarioFormProps {
-    usuario: any;
-    setUsuario: (usuario: any | null) => void;
+    usuario: Usuario;
+    setUsuario: (usuario: Usuario | null) => void;
 }
 
 export const EliminarUsuarioForm: React.FC<EliminarUsuarioFormProps> = ({
@@ -17,7 +18,7 @@ export const EliminarUsuarioForm: React.FC<EliminarUsuarioFormProps> = ({
 
     const handleDelete = () => {
         if (!usuario) return;
-        deleteUsuarioMutation.mutate(usuario.id || usuario.Id, {
+        deleteUsuarioMutation.mutate(usuario.id, {
             onSuccess: () => {
                 setUsuario(null);
             }
@@ -34,7 +35,7 @@ export const EliminarUsuarioForm: React.FC<EliminarUsuarioFormProps> = ({
                 <DialogHeader>
                     <DialogTitle>Eliminar Usuario</DialogTitle>
                     <DialogDescription>
-                        ¿Estás seguro que deseas eliminar al usuario <strong>{usuario?.nombre || usuario?.Nombre}</strong>? Esta acción no se puede deshacer.
+                        ¿Estás seguro que deseas eliminar al usuario <strong>{usuario?.nombre}</strong>? Esta acción no se puede deshacer.
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>

@@ -11,7 +11,7 @@ import {
 
 
 import {
-    getUsuarios,
+    fetchUsuarios as getAllUsuarios,
 } from "@/services/usuarios";
 
 
@@ -22,6 +22,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { CreateUsuarioForm } from "@/components/forms/usuarios/CreateUsuarioForm";
 import { EditUsuarioForm } from "@/components/forms/usuarios/EditUsuarioForm";
 import { EliminarUsuarioForm } from "@/components/forms/usuarios/EliminarUsuarioForm";
+import { Usuario } from "@/types/usuarios.types";
 
 const RegistroUsuarios: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,7 +31,7 @@ const RegistroUsuarios: React.FC = () => {
 
     const usuariosQuery = useQuery({
         queryKey: ["usuarios"],
-        queryFn: () => getUsuarios(),
+        queryFn: () => getAllUsuarios(),
     });
 
     const isLoading = usuariosQuery.isLoading;
@@ -94,24 +95,23 @@ const RegistroUsuarios: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {usuariosQuery.data?.data?.map((usuario: any) => (
-                            <tr key={usuario.id || usuario.Id}>
+                        {usuariosQuery.data?.map((usuario: Usuario) => (
+                            <tr key={usuario.id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     <div className="flex items-center gap-2">
                                         <User className="h-5 w-5 text-gray-500" />
-                                        {usuario.nombre || usuario.Nombre}
+                                        {usuario.nombre}
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     <div className="flex items-center gap-2">
                                         <Mail className="h-5 w-5 text-gray-400" />
-                                        {usuario.correo || usuario.Correo}
+                                        {usuario.correo}
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${(usuario.tipo || usuario.Tipo) === 'COORDINADOR' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
-                                        }`}>
-                                        {usuario.tipo || usuario.Tipo}
+                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800`}>
+                                        {usuario.tipo}
                                     </span>
                                 </td>
                                 <td className="flex items-center gap-2 px-6 py-4 whitespace-nowrap text-sm">
@@ -149,16 +149,16 @@ const RegistroUsuarios: React.FC = () => {
 
                 {/* Cards en móvil */}
                 <div className="md:hidden space-y-4">
-                    {usuariosQuery.data?.data?.map((usuario: any) => (
+                    {usuariosQuery.data?.map((usuario: Usuario) => (
                         <div
-                            key={usuario.id || usuario.Id}
+                            key={usuario.id}
                             className="bg-white p-4 rounded-lg shadow border border-gray-200"
                         >
                             <div className="space-y-3">
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-2 font-medium text-gray-900">
                                         <User className="h-5 w-5 text-gray-500" />
-                                        {usuario.nombre || usuario.Nombre}
+                                        {usuario.nombre}
                                     </div>
                                     <div className="flex space-x-2">
                                         <Tooltip>
@@ -186,13 +186,13 @@ const RegistroUsuarios: React.FC = () => {
 
                                 <div className="flex items-center gap-2 text-sm text-gray-500">
                                     <Mail className="h-4 w-4" />
-                                    {usuario.correo || usuario.Correo}
+                                    {usuario.correo}
                                 </div>
 
                                 <div>
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${(usuario.tipo || usuario.Tipo) === 'COORDINADOR' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
+                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${usuario.tipo === 'COORDINADOR' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
                                         }`}>
-                                        {usuario.tipo || usuario.Tipo}
+                                        {usuario.tipo}
                                     </span>
                                 </div>
                             </div>

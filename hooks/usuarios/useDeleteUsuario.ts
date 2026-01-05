@@ -8,12 +8,11 @@ export const useDeleteUsuario = () => {
     return useMutation({
         mutationFn: deleteUsuario,
         onSuccess: () => {
+            toast.success("Usuario eliminado exitosamente");
             queryClient.invalidateQueries({ queryKey: ["usuarios"] });
-            toast.success("Usuario eliminado correctamente");
         },
-        onError: (error: any) => {
-            console.error("Error al eliminar usuario:", error);
-            toast.error("Error al eliminar el usuario");
+        onError: (error) => {
+            toast.error("Error al eliminar usuario");
         },
     });
 };

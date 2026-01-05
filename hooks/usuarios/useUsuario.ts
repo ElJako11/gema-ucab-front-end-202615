@@ -1,19 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { crearUsuario } from "@/services/usuarios";
+import { getUsuario, crearUsuario, editUsuario, deleteUsuario, fetchUsuarios } from "@/services/usuarios";
 
-export const useCreateUsuario = () => {
+export const getUsuarios = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: crearUsuario,
         onSuccess: () => {
+            toast.success("Usuario creado exitosamente");
             queryClient.invalidateQueries({ queryKey: ["usuarios"] });
-            toast.success("Usuario creado correctamente");
         },
-        onError: (error: any) => {
-            console.error("Error al crear usuario:", error);
-            toast.error("Error al crear el usuario");
+        onError: (error) => {
+            toast.error("Error al crear usuario");
         },
     });
 };
+
