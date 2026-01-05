@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "../../../lib/auth/contex";
+import { useAuth } from "../../../lib/auth/context";
 
 export default function LoginPage() {
   const { login, isLoading, error: authError } = useAuth();

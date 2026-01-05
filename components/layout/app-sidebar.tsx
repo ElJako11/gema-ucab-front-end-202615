@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from "@/components/sidebar/sidebar"
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/lib/auth/contex"
+import { useAuth } from "@/lib/auth/context"
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 
@@ -76,10 +76,19 @@ export function AppSidebar() {
 
   const handleLogout = async () => {
     try {
+      // 1. Ejecutar la lógica del contexto (que llama a la API)
       await logout()
-      router.push("/iniciar-sesion")
+      
+      // 2. Redirigir al login
+      router.push("/login")
+      
+      // 3. Refrescar para limpiar cachés de Next.js
+      router.refresh() 
+      
     } catch (error) {
       console.error("Error al cerrar sesión:", error)
+      // Fallback en caso de error crítico
+      router.push("/login")
     }
   }
 
@@ -101,7 +110,7 @@ export function AppSidebar() {
                 <UserCircle size={24} />
                 <div className="flex flex-col group-data-[collapsible=icon]:hidden">
                   <span className="text-[1.05rem] font-semibold text-wrap!">
-                    {user?.nombre || "Usuario"}
+                    {user?.Nombre || "Usuario"}
                   </span>
                   <span className="text-sm">Coordinador</span>
                 </div>

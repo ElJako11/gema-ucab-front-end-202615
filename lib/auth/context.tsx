@@ -56,15 +56,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await authAPI.logout()
+      await authAPI.logout();
     } catch (error) {
-      console.error('Error en logout:', error)
+      console.error("Error al notificar logout al backend", error);
     } finally {
-      setUser(null)
-      setError(null)
-      router.push('/login')
+      setUser(null); 
     }
-  }
+  };
 
   const checkAuth = async () => {
     try {

@@ -23,8 +23,7 @@ export const authAPI = {
   },
 
   async logout(): Promise<void> {
-    await apiClient.post('/auth/logout')
-    // El backend debe limpiar la cookie
+    return apiClient.post('/auth/logout', undefined); 
   },
 
   async verifyAuth(): Promise<boolean> {
