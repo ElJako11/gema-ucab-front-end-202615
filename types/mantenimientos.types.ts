@@ -3,7 +3,7 @@ export type Mantenimiento = {
     FechaCreacion: Date;
     FechaLimite: Date;
     Ubicacion: string;
-    Estado: "NO EMPEZADO" | "EN EJECUCION" | "REPROGRAMADO" | "CULMINADO";
+    Estado: "No empezado" | "En ejecución" | "Reprogramado" | "Culminado";
     Tipo: "PREVENTIVO" | "POR CONDICION";
     Resumen: string;
     Prioridad: "BAJA" | "MEDIA" | "ALTA";
