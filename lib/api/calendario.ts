@@ -1,36 +1,12 @@
+import { Inspeccion } from "@/types/inspecciones.types";
 import apiClient from "./client";
+import { Mantenimiento } from "@/types/mantenimientos.types";
 
-// Tipos para el calendario
-export interface EventoCalendario {
-  // Campos comunes
-  id?: number;
-  titulo?: string;
-  fecha?: string;
-  tipo?: "Mantenimiento" | "Inspeccion";
-  prioridad?: "Alta" | "Media" | "Baja";
-  estado?: string;
-  ubicacionTecnica?: string;
-  ubicacion?: string;
-  supervisor?: string;
-  grupo?: string;
-  
-  // Campos específicos de mantenimientos
-  idMantenimiento?: number;
-  fechaLimite?: string;
-  nombre?: string;
-  
-  // Campos específicos de inspecciones  
-  idInspeccion?: number;
-  
-  // Permitir campos adicionales para flexibilidad
-  [key: string]: any;
-}
+
 
 export interface CalendarioResponse {
-  inspecciones?: EventoCalendario[];
-  mantenimientos?: EventoCalendario[];
-  // Mantener compatibilidad con estructura anterior
-  data?: EventoCalendario[];
+    inspecciones?: Inspeccion[];
+    mantenimientos?: Mantenimiento[];
 }
 
 export type FiltroCalendario = "mensual" | "semanal";

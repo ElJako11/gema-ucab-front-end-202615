@@ -8,9 +8,10 @@ interface MaintenanceSummaryModalProps {
     open: boolean;
     onClose: () => void;
     data?: any; // To be typed properly later
+    mantenimientoId?: number; // ID del mantenimiento para el enlace
 }
 
-export const MaintenanceSummaryModal: React.FC<MaintenanceSummaryModalProps> = ({ open, onClose, data }) => {
+export const MaintenanceSummaryModal: React.FC<MaintenanceSummaryModalProps> = ({ open, onClose, data, mantenimientoId }) => {
     return (
         <Modal
             isOpen={open}
@@ -64,7 +65,7 @@ export const MaintenanceSummaryModal: React.FC<MaintenanceSummaryModalProps> = (
             </div>
             <div className="flex justify-end gap-2 mt-4">
                 <Button variant="ghost" onClick={onClose}>Cancelar</Button>
-                <Link href="/mantenimientos/detalle">
+                <Link href={mantenimientoId ? `/mantenimientos/detalle/${mantenimientoId}` : "/mantenimientos/detalle"}>
                     <Button variant="outline" className="border-gema-green text-gema-green hover:bg-gema-green/10">
                         Ver detalle del mantenimiento
                     </Button>
