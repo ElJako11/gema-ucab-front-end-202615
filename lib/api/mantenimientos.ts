@@ -32,5 +32,9 @@ export const mantenimientosAPI = {
 
     async getResumen(id: number): Promise<any> {
         return apiClient.get<any>(`/mantenimientos/${id}/resumen`);
+    },
+
+    async getDetalle(id: number): Promise<any> {
+        return apiClient.get<any>(`/mantenimientos/${id}`);
     }
 }
