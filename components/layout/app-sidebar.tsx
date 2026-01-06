@@ -2,7 +2,7 @@
 'use client'
 
 import { useEffect, useRef } from "react"
-import { LogOut, MapPin, UserCircle, Users, UserPlus, FileText, ClipboardCheck, Calendar, User,BarChart3,File } from "lucide-react"
+import { LogOut, MapPin, UserCircle, Users, UserPlus, FileText, ClipboardCheck, Calendar, User, BarChart3, File } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -78,13 +78,13 @@ export function AppSidebar() {
     try {
       // 1. Ejecutar la lógica del contexto (que llama a la API)
       await logout()
-      
+
       // 2. Redirigir al login
       router.push("/login")
-      
+
       // 3. Refrescar para limpiar cachés de Next.js
-      router.refresh() 
-      
+      router.refresh()
+
     } catch (error) {
       console.error("Error al cerrar sesión:", error)
       // Fallback en caso de error crítico
@@ -128,7 +128,7 @@ export function AppSidebar() {
             <SidebarMenuItem key={item.label}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === item.path}
+                isActive={pathname.startsWith(item.path)}
               >
                 <Link href={item.path}>
                   <item.icon />

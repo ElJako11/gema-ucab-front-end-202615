@@ -17,19 +17,7 @@ import {
 } from "lucide-react";
 import Link from 'next/link';
 import { useInspeccionDetalle } from '@/hooks/inspecciones/useInspecciones';
-
-interface Inspeccion {
-    Id: number;
-    titulo?: string;
-    fechaCreacion: Date;
-    ubicacion: string;
-    Estado: "NO EMPEZADO" | "EN EJECUCION" | "REPROGRAMADO" | "CULMINADO";
-    Supervisor: string;
-    Observaciones: string;
-    Frecuencia: string;
-    AreaEncargada: string;
-    codigoVerificacion?: string;
-}
+import { InspeccionAPI } from '@/lib/api/inspecciones';
 
 export default function InspeccionDetalle() {
     const [editModalOpen, setEditModalOpen] = useState(false);
@@ -43,7 +31,11 @@ export default function InspeccionDetalle() {
     // Usar el hook para obtener datos del mantenimiento
     const { data, isLoading, error } = useInspeccionDetalle(id);
 
-    console.log(data);
+    if (isLoading) {
+        return (
+            <div>Esperando...</div>
+        )
+    }
 
     return (
         <div className="p-8 space-y-6  min-h-screen">
@@ -140,7 +132,7 @@ export default function InspeccionDetalle() {
 
                 {/* Programacion */}
                 <div className="mb-8">
-                    <h3 className="font-bold text-lg mb-4">Programación del Inspección</h3>
+                    <h3 className="font-bold text-lg mb-4">Programación de Inspección</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-2">
                             <span className="font-bold">Fecha de creación</span>
