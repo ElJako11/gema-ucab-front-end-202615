@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { EditMaintenanceModal } from "@/components/forms/mantenimientos/EditMaintenanceModal";
 import { DeleteMaintenanceModal } from "@/components/forms/mantenimientos/DeleteMaintenanceModal";
 import { useMantenimientoDetalle } from "@/hooks/mantenimientos/useMantenimiento";
+import { AgregarChecklistForm } from "@/components/forms/checklist/AgregarChecklistForm";
 import {
     Clock,
     AlertCircle,
@@ -22,14 +23,15 @@ import Link from 'next/link';
 export default function MantenimientoDetalle() {
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    
+    const [addChecklistModalOpen, setAddChecklistModalOpen] = useState(false);
+
     // Obtener el ID de la URL
     const params = useParams();
     const id = parseInt(params.id as string);
-    
+
     // Usar el hook para obtener datos del mantenimiento
     const { data: maintenanceData, isLoading, error } = useMantenimientoDetalle(id);
-    
+
     // Console.log para ver la estructura de los datos
     useEffect(() => {
         console.log("🔍 [MANTENIMIENTO DETALLE] Datos recibidos:", maintenanceData);
@@ -44,10 +46,10 @@ export default function MantenimientoDetalle() {
     if (!maintenanceData) return <div className="p-8">Mantenimiento no encontrado</div>;
 
     // Usar datos reales cuando estén disponibles, sino mock data
-    const data = maintenanceData; 
+    const data = maintenanceData;
 
 
-    console.log(data); 
+    console.log(data);
 
     return (
         <div className="p-8 space-y-6 min-h-screen">
@@ -198,7 +200,11 @@ export default function MantenimientoDetalle() {
                         </div>
 
                         {/* Add Button */}
-                        <Button variant="outline" className="w-full h-full min-h-[50px] border-dashed border-2 text-slate-600 hover:text-slate-900 hover:border-slate-400">
+                        <Button
+                            variant="outline"
+                            className="w-full h-full min-h-[50px] border-dashed border-2 text-slate-600 hover:text-slate-900 hover:border-slate-400"
+                            onClick={() => setAddChecklistModalOpen(true)}
+                        >
                             <Plus className="w-5 h-5 mr-2" />
                             Agregar Checklist
                         </Button>
@@ -220,6 +226,16 @@ export default function MantenimientoDetalle() {
                 onClose={() => setDeleteModalOpen(false)}
                 onConfirm={() => { alert('Eliminado'); setDeleteModalOpen(false); }}
                 maintenanceName={data.title}
+            />
+
+            {/* Add Checklist Modal */}
+            <AgregarChecklistForm
+                open={addChecklistModalOpen}
+                onClose={() => setAddChecklistModalOpen(false)}
+                onSuccess={(data) => {
+                    console.log("Checklist added:", data);
+                    setAddChecklistModalOpen(false);
+                }}
             />
         </div>
     );
