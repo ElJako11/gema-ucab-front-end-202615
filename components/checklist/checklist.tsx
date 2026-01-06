@@ -2,7 +2,6 @@ import type { Actividad, Checklist } from "@/types/checklist.types";
 import Card from "./card";
 import { EliminarChecklistItem} from "../forms/checklist/EliminarChecklistItemForm";
 import { AgregarChecklistItemForm } from "../forms/checklist/AgregarChecklistItemForm";
-import { useUpdateChecklistItem } from "@/hooks/checklist/useUpdateChecklistItem";
 import { exportChecklistPDF } from "@/lib/api/checklist";
 import { EditarChecklistItemForm } from "../forms/checklist/EditarChecklistItemForm";
 import { useUpdateStatus } from "@/hooks/checklist/useUpdateStatusChecklistItem";
@@ -15,7 +14,8 @@ import { ArrowLeft,
     CirclePlus, 
     Pencil, 
     Share, 
-    Trash2 
+    Trash2, 
+    Loader2
 } from "lucide-react";
 
 interface ChecklistProps {
@@ -30,6 +30,7 @@ const Checklist = ({ idTrabajo, checklist, onBack }: ChecklistProps) => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [activityToEdit, setActivityToEdit] = useState<Actividad | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
 
     // Actualizar tareas si el checklist cambia
     useEffect(() => {
@@ -84,6 +85,8 @@ const Checklist = ({ idTrabajo, checklist, onBack }: ChecklistProps) => {
 
     const handleExport = async () => {
         try {
+            setIsExporting(true);
+
             console.log("Generando PDF..."); // Feedback visual opcional
 
             // response SERÁ el objeto Blob directamente gracias al cambio en client.ts
@@ -104,6 +107,8 @@ const Checklist = ({ idTrabajo, checklist, onBack }: ChecklistProps) => {
         } catch (error) {
             console.error("Error al exportar PDF:", error);
             console.log("Error al descargar el PDF");
+        } finally{
+            setIsExporting(false);
         }
     };
 
@@ -122,9 +127,20 @@ const Checklist = ({ idTrabajo, checklist, onBack }: ChecklistProps) => {
                 </div>
                 
                 <Button className="bg-sidebar-border text-black hover:bg-gray-300"
-                onClick={handleExport}>
-                    <Share size={18} />
-                    <span>Exportar</span>
+                onClick={handleExport}
+                disabled={isExporting}>
+                    {isExporting ? (
+                        <>
+                            {/* Icono girando */}
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                            Generando PDF...
+                        </>
+                    ) : (
+                        <>
+                            <Share size={18} />
+                            <span>Exportar</span>
+                        </>
+                    )}
                 </Button>
             </header>
 
