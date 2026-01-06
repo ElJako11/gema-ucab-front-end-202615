@@ -21,6 +21,8 @@ import {
     FormMessage,
 } from "../form";
 import { useGetPlantillas } from "@/hooks/plantillas/useGetPlantillas";
+import { useCreateChecklist } from "@/hooks/checklist/useCreateChecklist";
+import { useCreateChecklisfromPlantilla } from "@/hooks/checklist/useCreateChecklisfromPlantilla";
 
 // Define the schema
 const checklistSchema = z.object({
@@ -50,13 +52,15 @@ type ChecklistFormValues = z.infer<typeof checklistSchema>;
 interface AgregarChecklistFormProps {
     open: boolean;
     onClose: () => void;
-    onSuccess?: (data: ChecklistFormValues) => void;
+    onSuccess?: (data: any) => void;
+    maintenanceId: number;
 }
 
 export const AgregarChecklistForm: React.FC<AgregarChecklistFormProps> = ({
     open,
     onClose,
     onSuccess,
+    maintenanceId
 }) => {
     const form = useForm<ChecklistFormValues>({
         resolver: zodResolver(checklistSchema),
@@ -81,12 +85,39 @@ export const AgregarChecklistForm: React.FC<AgregarChecklistFormProps> = ({
         }
     }, [open, reset]);
 
+    // Hooks for creating checklist
+    const createNewChecklist = useCreateChecklist();
+    const createFromPlantilla = useCreateChecklisfromPlantilla();
+
     const onSubmit = (data: ChecklistFormValues) => {
-        console.log("Checklist Data:", data);
-        if (onSuccess) {
-            onSuccess(data);
+        if (data.opcion === "Nuevo") {
+            createNewChecklist.mutate(data.nombre!, {
+                onSuccess: () => {
+                    console.log("Checklist created successfully");
+                    if (onSuccess) onSuccess(data);
+                    handleClose();
+                },
+                onError: (error) => {
+                    console.error("Error creating checklist:", error);
+                }
+            });
+        } else {
+            if (data.plantilla) {
+                createFromPlantilla.mutate({
+                    idTrabajo: maintenanceId,
+                    idPlantilla: parseInt(data.plantilla)
+                }, {
+                    onSuccess: () => {
+                        console.log("Checklist created from template successfully");
+                        if (onSuccess) onSuccess(data);
+                        handleClose();
+                    },
+                    onError: (error) => {
+                        console.error("Error creating checklist from template:", error);
+                    }
+                });
+            }
         }
-        onClose();
     };
 
     const handleClose = () => {

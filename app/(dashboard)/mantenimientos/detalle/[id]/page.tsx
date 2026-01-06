@@ -236,6 +236,7 @@ export default function MantenimientoDetalle() {
                     console.log("Checklist added:", data);
                     setAddChecklistModalOpen(false);
                 }}
+                maintenanceId={id}
             />
         </div>
     );
