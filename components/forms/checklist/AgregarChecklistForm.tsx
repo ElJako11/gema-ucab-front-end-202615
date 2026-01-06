@@ -24,7 +24,7 @@ import {
 // Define the schema
 const checklistSchema = z.object({
     opcion: z.enum(["Nuevo", "Plantilla"]),
-    nombre: z.string().min(1, "El nombre del checklist es requerido"),
+    nombre: z.string().optional(),
     plantilla: z.string().optional(),
 }).refine((data) => {
     if (data.opcion === "Plantilla" && !data.plantilla) {
@@ -34,6 +34,14 @@ const checklistSchema = z.object({
 }, {
     message: "Debe seleccionar una plantilla",
     path: ["plantilla"],
+}).refine((data) => {
+    if (data.opcion === "Nuevo" && (!data.nombre || data.nombre.length < 1)) {
+        return false;
+    }
+    return true;
+}, {
+    message: "El nombre del checklist es requerido",
+    path: ["nombre"],
 });
 
 type ChecklistFormValues = z.infer<typeof checklistSchema>;
