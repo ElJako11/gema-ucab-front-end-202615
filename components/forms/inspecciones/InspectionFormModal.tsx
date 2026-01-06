@@ -81,7 +81,7 @@ export const InspectionFormContent: React.FC<{
             fechaCreacion: fechaCreacion,
             idUbicacionTecnica: data.idUbicacionTecnica,
             idGrupo: data.idGrupo,
-            supervisorId: supervisores?.find(s => s.Nombre === data.supervisor)?.Id || 0,
+            supervisorId: supervisores?.find(s => s.nombre === data.supervisor)?.id || 0,
             areaEncargada: data.areaEncargada,
             prioridad: data.prioridad,
             fechaLimite: data.fechaLimite,
