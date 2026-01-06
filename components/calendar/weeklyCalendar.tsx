@@ -95,15 +95,17 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
   const formattedDate = currentDate.toISOString().split('T')[0];
 
   // Fetch de eventos del calendario (mantenimientos e inspecciones) con filtro semanal
-  const { data: datosCalendario, isLoading, error } = useCalendarioSemanal(formattedDate); 
+  const { data: datosCalendario, isLoading, error } = useCalendarioSemanal(formattedDate);
 
   // Extraer arrays separados
   const inspecciones = datosCalendario?.inspecciones || [];
   const mantenimientos = datosCalendario?.mantenimientos || [];
-  const eventos = [...inspecciones,...mantenimientos]; // Para compatibilidad 
+  const eventos = [...inspecciones, ...mantenimientos]; // Para compatibilidad 
 
   // Generar datos de la semana basándose en la fecha actual
   const semanaDataBase = generateWeekData(currentDate);
+
+  console.log(eventos);
 
   // Distribuir eventos a los días correspondientes
   const semanaData = useMemo(() => {
@@ -116,7 +118,7 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
         .filter((evento: any) => {
           // Usar el campo correcto según el tipo de evento
           let fechaEvento = '';
-          
+
           if (evento.idInspeccion) {
             fechaEvento = evento.fechaCreacion; // ← Para inspecciones
           } else if (evento.idMantenimiento) {
@@ -124,7 +126,7 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
           } else {
             fechaEvento = evento.fecha || '';
           }
-          
+
           return fechaEvento === diaDateStr;
         })
         .map((evento: any) => {
@@ -132,7 +134,7 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
           let tipo = '';
           let id = '';
           let titulo = '';
-          
+
           // Para inspecciones
           if (evento.idInspeccion) {
             tipo = 'inspeccion';
@@ -161,7 +163,7 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
             estado: evento.estado || 'no empezado',
             fechaLimite: evento.fechaLimite || evento.fecha || diaDateStr
           };
-          
+
           return tareaMappeada;
         });
 
@@ -195,6 +197,8 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
   const handleTaskClick = (tarea: any, fecha: Date) => {
     if (tarea.tipo === 'mantenimiento') {
       // Usar datos básicos de la tarea mientras se carga el resumen
+
+      //Llamar al servicio 
       const basicMaintenanceData = {
         estado: tarea.estado || 'No empezado',
         prioridad: 'Media',
@@ -205,10 +209,10 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
         titulo: tarea.titulo || 'Sin título',
         id: tarea.id // Agregar el ID para el enlace
       };
-      
+
       setSelectedMaintenanceData(basicMaintenanceData);
       setIsMaintenanceModalOpen(true);
-      
+
       // El hook se encargará de obtener los datos detallados
       // El modal puede mostrar un estado de carga si es necesario
     } else if (tarea.tipo === 'inspeccion') {
@@ -219,7 +223,8 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
         area: 'Por definir',
         frecuencia: 'Mensual',
         ubicacion: tarea.area || 'Ubicación por definir',
-        observacion: 'Sin observaciones'
+        observacion: 'Sin observaciones',
+        id: tarea.id
       };
       setSelectedInspectionData(inspectionData);
       setIsInspectionModalOpen(true);
@@ -397,6 +402,7 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
         open={isInspectionModalOpen}
         onClose={() => setIsInspectionModalOpen(false)}
         data={selectedInspectionData}
+        inspeccionId={selectedInspectionData?.id}
       />
     </div>
   )

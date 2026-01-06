@@ -19,8 +19,7 @@ export const useCreateInspection = () => {
 
   return useMutation({
     mutationFn: async (data: CreateInspectionRequest) => {
-      console.log("🔄 [INSPECCIÓN] Iniciando creación de inspección...");
-      console.log("📤 [INSPECCIÓN] Datos enviados:", JSON.stringify(data, null, 2));
+
       
       try {
         const response = await apiClient.post("/work-creation", data);

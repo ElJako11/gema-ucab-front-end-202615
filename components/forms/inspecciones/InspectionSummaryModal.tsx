@@ -7,9 +7,12 @@ interface InspectionSummaryModalProps {
     open: boolean;
     onClose: () => void;
     data?: any;
+    inspeccionId?: number; // ID del mantenimiento para el enlace
 }
 
-export const InspectionSummaryModal: React.FC<InspectionSummaryModalProps> = ({ open, onClose, data }) => {
+export const InspectionSummaryModal: React.FC<InspectionSummaryModalProps> = ({ open, onClose, data, inspeccionId }) => {
+
+    console.log(data);
     return (
         <Modal
             isOpen={open}
@@ -62,7 +65,7 @@ export const InspectionSummaryModal: React.FC<InspectionSummaryModalProps> = ({ 
 
             <div className="flex justify-end gap-2 mt-4">
                 <Button variant="ghost" onClick={onClose}>Cancelar</Button>
-                <Link href="/inspecciones/detalle">
+                <Link href={`/inspecciones/${inspeccionId}`}>
                     <Button variant="outline" className="border-gema-green text-gema-green hover:bg-gema-green/10">
                         Ver detalle de inspección
                     </Button>

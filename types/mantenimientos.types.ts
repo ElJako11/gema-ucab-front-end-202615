@@ -5,8 +5,9 @@ export type Mantenimiento = {
     FechaLimite: Date;
     Ubicacion: string;
     Estado: "No empezado" | "En ejecución" | "Reprogramado" | "Culminado";
-    Tipo: "PREVENTIVO" | "POR CONDICION";
+    Tipo: "Periodico" | "Por condicion";
     Resumen: string;
-    Prioridad: "BAJA" | "MEDIA" | "ALTA";
+    Prioridad: "Baja" | "Media" | "Alta";
     AreaEncargada: string;
+    Frecuencia?: "Diaria" | "Semanal" | "Mensual" | "Bimestral" | "Trimestral" | "Semestral" | "Anual";
 };
