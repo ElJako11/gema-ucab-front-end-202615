@@ -2,7 +2,6 @@ import type { Actividad, Checklist } from "@/types/checklist.types";
 import Card from "./card";
 import { EliminarChecklistItem} from "../forms/checklist/EliminarChecklistItemForm";
 import { AgregarChecklistItemForm } from "../forms/checklist/AgregarChecklistItemForm";
-import { useUpdateChecklistItem } from "@/hooks/checklist/useUpdateChecklistItem";
 import { exportChecklistPDF } from "@/lib/api/checklist";
 import { EditarChecklistItemForm } from "../forms/checklist/EditarChecklistItemForm";
 import { useUpdateStatus } from "@/hooks/checklist/useUpdateStatusChecklistItem";

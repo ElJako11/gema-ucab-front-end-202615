@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { EditMaintenanceModal } from "@/components/forms/mantenimientos/EditMaintenanceModal";
 import { DeleteMaintenanceModal } from "@/components/forms/mantenimientos/DeleteMaintenanceModal";
 import { useMantenimientoDetalle } from "@/hooks/mantenimientos/useMantenimiento";
+import { AgregarChecklistForm } from "@/components/forms/checklist/AgregarChecklistForm";
 import {
     Clock,
     AlertCircle,
@@ -18,10 +19,12 @@ import {
     ArrowLeft
 } from "lucide-react";
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 export default function MantenimientoDetalle() {
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [addChecklistModalOpen, setAddChecklistModalOpen] = useState(false);
 
     // Obtener el ID de la URL
     const params = useParams();
@@ -180,7 +183,11 @@ export default function MantenimientoDetalle() {
 
 
                         {/* Add Button */}
-                        <Button variant="outline" className="w-full h-full min-h-[50px] border-dashed border-2 text-slate-600 hover:text-slate-900 hover:border-slate-400">
+                        <Button
+                            variant="outline"
+                            className="w-full h-full min-h-[50px] border-dashed border-2 text-slate-600 hover:text-slate-900 hover:border-slate-400"
+                            onClick={() => setAddChecklistModalOpen(true)}
+                        >
                             <Plus className="w-5 h-5 mr-2" />
                             Agregar Checklist
                         </Button>
@@ -200,9 +207,21 @@ export default function MantenimientoDetalle() {
             <DeleteMaintenanceModal
                 open={deleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
-                onConfirm={() => { alert('Eliminado'); setDeleteModalOpen(false); }}
+                onConfirm={() => { toast.success("Mantenimiento eliminado con éxito"); setDeleteModalOpen(false); }}
                 maintenanceName={data.title}
+                maintenanceId={data.idMantenimiento}
             />
-        </div >
+
+            {/* Add Checklist Modal */}
+            <AgregarChecklistForm
+                open={addChecklistModalOpen}
+                onClose={() => setAddChecklistModalOpen(false)}
+                onSuccess={(data) => {
+                    console.log("Checklist added:", data);
+                    setAddChecklistModalOpen(false);
+                }}
+                maintenanceId={id}
+            />
+        </div>
     );
 }

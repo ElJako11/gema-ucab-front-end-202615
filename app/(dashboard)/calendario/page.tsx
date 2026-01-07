@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { MonthlyCalendar } from "@/components/calendar/monthlyCalendar";
 import { WeeklyCalendar } from "@/components/calendar/weeklyCalendar";
 import { Button } from "@/components/ui/button";
@@ -8,19 +10,45 @@ import { Modal } from '@/components/ui/modal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { InspectionFormContent } from "@/components/forms/inspecciones/InspectionFormModal";
 import { MaintenanceFormContent } from "@/components/forms/mantenimientos/MaintenanceFormContent";
-import { 
-    CirclePlus, 
-    FileText, 
+import {
+    CirclePlus,
+    FileText,
     Calendar
 } from "lucide-react";
 
 const Calendario = () => {
     //Vista Actual del Calendario (Mensual o Semanal) por defecto es mensual
     const [vistaActual, setVistaActual] = useState('mensual');
-    
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const hasShownToast = useRef(false);
+    const hasShownInspectionToast = useRef(false);
+
+    useEffect(() => {
+        if (searchParams.get('deleted') === 'true' && !hasShownToast.current) {
+            hasShownToast.current = true;
+            toast.success('Mantenimiento eliminado con éxito');
+            // Limpiar el parámetro de la URL
+            const newParams = new URLSearchParams(searchParams.toString());
+            newParams.delete('deleted');
+            router.replace(`/calendario?${newParams.toString()}`);
+        }
+    }, [searchParams, router]);
+
+    useEffect(() => {
+        if (searchParams.get('deletedInspection') === 'true' && !hasShownInspectionToast.current) {
+            hasShownInspectionToast.current = true;
+            toast.success('Inspección eliminada con éxito');
+            // Limpiar el parámetro de la URL
+            const newParams = new URLSearchParams(searchParams.toString());
+            newParams.delete('deletedInspection');
+            router.replace(`/calendario?${newParams.toString()}`);
+        }
+    }, [searchParams, router]);
+
     // Estado para la fecha seleccionada (para navegación entre vistas)
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-    
+
     // Estado para el modal de agregar elemento
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedType, setSelectedType] = useState(0);
@@ -52,7 +80,7 @@ const Calendario = () => {
 
     return (
         <div className="p-6 max-w-7.5xl">
-            
+
             <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 mb-6">
                 <div className="items-center gap-1">
                     <h1 className="text-2xl font-bold">Calendario de Mantenimiento e Inspecciones</h1>
@@ -104,7 +132,7 @@ const Calendario = () => {
                         </Select>
                     </div>
                     {selectedType === 1 && (
-                        <MaintenanceFormContent 
+                        <MaintenanceFormContent
                             onClose={handleCloseModal}
                             onSuccess={() => {
                                 // Aquí puedes agregar lógica adicional después de crear el mantenimiento
@@ -114,7 +142,7 @@ const Calendario = () => {
                         />
                     )}
                     {selectedType === 2 && (
-                        <InspectionFormContent 
+                        <InspectionFormContent
                             onClose={handleCloseModal}
                             onSuccess={() => {
                                 // Aquí puedes agregar lógica adicional después de crear la inspección

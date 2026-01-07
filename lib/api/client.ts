@@ -35,7 +35,7 @@ class ApiClient {
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     const isFormData = data instanceof FormData;
-    
+
     try {
       const response = await fetch(`${this.baseURL}${url}`, {
         method,
@@ -53,9 +53,9 @@ class ApiClient {
         // Intentamos leer el error (puede fallar si la respuesta de error no es JSON válido)
         let errorData;
         try {
-            errorData = await response.json();
+          errorData = await response.json();
         } catch {
-            errorData = { message: 'Error desconocido' };
+          errorData = { message: 'Error desconocido' };
         }
 
         const errorMessage = this.getErrorMessage(response.status, errorData);
@@ -69,13 +69,14 @@ class ApiClient {
 
         throw new Error(errorMessage);
       }
-      
+
       // Si la respuesta fue exitosa (ok=true), entonces decidimos cómo devolverla:
       if (config?.responseType === 'blob') {
         return response.blob() as unknown as T;
       }
 
-      return response.json();
+      const text = await response.text();
+      return text ? JSON.parse(text) : ({} as T);
 
     } catch (error) {
       clearTimeout(timeoutId);
@@ -164,13 +165,6 @@ class ApiClient {
     return this.request<T>('DELETE', url, undefined, config);
   }
 
-  async patch<T>(
-    url: string,
-    data: any,
-    config?: { headers?: Record<string, string>; requiresAuth?: boolean }
-  ): Promise<T> {
-    return this.request<T>('PATCH', url, data, config);
-  }
   // Método especial para subida de archivos (sin Content-Type: json)
   async upload<T>(
     url: string,

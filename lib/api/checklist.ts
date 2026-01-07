@@ -11,10 +11,6 @@ export async function deleteChecklistItem(checklistId: number, checklistItemId: 
   return apiClient.delete(`/item-checklist/${checklistId}/${checklistItemId}`);
 }
 
-export async function createChecklist(nombre: string) {
-  return apiClient.post<Checklist>(`/checklists`, { nombre });
-}
-
 export async function createChecklistItem(checklistId: number, data: Actividad) {
   const payload = {
     idChecklist: checklistId, 
@@ -46,4 +42,12 @@ export async function exportChecklistPDF(checklistId: number) {
 
 export async function updateChecklistStatus(idTrabajo: number,checklistId: number, itemId: number) {
   return apiClient.patch(`/estado-item/${idTrabajo}/${checklistId}/${itemId}`,undefined);
+}
+
+export async function createChecklistfromPlantilla(idTrabajo: number, idPlantilla: number) {
+    return apiClient.post(`/work-creation/checklist-template`, { idTrabajo, idPlantilla });
+}
+
+export async function createChecklist(nombre: string) {
+    return apiClient.post(`/checklists`, { nombre });
 }

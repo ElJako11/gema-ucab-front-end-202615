@@ -1,15 +1,40 @@
 import React from 'react';
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { useDeleteMantenimiento } from '@/hooks/mantenimientos/useDeleteMantenimiento';
+import { useRouter } from 'next/navigation';
 
 interface DeleteMaintenanceModalProps {
     open: boolean;
     onClose: () => void;
     onConfirm: () => void;
     maintenanceName: string;
+    maintenanceId: number;
 }
 
-export const DeleteMaintenanceModal: React.FC<DeleteMaintenanceModalProps> = ({ open, onClose, onConfirm, maintenanceName }) => {
+export const DeleteMaintenanceModal: React.FC<DeleteMaintenanceModalProps> = ({
+    open,
+    onClose,
+    onConfirm,
+    maintenanceName,
+    maintenanceId
+}) => {
+
+    const router = useRouter();
+
+    const { mutate: deleteMantenimiento, isPending } = useDeleteMantenimiento(maintenanceId);
+
+    const handleConfirmDelete = () => {
+        //ejecutar la mutación pasando el ID 
+
+        deleteMantenimiento(maintenanceId, {
+            onSuccess: () => {
+                onClose(); //cerrar el modal 
+                onConfirm();
+                router.push("/calendario?deleted=true");
+            }
+        });
+    }
     return (
         <Modal
             isOpen={open}
@@ -30,7 +55,7 @@ export const DeleteMaintenanceModal: React.FC<DeleteMaintenanceModalProps> = ({ 
                 </Button>
                 <Button
                     className="bg-red-600 hover:bg-red-700 text-white min-w-[100px]"
-                    onClick={onConfirm}
+                    onClick={handleConfirmDelete}
                 >
                     Eliminar
                 </Button>

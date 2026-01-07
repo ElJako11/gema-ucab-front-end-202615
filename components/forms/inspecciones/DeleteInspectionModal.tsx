@@ -1,15 +1,36 @@
 import React from 'react';
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { useDeleteInsepccion } from '@/hooks/inspecciones/useDeleteInspeccion';
+import { useRouter } from 'next/navigation';
 
 interface DeleteInspectionModalProps {
     open: boolean;
     onClose: () => void;
     onConfirm: () => void;
     inspectionName: string;
+    idInspeccion: number;
 }
 
-export const DeleteInspectionModal: React.FC<DeleteInspectionModalProps> = ({ open, onClose, onConfirm, inspectionName }) => {
+export const DeleteInspectionModal: React.FC<DeleteInspectionModalProps> = ({ open, onClose, onConfirm, inspectionName, idInspeccion }) => {
+
+
+    const router = useRouter();
+    const { mutate: deleteInspection, isPending } = useDeleteInsepccion(idInspeccion);
+
+    const handleConfirmDelete = () => {
+
+        deleteInspection(idInspeccion, {
+            onSuccess: () => {
+                onClose(); // cerrar el modal 
+                onConfirm();
+                router.push("/calendario?deletedInspection=true")
+            }
+        })
+    }
+
+
+
     return (
         <Modal
             isOpen={open}
@@ -30,7 +51,7 @@ export const DeleteInspectionModal: React.FC<DeleteInspectionModalProps> = ({ op
                 </Button>
                 <Button
                     className="bg-red-600 hover:bg-red-700 text-white min-w-[100px]"
-                    onClick={onConfirm}
+                    onClick={handleConfirmDelete}
                 >
                     Eliminar
                 </Button>

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Link from 'next/link';
 import { useInspeccionDetalle } from '@/hooks/inspecciones/useInspecciones';
-import { InspeccionAPI } from '@/lib/api/inspecciones';
+import { toast } from 'sonner';
 
 export default function InspeccionDetalle() {
     const [editModalOpen, setEditModalOpen] = useState(false);
@@ -33,9 +33,11 @@ export default function InspeccionDetalle() {
 
     if (isLoading) {
         return (
-            <div>Esperando...</div>
+            <div> Cargando inspección...</div>
         )
     }
+
+    console.log(data);
 
     return (
         <div className="p-8 space-y-6  min-h-screen">
@@ -158,7 +160,12 @@ export default function InspeccionDetalle() {
                         {/* Checklist Item */}
                         {data.checklist && (
                             <div className="flex items-center justify-between p-3 border border-slate-300 rounded-lg hover:border-slate-400 transition-colors">
-                                <span className="font-medium text-slate-900">{data.tituloChecklist}</span>
+                                <Link
+                                    href={`/detalle-trabajo?id=${id}&type=inspecciones`}
+                                    className="flex-1 hover:underline cursor-pointer"
+                                >
+                                    <span className="font-medium text-slate-900">{data.tituloChecklist}</span>
+                                </Link>
 
                             </div>
                         )}
@@ -192,8 +199,9 @@ export default function InspeccionDetalle() {
             <DeleteInspectionModal
                 open={deleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
-                onConfirm={() => { alert('Eliminado'); setDeleteModalOpen(false); }}
-                inspectionName={"diri"}
+                onConfirm={() => { toast.success("Inspección eliminada con éxito"); setDeleteModalOpen(false); }}
+                inspectionName={data.titulo}
+                idInspeccion={data.idInspeccion}
             />
         </div>
     );

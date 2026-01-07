@@ -23,10 +23,10 @@ interface InspectionFormModalProps {
     onSuccess?: () => void;
 }
 
-export const InspectionFormContent: React.FC<{ 
-    initialValues?: Partial<InspeccionFormData>, 
+export const InspectionFormContent: React.FC<{
+    initialValues?: Partial<InspeccionFormData>,
     onClose?: () => void,
-    onSuccess?: () => void 
+    onSuccess?: () => void
 }> = ({ initialValues, onClose, onSuccess }) => {
     const createInspectionMutation = useCreateInspection();
     const { data: ubicaciones, isLoading: isLoadingUbicaciones } = useUbicacionesLista();
@@ -52,36 +52,27 @@ export const InspectionFormContent: React.FC<{
     const frecuenciaSeleccionada = form.watch("frecuencia");
 
     const onSubmit = (data: InspeccionFormData) => {
-        console.log("📝 [INSPECCIÓN FORM] Datos del formulario recibidos:", data);
-        
+        console.log("📝 [INSPECCIÓN FORM] Datos recibidos del formulario:", data);
+        console.log("👥 [INSPECCIÓN FORM] Lista de supervisores disponibles:", supervisores);
+
         // Obtener la fecha actual local del computadora (sin zona horaria)
         const ahora = new Date();
         const año = ahora.getFullYear();
         const mes = String(ahora.getMonth() + 1).padStart(2, '0'); // getMonth() devuelve 0-11
         const día = String(ahora.getDate()).padStart(2, '0');
         const fechaCreacion = `${año}-${mes}-${día}`;
-        
-        console.log("📅 [INSPECCIÓN FORM] Fecha actual del computadora:", {
-            fechaCompleta: ahora,
-            año,
-            mes,
-            día,
-            fechaCreacion,
-            método: 'getFullYear/getMonth/getDate (local)',
-            // Verificaciones adicionales
-            fechaActualToString: ahora.toString(),
-            fechaActualToDateString: ahora.toDateString(),
-            fechaActualToLocaleDateString: ahora.toLocaleDateString(),
-            timeZoneOffset: ahora.getTimezoneOffset()
-        });
-        
+
+        // Buscar el supervisor usando PascalCase (Nombre, Id)
+        const supervisorEncontrado = supervisores?.find(s => s.Nombre === data.supervisor);
+        const supervisorId = supervisorEncontrado?.Id || 0;
+
         // Mapear los datos del formulario al formato que espera el backend
         const inspeccionData = {
             tipoTrabajo: "Inspeccion" as const,
             fechaCreacion: fechaCreacion,
             idUbicacionTecnica: data.idUbicacionTecnica,
             idGrupo: data.idGrupo,
-            supervisorId: supervisores?.find(s => s.nombre === data.supervisor)?.id || 0,
+            supervisorId: supervisorId,
             areaEncargada: data.areaEncargada,
             prioridad: data.prioridad,
             fechaLimite: data.fechaLimite,
@@ -89,17 +80,12 @@ export const InspectionFormContent: React.FC<{
             especificacion: data.observacion
         };
 
-        console.log("🔄 [INSPECCIÓN FORM] Datos mapeados para el backend:", inspeccionData);
-        console.log("🔍 [INSPECCIÓN FORM] Verificación de fechaCreacion:", {
-            fechaCreacionEnviada: inspeccionData.fechaCreacion,
-            tipoFechaCreacion: typeof inspeccionData.fechaCreacion,
-            longitudFechaCreacion: inspeccionData.fechaCreacion.length,
-            formatoCorrecto: /^\d{4}-\d{2}-\d{2}$/.test(inspeccionData.fechaCreacion)
-        });
-        console.log("👤 [INSPECCIÓN FORM] Supervisor encontrado:", {
-            nombreSeleccionado: data.supervisor,
-            supervisorEncontrado: supervisores?.find(s => s.nombre === data.supervisor),
-            idSupervisor: supervisores?.find(s => s.nombre === data.supervisor)?.id || 0
+        console.log("🚀 [INSPECCIÓN FORM] Datos que se enviarán al backend:", inspeccionData);
+        console.log("👤 [INSPECCIÓN FORM] Supervisor seleccionado:", {
+            nombreDelFormulario: data.supervisor,
+            supervisorEncontrado: supervisorEncontrado,
+            idEnviado: supervisorId,
+            propiedadesDelSupervisor: supervisorEncontrado ? Object.keys(supervisorEncontrado) : []
         });
 
         createInspectionMutation.mutate(inspeccionData, {
@@ -119,7 +105,7 @@ export const InspectionFormContent: React.FC<{
         { value: 'realizado', label: 'Realizado' },
         { value: 'cancelado', label: 'Cancelado' }
     ];
-    
+
     const frecuencias = [
         { value: 'Diaria', label: 'Diaria' },
         { value: 'Semanal', label: 'Semanal' },
@@ -350,10 +336,10 @@ export const InspectionFormContent: React.FC<{
                                 <FormLabel>Cada cuánto</FormLabel>
                                 <div className="flex gap-2 items-center">
                                     <FormControl>
-                                        <Input 
-                                            type="number" 
-                                            min="1" 
-                                            className="w-20" 
+                                        <Input
+                                            type="number"
+                                            min="1"
+                                            className="w-20"
                                             placeholder="1"
                                             {...field}
                                             onChange={(e) => field.onChange(Number(e.target.value))}

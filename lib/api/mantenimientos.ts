@@ -37,5 +37,9 @@ export const mantenimientosAPI = {
 
     async getDetalle(id: number): Promise<any> {
         return apiClient.get<any>(`/mantenimientos/${id}`);
+    },
+
+    async delete(id: number): Promise<any> {
+        return apiClient.delete<any>(`/mantenimientos/${id}`)
     }
 }

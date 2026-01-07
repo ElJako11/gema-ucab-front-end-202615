@@ -1,0 +1,25 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { mantenimientosAPI } from "@/lib/api/mantenimientos";
+
+export const useDeleteMantenimiento = (id: number) => {
+
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        //Llamamos al api 
+        mutationFn: (id: number) => mantenimientosAPI.delete(id),
+
+        //En caso de ser existosa 
+        onSuccess: () => {
+            //invalidamos las consulta relacionadas para que la lista se refresque 
+            queryClient.invalidateQueries({ queryKey: ["mantenimientos"] });
+            queryClient.invalidateQueries({ queryKey: ["calendario"] });
+        },
+
+        onError: (error) => {
+            console.error("Error eliminando mantenimiento", error);
+        }
+    })
+
+
+}
