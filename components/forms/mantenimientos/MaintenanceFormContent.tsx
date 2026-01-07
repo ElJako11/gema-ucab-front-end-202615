@@ -55,6 +55,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
     // eliminar array de encargados hardcoded
 
     const onSubmit = (data: MantenimientoFormData) => {
+        console.log("Datos del formulario a enviar:", data);
         // Mapear los datos del formulario al formato que espera el backend
         const mantenimientoData = {
             tipoTrabajo: "Mantenimiento" as const,
@@ -72,18 +73,28 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
             especificacion: data.especificacion
         };
 
+        console.log("Payload procesado:", mantenimientoData);
+
         createMantenimientoMutation.mutate(mantenimientoData, {
             onSuccess: () => {
+                console.log("Mutación exitosa");
                 form.reset();
                 onSuccess?.();
                 onClose?.();
+            },
+            onError: (error) => {
+                console.error("Error en la mutación:", error);
             }
         });
     };
 
+    const onError = (errors: any) => {
+        console.log("Errores de validación del formulario:", errors);
+    };
+
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 text-left">
+            <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-4 text-left">
                 {/* Nombre del mantenimiento */}
                 <div className="col-span-2">
                     <FormField
@@ -324,7 +335,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                 {/* Resumen */}
                 <FormField
                     control={form.control}
-                    name="resumen"
+                    name="especificacion"
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Resumen</FormLabel>
