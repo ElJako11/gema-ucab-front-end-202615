@@ -97,8 +97,8 @@ export const AgregarChecklistForm: React.FC<AgregarChecklistFormProps> = ({
     const onSubmit = (data: ChecklistFormValues) => {
         if (data.opcion === "Nuevo") {
             createNewChecklist.mutate({
-                idInspeccion: type === "inspecciones" ? maintenanceId : undefined,
-                idMantenimiento: type === "mantenimientos" ? maintenanceId : undefined,
+                idInspeccion: type === "inspecciones" ? maintenanceId : 0,
+                idMantenimiento: type === "mantenimientos" ? maintenanceId : 0,
                 nombre: data.nombre!
             }, {
                 onSuccess: () => {
@@ -114,8 +114,8 @@ export const AgregarChecklistForm: React.FC<AgregarChecklistFormProps> = ({
         } else {
             if (data.plantilla) {
                 createFromPlantilla.mutate({
-                    idMantenimiento: type === "mantenimientos" ? maintenanceId : undefined,
-                    idInspeccion: type === "inspecciones" ? maintenanceId : undefined,
+                    idMantenimiento: type === "mantenimientos" ? maintenanceId : 0,
+                    idInspeccion: type === "inspecciones" ? maintenanceId : 0,
                     idPlantilla: data.plantilla
                 }, {
                     onSuccess: () => {

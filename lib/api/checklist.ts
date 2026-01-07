@@ -44,10 +44,10 @@ export async function updateChecklistStatus(idTrabajo: number, checklistId: numb
   return apiClient.patch(`/estado-item/${idTrabajo}/${checklistId}/${itemId}`, undefined);
 }
 
-export async function createChecklistfromPlantilla(idInspeccion?: string, idMantenimiento?: string, idPlantilla?: string) {
+export async function createChecklistfromPlantilla(idInspeccion: string, idMantenimiento: string, idPlantilla: string) {
   return apiClient.post(`/work-creation/checklist-template`, { idInspeccion, idMantenimiento, idPlantilla });
 }
 
-export async function createChecklist(nombre: string, idInspeccion?: string, idMantenimiento?: string,) {
+export async function createChecklist(nombre: string, idInspeccion: string, idMantenimiento: string) {
   return apiClient.post(`/checklists`, { nombre, idInspeccion, idMantenimiento });
 }

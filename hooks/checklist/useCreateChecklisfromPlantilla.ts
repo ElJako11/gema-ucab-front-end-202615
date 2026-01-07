@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createChecklistfromPlantilla } from "@/lib/api/checklist";
 
 type CreateParams = {
-    idInspeccion?: number;
-    idMantenimiento?: number;
+    idInspeccion: number;
+    idMantenimiento: number;
     idPlantilla: string;
 };
 
@@ -13,8 +13,8 @@ export const useCreateChecklisfromPlantilla = () => {
     return useMutation({
         mutationFn: (params: CreateParams) =>
             createChecklistfromPlantilla(
-                params.idInspeccion?.toString(),
-                params.idMantenimiento?.toString(),
+                params.idInspeccion.toString(),
+                params.idMantenimiento.toString(),
                 params.idPlantilla
             ),
         onSuccess: async () => {
