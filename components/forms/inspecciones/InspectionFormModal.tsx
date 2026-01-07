@@ -98,8 +98,8 @@ export const InspectionFormContent: React.FC<{
         });
         console.log("👤 [INSPECCIÓN FORM] Supervisor encontrado:", {
             nombreSeleccionado: data.supervisor,
-            supervisorEncontrado: supervisores?.find(s => s.Nombre === data.supervisor),
-            idSupervisor: supervisores?.find(s => s.Nombre === data.supervisor)?.Id || 0
+            supervisorEncontrado: supervisores?.find(s => s.nombre === data.supervisor),
+            idSupervisor: supervisores?.find(s => s.nombre === data.supervisor)?.id || 0
         });
 
         createInspectionMutation.mutate(inspeccionData, {
@@ -372,13 +372,13 @@ export const InspectionFormContent: React.FC<{
                     />
                 )}
 
-                {/* Observación/Especificación */}
+                {/* Resumen */}
                 <FormField
                     control={form.control}
                     name="observacion"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Especificación</FormLabel>
+                            <FormLabel>Resumen</FormLabel>
                             <FormControl>
                                 <Textarea
                                     placeholder="Describe las tareas específicas de la inspección..."

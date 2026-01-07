@@ -71,8 +71,8 @@ export const mantenimientoSchema = z.object({
   
   especificacion: z
     .string()
-    .min(1, "La especificación es requerida")
-    .max(1000, "La especificación no puede exceder 1000 caracteres")
+    .min(1, "El resumen es requerido")
+    .max(1000, "El resumen no puede exceder 1000 caracteres")
 });
 
 // If you need a custom “required” message on older Zod, you can layer a refine:

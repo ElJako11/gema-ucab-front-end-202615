@@ -21,7 +21,7 @@ export const inspeccionSchema = z.object({
   idUbicacionTecnica: z.number().min(1, "La ubicación técnica es requerida"),
   frecuencia: z.string().min(1, "La frecuencia es requerida"),
   cadaCuanto: z.number().optional(),
-  observacion: z.string().min(1, "La observación/especificación es requerida"),
+  observacion: z.string().min(1, "El resumen es requerido"),
   prioridad: z.string().min(1, "La prioridad es requerida"),
   fechaLimite: z.string().min(1, "La fecha límite es requerida"),
   idGrupo: z.number().min(1, "El grupo de trabajo es requerido"),

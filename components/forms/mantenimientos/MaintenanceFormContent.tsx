@@ -321,13 +321,13 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                     )}
                 </div>
 
-                {/* Especificación */}
+                {/* Resumen */}
                 <FormField
                     control={form.control}
-                    name="especificacion"
+                    name="resumen"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Especificación</FormLabel>
+                            <FormLabel>Resumen</FormLabel>
                             <FormControl>
                                 <Textarea
                                     placeholder="Describe las tareas específicas del mantenimiento..."
