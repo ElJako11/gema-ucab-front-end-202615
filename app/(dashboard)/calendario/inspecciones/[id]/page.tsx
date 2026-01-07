@@ -160,7 +160,12 @@ export default function InspeccionDetalle() {
                         {/* Checklist Item */}
                         {data.checklist && (
                             <div className="flex items-center justify-between p-3 border border-slate-300 rounded-lg hover:border-slate-400 transition-colors">
-                                <span className="font-medium text-slate-900">{data.tituloChecklist}</span>
+                                <Link
+                                    href={`/detalle-trabajo?id=${id}&type=inspecciones`}
+                                    className="flex-1 hover:underline cursor-pointer"
+                                >
+                                    <span className="font-medium text-slate-900">{data.tituloChecklist}</span>
+                                </Link>
 
                             </div>
                         )}
