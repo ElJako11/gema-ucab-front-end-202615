@@ -1,30 +1,49 @@
 import { z } from "zod";
 
-const AREA_OPTIONS = [
+export const AREA_OPTIONS = [
   "Electricidad",
   "Infraestructura",
   "Mecanica",
   "Refrigeracion",
-  "Logistica"
+  "Logistica",
 ] as const;
+export type AreaEncargada = typeof AREA_OPTIONS[number];
+
+export const PRIORIDAD_OPTS = ["Baja", "Media", "Alta"] as const;
+export type Prioridad = typeof PRIORIDAD_OPTS[number];
+
+export const FRECUENCIA_OPTS = ["Diaria", "Semanal", "Mensual", "Anual"] as const;
+export type Frecuencia = typeof FRECUENCIA_OPTS[number];
+
+export const ESTADO_OPTS = ["Programado", "En_proceso", "Realizado", "Cancelado", "Reprogramado"] as const;
+export type Estado = typeof ESTADO_OPTS[number];
 
 export const inspeccionSchema = z.object({
-  estado: z.string().min(1, "El estado es requerido"),
-  supervisor: z.string().min(1, "El supervisor es requerido"),
-  areaEncargada: z
-    .string({ required_error: "El área encargada es requerida" })
-    .trim()
-    .min(1, "El área encargada es requerida")
-    .refine((val) => (AREA_OPTIONS as readonly string[]).includes(val), {
-      message: "El área encargada es requerida"
-    }),
-  idUbicacionTecnica: z.number().min(1, "La ubicación técnica es requerida"),
-  frecuencia: z.string().min(1, "La frecuencia es requerida"),
-  cadaCuanto: z.number().optional(),
-  observacion: z.string().min(1, "El resumen es requerido"),
-  prioridad: z.string().min(1, "La prioridad es requerida"),
+  // Campos visibles en tu form/defaults
+  titulo: z.string().min(1, "El título es requerido"),
+  estado: z.enum(ESTADO_OPTS),
+  prioridad: z.enum(PRIORIDAD_OPTS),
+  areaEncargada: z.enum(AREA_OPTIONS),
+
+  // Ubicación técnica y grupo
+  idUbicacionTecnica: z.number().min(1, "Selecciona una ubicación técnica"),
+  idGrupo: z.number().min(1, "Selecciona un grupo de trabajo"),
+
+  // Supervisor y fechas
+  supervisor: z.string().min(1, "Selecciona un supervisor"),
+  fechaCreacion: z.string().min(1, "La fecha de creación es requerida"),
   fechaLimite: z.string().min(1, "La fecha límite es requerida"),
-  idGrupo: z.number().min(1, "El grupo de trabajo es requerido"),
+
+  // Frecuencia y cada cuánto
+  frecuencia: z.enum(FRECUENCIA_OPTS),
+  cadaCuanto: z.number().int().positive().optional(),
+
+  // Texto libre
+  observacion: z.string().min(1, "La observación es requerida"),
+
+  // Extras que usas en defaults (sin controles en el form ahora)
+  codigoVerificacion: z.string().optional(),
+  codigoArea: z.string().optional(),
 });
 
 export type InspeccionFormData = z.infer<typeof inspeccionSchema>;
