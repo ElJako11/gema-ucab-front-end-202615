@@ -5,11 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-hot-toast";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
+import {Dialog,DialogContent,DialogHeader,DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +17,7 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "./ui/form";
+} from "@/components/ui/form";
 
 // Esquema de validación
 const actividadSchema = z.object({

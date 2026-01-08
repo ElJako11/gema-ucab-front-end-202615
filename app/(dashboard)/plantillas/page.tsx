@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "react-hot-toast";
-import FormNuevaPlantilla from "@/components/FormNuevaPlantilla";
+import FormNuevaPlantilla from "@/components/forms/plantillas/FormNuevaPlantilla";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import type { Plantilla } from "@/types/models/plantillas.types";
 

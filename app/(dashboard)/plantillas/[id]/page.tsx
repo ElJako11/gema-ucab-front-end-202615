@@ -5,15 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { getPlantillas } from "@/lib/plantillas";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CirclePlus, CheckCircle2, Circle, Download, ClipboardPen, Trash2 } from "lucide-react";
-import FormNuevaActividad from "@/components/FormNuevaActividad";
+import FormNuevaActividad from "@/components/forms/plantillas/FormNuevaActividad";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
-// Actividades de ejemplo
-const actividadesEjemplo = [
-  { id: 1, nombre: "Revisar nivel de aceite", descripcion: "Verificar que el nivel de aceite esté en el rango adecuado", completada: true },
-  { id: 2, nombre: "Inspeccionar filtros", descripcion: "Revisar el estado de los filtros de aire y aceite", completada: false },
-  { id: 3, nombre: "Verificar presión de neumáticos", descripcion: "Comprobar que la presión esté según especificaciones", completada: false },
-];
 
 export default function ChecklistPage() {
   const params = useParams();

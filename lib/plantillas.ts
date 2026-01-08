@@ -59,36 +59,6 @@ export async function getPlantillaById(id: number): Promise<Plantilla | null> {
 }
 
 /**
- * Obtiene una plantilla por su ID
- */
-export async function getPlantillaById(id: number) {
-  // Datos de ejemplo - Mismos que en getPlantillas
-  const plantillas = [
-    {
-      id: 1,
-      plantilla: "Plantilla de Checklist - Sistema Eléctrico",
-      tipo: "Checklist",
-      actividades: [], // Agregando campo faltante para compatibilidad
-    },
-    {
-      id: 2,
-      plantilla: "Plantilla de Mantenimiento - Equipos HVAC",
-      tipo: "Mantenimientos por Condición",
-      actividades: [],
-    },
-    {
-      id: 3,
-      plantilla: "Plantilla de Checklist - Seguridad",
-      tipo: "Checklist",
-      actividades: [],
-    }
-  ];
-
-  const plantilla = plantillas.find(p => p.id === id);
-  return Promise.resolve(plantilla || null);
-}
-
-/**
  * Crea una nueva plantilla
  */
 export async function createPlantilla(data: Omit<Plantilla, "id">) {
