@@ -1,12 +1,13 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { mantenimientoSchema, type MantenimientoFormData } from "@/lib/validations/mantenimientoSchema";
+import { mantenimientoSchema } from "@/lib/validations/mantenimientoSchema";
 import { useCreateMantenimiento } from "@/hooks/mantenimientos/useCreateMantenimientos";
 import { useUbicacionesLista } from "@/hooks/ubicaciones-tecnicas/useUbicaciones";
 import { Combobox } from "@/components/ui/combobox";
@@ -14,6 +15,8 @@ import { useSupervisores } from "@/hooks/usuarios/useUsuarios";
 import { useGrupos } from "@/hooks/grupos-trabajo/useGrupoTrabajo";
 
 const AREA_OPTIONS = ["Electricidad", "Infraestructura", "Mecanica", "Refrigeracion", "Logistica"] as const;
+
+type MantenimientoFormData = z.infer<typeof mantenimientoSchema>;
 
 interface MaintenanceFormContentProps {
     initialValues?: Partial<MantenimientoFormData>;

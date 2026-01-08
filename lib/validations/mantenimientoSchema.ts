@@ -22,14 +22,14 @@ export const mantenimientoSchema = z.object({
     // invalid_type_error: 'Selecciona una prioridad válida',
   }),
 
-  // areaEncargada as enum; trim before validating
-  areaEncargada: z.preprocess(
-    (v) => (typeof v === 'string' ? v.trim() : v),
-    z.enum(AREA_OPTIONS, {
-      // In older Zod you can’t pass required_error here.
-      // invalid_type_error: 'El área encargada es requerida', // only on newer Zod
-    })
-  ),
+  // área encargada: replicar mensaje requerido como en inspecciones
+  areaEncargada: z
+    .string({ required_error: "El área encargada es requerida" })
+    .trim()
+    .min(1, "El área encargada es requerida")
+    .refine((val) => (AREA_OPTIONS as readonly string[]).includes(val), {
+      message: "El área encargada es requerida",
+    }),
 
   estado: z.enum(['no_empezado', 'reprogramado', 'en_ejecucion', 'culminado'] as const),
 
@@ -77,10 +77,14 @@ export const mantenimientoSchema = z.object({
 
 // If you need a custom “required” message on older Zod, you can layer a refine:
 export const mantenimientoSchemaWithMsgs = mantenimientoSchema.extend({
-  areaEncargada: z.preprocess(
-    (v) => (typeof v === 'string' ? v.trim() : v),
-    z.enum(AREA_OPTIONS)
-  ).refine((v) => AREA_OPTIONS.includes(v as AreaEncargada), {
-    message: 'El área encargada es requerida',
-  }),
+  areaEncargada: z
+    .string({ required_error: 'El área encargada es requerida' })
+    .trim()
+    .min(1, 'El área encargada es requerida')
+    .refine((v) => AREA_OPTIONS.includes(v as AreaEncargada), {
+      message: 'El área encargada es requerida',
+    }),
 });
+
+// Exportar el tipo usado por los formularios
+export type MantenimientoFormData = z.infer<typeof mantenimientoSchema>;
