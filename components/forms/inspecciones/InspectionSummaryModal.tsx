@@ -12,7 +12,6 @@ interface InspectionSummaryModalProps {
 
 export const InspectionSummaryModal: React.FC<InspectionSummaryModalProps> = ({ open, onClose, data, inspeccionId }) => {
 
-    console.log(data);
     return (
         <Modal
             isOpen={open}

@@ -41,7 +41,7 @@ export default function MantenimientoDetalle() {
     // Usar datos reales cuando estén disponibles, sino mock data
     const data = maintenanceData;
 
-    console.log(data);
+
     return (
         <div className="p-8 space-y-6 min-h-screen">
             {/* Top Navigation / Header */}
