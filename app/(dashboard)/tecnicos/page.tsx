@@ -47,15 +47,13 @@ const Tecnicos = () => {
     queryFn: tecnicosAPI.getAll,
     select: (data) => {
       // Debug: Ver la respuesta de la API de técnicos
-      console.log("Respuesta API técnicos:", data);
+
       
       // La API devuelve { data: [...] } con estructura: { idTecnico, idGT, nombre }
       if (data?.data) {
-        console.log("✅ API devuelve objeto con propiedad data");
         return data;
       }
       
-      console.log("❌ Estructura inesperada");
       return { data: [] };
     }
   });

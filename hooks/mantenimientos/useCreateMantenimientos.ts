@@ -7,24 +7,18 @@ export const useCreateMantenimiento = () => {
 
     return useMutation({
         mutationFn: async (data: any) => {
-            console.log("🔄 [MANTENIMIENTO] Iniciando creación de mantenimiento...");
-            console.log("📤 [MANTENIMIENTO] Datos enviados:", JSON.stringify(data, null, 2));
             
             try {
                 const response = await mantenimientosAPI.create(data);
-                console.log("✅ [MANTENIMIENTO] Respuesta exitosa del servidor:", response);
                 return response;
             } catch (error) {
-                console.error("❌ [MANTENIMIENTO] Error en la petición:", error);
                 throw error;
             }
         },
         onSuccess: (data) => {
-            console.log("🎉 [MANTENIMIENTO] Mantenimiento creado exitosamente:", data);
             toast.success("Mantenimiento creado correctamente");
             
             // Invalidar múltiples queries para refrescar datos
-            console.log("🔄 [MANTENIMIENTO] Invalidando queries...");
             
             // Invalidar queries específicas
             queryClient.invalidateQueries({ queryKey: ["mantenimientos"] });
@@ -43,10 +37,8 @@ export const useCreateMantenimiento = () => {
                 }
             });
             
-            console.log("✅ [MANTENIMIENTO] Queries invalidadas correctamente");
         },
         onError: (error: any) => {
-            console.error("💥 [MANTENIMIENTO] Error al crear mantenimiento:", error);
             console.error("📋 [MANTENIMIENTO] Detalles del error:", {
                 message: error?.message,
                 response: error?.response?.data,

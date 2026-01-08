@@ -15,7 +15,6 @@ export const useEliminarChecklistItem = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["checklistItems"] });
-            console.log("Elemento eliminado correctamente");
         },
         onError: (error) => {
             console.error("Error al eliminar:", error);

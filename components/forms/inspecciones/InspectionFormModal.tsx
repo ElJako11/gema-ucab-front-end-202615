@@ -52,9 +52,7 @@ export const InspectionFormContent: React.FC<{
     const frecuenciaSeleccionada = form.watch("frecuencia");
 
     const onSubmit = (data: InspeccionFormData) => {
-        console.log("📝 [INSPECCIÓN FORM] Datos recibidos del formulario:", data);
-        console.log("👥 [INSPECCIÓN FORM] Lista de supervisores disponibles:", supervisores);
-
+   
         // Obtener la fecha actual local del computadora (sin zona horaria)
         const ahora = new Date();
         const año = ahora.getFullYear();
@@ -80,17 +78,10 @@ export const InspectionFormContent: React.FC<{
             especificacion: data.observacion
         };
 
-        console.log("🚀 [INSPECCIÓN FORM] Datos que se enviarán al backend:", inspeccionData);
-        console.log("👤 [INSPECCIÓN FORM] Supervisor seleccionado:", {
-            nombreDelFormulario: data.supervisor,
-            supervisorEncontrado: supervisorEncontrado,
-            idEnviado: supervisorId,
-            propiedadesDelSupervisor: supervisorEncontrado ? Object.keys(supervisorEncontrado) : []
-        });
+    
 
         createInspectionMutation.mutate(inspeccionData, {
             onSuccess: () => {
-                console.log("✅ [INSPECCIÓN FORM] Éxito en la creación, reseteando formulario...");
                 form.reset();
                 onSuccess?.();
                 onClose?.();

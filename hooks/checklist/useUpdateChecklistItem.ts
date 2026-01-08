@@ -17,7 +17,6 @@ export const useUpdateChecklistItem = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["checklistItems"] });
-            console.log("Item actualizado correctamente");
         },
         onError: (error) => {
             console.error("Error al actualizar:", error);

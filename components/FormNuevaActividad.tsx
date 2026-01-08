@@ -69,7 +69,6 @@ const FormNuevaActividad: React.FC<Props> = ({ open, onClose, onSave, initialDat
     };
 
     const onSubmit = (data: ActividadForm) => {
-        console.log("Guardando actividad:", data);
         if (onSave) {
             onSave(data);
         }

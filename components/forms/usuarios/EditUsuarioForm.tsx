@@ -110,7 +110,7 @@ export const EditUsuarioForm: React.FC<EditUsuarioFormProps> = ({
         });
     };
 
-    console.log("Current usuario:", usuario);
+
 
     const handleOpenChange = (open: boolean) => {
         if (!open) setUsuario(null);

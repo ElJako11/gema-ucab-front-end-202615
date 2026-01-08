@@ -33,7 +33,6 @@ const ChecklistComp = ({ checklist, onBack }: ChecklistProps) => {
 
     // Actualizar tareas si el checklist cambia
     useEffect(() => {
-        console.log("Datos actualizados recibidos:", checklist.tareas); // Debug
         setTasks(checklist.tareas || []);
     }, [checklist.tareas]);
 
@@ -278,7 +277,6 @@ const ChecklistComp = ({ checklist, onBack }: ChecklistProps) => {
                 setActividad={setActivityToDelete}
                 checklistId={checklist.id}
                 onDelete={(id) => {
-                    console.log("Elemento eliminado:", id);
                 }}
             />
         </div >

@@ -5,10 +5,8 @@ export const useUbicaciones = () => {
     return useQuery({
         queryKey: ["ubicacionesTecnicas"],
         queryFn: async () => {
-            console.log("🔄 Llamando a ubicacionesTecnicasAPI.getAll()");
             try {
                 const result = await ubicacionesTecnicasAPI.getAll();
-                console.log("✅ Respuesta exitosa de ubicaciones:", result);
                 return result;
             } catch (error) {
                 console.error("❌ Error al obtener ubicaciones:", error);
@@ -16,7 +14,6 @@ export const useUbicaciones = () => {
             }
         },
         select: (data) => {
-            console.log("🔍 Procesando data en select:", data);
             return data.data;
         },
     });

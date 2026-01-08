@@ -21,7 +21,7 @@ export const mantenimientoSchema = z.object({
     // required_error: 'Selecciona una prioridad válida',
     // invalid_type_error: 'Selecciona una prioridad válida',
   }),
-
+titulo: z.string().min(1, "El nombre es requerido").max(200, "Máximo 200 caracteres"),
   // área encargada: replicar mensaje requerido como en inspecciones
   areaEncargada: z
     .string({ required_error: "El área encargada es requerida" })
@@ -37,13 +37,13 @@ export const mantenimientoSchema = z.object({
     .string()
     .min(1, "Selecciona un supervisor"),
   
-  fechaInicio: z
+  fechaCreacion: z
     .string()
-    .min(1, "La fecha de inicio es requerida"),
+    .min(1, "La fecha de creación es requerida"),
   
-  fechaFin: z
+  fechaLimite: z
     .string()
-    .min(1, "La fecha de finalización es requerida"),
+    .min(1, "La fecha límite es requerida"),
   
   tipoMantenimiento: z
     .enum(["Periodico", "Condicion"])
@@ -61,15 +61,15 @@ export const mantenimientoSchema = z.object({
     .enum(["Diaria", "Semanal", "Mensual", "Bimestral", "Trimestral", "Semestral", "Anual"])
     .optional(),
   
-  idUbicacionTecnica: z
-    .number()
+  codigoVerificacion: z
+    .string()
     .min(1, "Selecciona una ubicación técnica"),
   
-  idGrupo: z
+  codigoArea: z
     .number()
     .min(1, "Selecciona un grupo de trabajo"),
   
-  especificacion: z
+  resumen: z
     .string()
     .min(1, "El resumen es requerido")
     .max(1000, "El resumen no puede exceder 1000 caracteres")

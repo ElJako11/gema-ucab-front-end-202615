@@ -137,7 +137,6 @@ const Calendario = () => {
                             onSuccess={() => {
                                 // Aquí puedes agregar lógica adicional después de crear el mantenimiento
                                 // Por ejemplo, refrescar el calendario o mostrar una notificación
-                                console.log('Mantenimiento creado exitosamente');
                             }}
                         />
                     )}
@@ -146,7 +145,6 @@ const Calendario = () => {
                             onClose={handleCloseModal}
                             onSuccess={() => {
                                 // Aquí puedes agregar lógica adicional después de crear la inspección
-                                console.log('Inspección creada exitosamente');
                             }}
                         />
                     )}

@@ -217,7 +217,6 @@ export default function InspeccionDetalle() {
                 open={addChecklistModalOpen}
                 onClose={() => setAddChecklistModalOpen(false)}
                 onSuccess={(data) => {
-                    console.log("Checklist added:", data);
                     setAddChecklistModalOpen(false);
                 }}
                 maintenanceId={id}

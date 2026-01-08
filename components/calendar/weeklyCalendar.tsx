@@ -105,7 +105,6 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
   // Generar datos de la semana basándose en la fecha actual
   const semanaDataBase = generateWeekData(currentDate);
 
-  console.log(eventos);
 
   // Distribuir eventos a los días correspondientes
   const semanaData = useMemo(() => {

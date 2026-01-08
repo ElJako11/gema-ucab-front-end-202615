@@ -46,12 +46,10 @@ export const useSupervisores = () => {
         queryFn: userAPI.getAll,
         select: (data) => {
             // Debug: Ver la respuesta y tipos
-            console.log("Usuarios recibidos:", data);
-            console.log("Tipos de usuarios:", data.map(u => `${u.Nombre}: ${u.Tipo}`));
-            
+         
             // Filtrar solo supervisores - data ya es el array
             const supervisores = data.filter(usuario => usuario.Tipo === "SUPERVISOR");
-            console.log("Supervisores encontrados:", supervisores);
+          
             
             return supervisores;
         },

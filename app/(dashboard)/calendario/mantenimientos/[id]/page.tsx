@@ -202,6 +202,8 @@ export default function MantenimientoDetalle() {
                 open={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
                 data={data}
+                maintenanceName={data.title}
+                maintenanceId={data.idMantenimiento}
             />
 
             {/* Delete Modal */}
@@ -218,7 +220,6 @@ export default function MantenimientoDetalle() {
                 open={addChecklistModalOpen}
                 onClose={() => setAddChecklistModalOpen(false)}
                 onSuccess={(data) => {
-                    console.log("Checklist added:", data);
                     setAddChecklistModalOpen(false);
                 }}
                 maintenanceId={id}
