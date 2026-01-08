@@ -5,11 +5,19 @@ import { Mantenimiento } from "@/types/mantenimientos.types";
 
 
 export interface CalendarioResponse {
-    inspecciones?: Inspeccion[];
-    mantenimientos?: Mantenimiento[];
+  inspecciones?: Inspeccion[];
+  mantenimientos?: Mantenimiento[];
 }
 
 export type FiltroCalendario = "mensual" | "semanal";
+
+export type EventoCalendario = {
+  id: number | string;
+  tipo: 'Inspeccion' | 'Mantenimiento';
+  ubicacionTecnica: string;
+  fecha: string | Date;
+  [key: string]: any;
+};
 
 export const calendarioAPI = {
   /**

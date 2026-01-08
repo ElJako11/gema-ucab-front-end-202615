@@ -8,7 +8,7 @@ import { calendarioAPI, type FiltroCalendario, type EventoCalendario } from "@/l
  */
 export const useMantenimientosFiltros = (date: string, filter: string = 'mensual') => {
     const filtroCalendario = (filter === 'semanal' ? 'semanal' : 'mensual') as FiltroCalendario;
-    
+
     return useQuery({
         queryKey: ["calendario", date, filtroCalendario],
         queryFn: async () => {
@@ -31,7 +31,7 @@ export const useMantenimientosFiltros = (date: string, filter: string = 'mensual
                 // Mantener compatibilidad con componentes que esperan array único
                 eventos: []
             };
-            
+
             if (data && typeof data === 'object') {
                 // Procesar inspecciones
                 if (data.inspecciones && Array.isArray(data.inspecciones)) {
@@ -44,7 +44,7 @@ export const useMantenimientosFiltros = (date: string, filter: string = 'mensual
                         fecha: inspeccion.fechaCreacion || inspeccion.fecha
                     }));
                 }
-                
+
                 // Procesar mantenimientos
                 if (data.mantenimientos && Array.isArray(data.mantenimientos)) {
                     resultado.mantenimientos = data.mantenimientos.map((mantenimiento: any) => ({
@@ -55,11 +55,11 @@ export const useMantenimientosFiltros = (date: string, filter: string = 'mensual
                         fecha: mantenimiento.fechaLimite || mantenimiento.fecha
                     }));
                 }
-                
+
                 // Combinar para compatibilidad con componentes existentes
                 resultado.eventos = [...resultado.inspecciones, ...resultado.mantenimientos];
             }
-            
+
             return resultado;
         },
         enabled: !!date,

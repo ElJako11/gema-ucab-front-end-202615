@@ -24,7 +24,7 @@ interface CalendarDay {
 }
 /*Opciones del filtro */
 const opcionesFiltro = [
-    { id: 'todos', label: 'Todos', color: null},
+    { id: 'todos', label: 'Todos', color: null },
     { id: 'mantenimientos', label: 'Mantenimientos Preventivo', color: 'bg-gema-blue' },
     { id: 'inspecciones', label: 'Inspecciones', color: 'bg-gema-green' },
 ];
@@ -105,26 +105,26 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
     // Helper para verificar si hay mantenimientos en una fecha
     const hasMantenimientos = (date: Date) => {
         const dateStr = date.toISOString().split('T')[0];
-        
+
         const mantenimientosDelDia = mantenimientos.filter((mantenimiento: any) => {
             const fechaEvento = mantenimiento.fechaLimite || mantenimiento.fecha || '';
             return fechaEvento === dateStr;
         });
-    
-        
+
+
         return mantenimientosDelDia.length > 0;
     };
 
     // Helper para verificar si hay inspecciones en una fecha
     const hasInspecciones = (date: Date) => {
         const dateStr = date.toISOString().split('T')[0];
-        
+
         const inspeccionesDelDia = inspecciones.filter((inspeccion: any) => {
             // Las inspecciones usan fechaCreacion, no fechaLimite
             const fechaEvento = inspeccion.fechaCreacion || inspeccion.fecha || '';
             return fechaEvento === dateStr;
         });
-        
+
         return inspeccionesDelDia.length > 0;
     };
 
@@ -160,10 +160,10 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
                 <h2 className="text-xl font-semibold mb-4">{labelHeader}</h2>
                 <div className="flex flex-col md:flex-row md:justify-between gap-4">
                     {/* Boton de filtro dinamico */}
-                    <DropdownFilter 
+                    <DropdownFilter
                         opciones={opcionesFiltro}
-                        filtroActual={filtroActivo} 
-                        onFiltroChange={setFiltroActivo} 
+                        filtroActual={filtroActivo}
+                        onFiltroChange={setFiltroActivo}
                     />
                     {/* Navegación de Meses */}
                     <DateNavigator label='Mes' onPrev={handlePrevMonth} onNext={handleNextMonth}></DateNavigator>
@@ -186,6 +186,7 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
                     {diasCalendario.map((item, index) => {
                         const tieneMantenimientos = hasMantenimientos(item.date);
                         const tieneInspecciones = hasInspecciones(item.date);
+                        const isToday = item.date.toDateString() === new Date().toDateString();
 
                         return (
                             <div
@@ -196,6 +197,9 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
                                         ${item.actual ? 'bg-gema-lightgrey hover:bg-gray-50' : 'bg-gema-darkgrey cursor-default'}
                                     `}
                             >
+                                {isToday && (
+                                    <div className="absolute top-0 left-0 right-0 h-1.5 rounded-t-lg bg-linear-to-r from-gema-yellow via-gema-blue to-gema-green" />
+                                )}
                                 {/* Número del día */}
                                 <span className={`text-sm font-bold text-gema-grey-text`}>
                                     {item.dia < 10 ? `0${item.dia}` : item.dia}
@@ -204,16 +208,16 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
                                 {/* Iconos de contenido */}
                                 <div className="flex gap-1">
                                     {/* Icono de Mantenimientos (azul) */}
-                                    {(filtroActivo === 'todos' || filtroActivo === 'mantenimientos') && 
-                                    tieneMantenimientos && (
-                                        <FileCog className="w-7 h-7 text-gema-blue" />
-                                    )}
-                                    
+                                    {(filtroActivo === 'todos' || filtroActivo === 'mantenimientos') &&
+                                        tieneMantenimientos && (
+                                            <FileCog className="w-7 h-7 text-gema-blue" />
+                                        )}
+
                                     {/* Icono de Inspecciones (verde) */}
-                                    {(filtroActivo === 'todos' || filtroActivo === 'inspecciones') && 
-                                    tieneInspecciones && (
-                                        <FileSearchCorner className="w-7 h-7 text-gema-green" />
-                                    )}
+                                    {(filtroActivo === 'todos' || filtroActivo === 'inspecciones') &&
+                                        tieneInspecciones && (
+                                            <FileSearchCorner className="w-7 h-7 text-gema-green" />
+                                        )}
                                 </div>
                             </div>
                         );
