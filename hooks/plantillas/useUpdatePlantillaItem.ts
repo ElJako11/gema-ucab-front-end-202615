@@ -15,9 +15,9 @@ export const useUpdatePlantillaItem = () => {
         mutationFn: ({ plantillaId, data }: UpdateParams) =>
             updatePlantillaItem(plantillaId, data.id, { nombre: data.nombre, descripcion: data.descripcion, estado: data.estado }),
 
-        onSuccess: async () => {
+        onSuccess: async (_, variables) => {
             toast.success("Actividad de plantilla actualizada");
-            await queryClient.invalidateQueries({ queryKey: ["plantilla"] });
+            await queryClient.invalidateQueries({ queryKey: ["plantilla", variables.plantillaId] });
             await queryClient.invalidateQueries({ queryKey: ["plantillas"] });
         },
         onError: (error) => {

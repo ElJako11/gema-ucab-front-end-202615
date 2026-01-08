@@ -14,9 +14,9 @@ export const useDeletePlantillaItem = () => {
         mutationFn: ({ plantillaId, itemId }: DeleteParams) =>
             deletePlantillaItem(plantillaId, itemId),
 
-        onSuccess: async () => {
+        onSuccess: async (_, variables) => {
             toast.success("Item eliminado de la plantilla");
-            await queryClient.invalidateQueries({ queryKey: ["plantilla"] });
+            await queryClient.invalidateQueries({ queryKey: ["plantilla", variables.plantillaId] });
             await queryClient.invalidateQueries({ queryKey: ["plantillas"] });
         },
         onError: (error) => {

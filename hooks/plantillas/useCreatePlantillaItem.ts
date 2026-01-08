@@ -15,12 +15,13 @@ export const useCreatePlantillaItem = () => {
         mutationFn: ({ plantillaId, data }: CreateParams) =>
             createPlantillaItem(plantillaId, { nombre: data.nombre, descripcion: data.descripcion, estado: data.estado }),
 
-        onSuccess: async () => {
+        onSuccess: async (_, variables) => {
             toast.success("Actividad de plantilla creada exitosamente");
+            // Invalidar la query específica de esta plantilla con su ID
             await queryClient.invalidateQueries({
-                queryKey: ["plantilla"], // Assuming the query key for fetching template details is "plantilla" or similar. Usually it might be ["plantillas"] or specific ["plantilla", id].
+                queryKey: ["plantilla", variables.plantillaId],
             });
-            // Also invalidate queries that might reload the page content
+            // También invalidar la lista general de plantillas
             await queryClient.invalidateQueries({
                 queryKey: ["plantillas"],
             });
