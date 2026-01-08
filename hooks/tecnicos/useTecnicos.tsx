@@ -11,7 +11,7 @@ export const useTecnicos = () => {
   });
 
   return {
-    tecnicos: data,
+    tecnicos: data ?? [],
     isLoading,
     error,
     refetch,

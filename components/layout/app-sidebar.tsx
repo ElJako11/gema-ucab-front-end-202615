@@ -47,7 +47,7 @@ const items = [
   {
     icon: User,
     label: 'Usuarios',
-    path: '/registro-usuarios'
+    path: '/usuarios'
   },
   {
     icon: ClipboardCheck,

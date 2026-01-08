@@ -9,7 +9,6 @@ import {
     User
 } from "lucide-react";
 
-
 import {
     fetchUsuarios as getAllUsuarios,
 } from "@/services/usuarios";

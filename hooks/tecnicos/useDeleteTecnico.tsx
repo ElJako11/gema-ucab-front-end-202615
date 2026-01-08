@@ -1,20 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateTecnicoRequest, tecnicosAPI } from "@/lib/api/tecnicos";
+import { tecnicosAPI } from "@/lib/api/tecnicos";
 import { toast } from "sonner";
 
-export const useCreateTecnico = () => {
+export const useDeleteTecnico = () => {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: async (data: CreateTecnicoRequest) => tecnicosAPI.create(data),
+        mutationFn: async (id: number) => tecnicosAPI.delete(id),
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ['tecnicos']
             })
-            toast.success("Tecnico creado exitosamente!");
+            toast.success("Tecnico eliminado exitosamente!");
         },
         onError: () => {
-            toast.error("Error al crear el tecnico");
+            toast.error("Error al eliminar el tecnico");
         }
     })
 }

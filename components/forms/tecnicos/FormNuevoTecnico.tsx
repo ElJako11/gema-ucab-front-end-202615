@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -11,9 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner"; 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTecnico } from "@/services/tecnicos";
 import {
   Form,
   FormControl,
@@ -22,17 +19,27 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useCreateTecnico } from "@/hooks/tecnicos/useCreateTecnico";
+import { useGrupos } from "@/hooks/grupos-trabajo/useGrupoTrabajo";
 
 // Esquema de validación
 const tecnicoSchema = z.object({
-  Nombre: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
-  Correo: z
+  nombre: z.string().min(2, "El nombre es requerido"),
+  correo: z
     .string()
     .email("Correo inválido")
     .regex(
       /^[a-zA-Z0-9._%+-]+@ucab\.edu\.ve$/,
       "Debe ser un correo institucional @ucab.edu.ve"
     ),
+  idGrupo: z.number().min(1, "Selecciona un grupo de trabajo"),
 });
 
 type TecnicoForm = z.infer<typeof tecnicoSchema>;
@@ -40,108 +47,134 @@ type TecnicoForm = z.infer<typeof tecnicoSchema>;
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  // Puedes pasar una función para crear el técnico, o usar tu propio hook/mutation
+  onCreate?: (data: TecnicoForm) => Promise<unknown>;
 }
 
-const FormNuevoTecnico: React.FC<Props> = ({ open, onClose, onSuccess }) => {
-  const queryClient = useQueryClient();
-  
+const FormNuevoTecnico: React.FC<Props> = ({ open, onClose }) => {
+  // Eliminamos useQueryClient manual porque el hook ya lo maneja
   const form = useForm<TecnicoForm>({
     resolver: zodResolver(tecnicoSchema),
     defaultValues: {
-      Nombre: "",
-      Correo: "",
-    },
-    mode: "onChange",
-  });
-
-  const mutation = useMutation({
-    mutationFn: createTecnico,
-    onSuccess: () => {
-      toast.success("Técnico creado exitosamente");
-      form.reset();
-      queryClient.invalidateQueries({ queryKey: ["tecnicos"] });
-      onClose();
-      onSuccess?.();
-    },
-    onError: (error: Error) => {
-      console.error("Error creando técnico:", error);
-      toast.error(
-        error.message || "Error al crear el técnico. Intente nuevamente."
-      );
+      nombre: "",
+      correo: "",
+      idGrupo: 0,
     },
   });
 
-  const handleSubmit = form.handleSubmit((values) => {
-    mutation.mutate(values);
-  });
+  // Usamos el hook centralizado
+  const mutation = useCreateTecnico();
+  const { data: grupos } = useGrupos();
 
-  const handleClose = () => {
-    form.reset();
-    onClose();
+  // Función para manejar el envío
+  const onSubmit = (values: TecnicoForm) => {
+    // Mapeamos los datos del formulario (zod) a la estructura que espera la API
+    const payload = {
+      nombre: values.nombre,
+      correo: values.correo,
+      idGT: values.idGrupo
+    };
+
+    console.log(payload);
+
+    mutation.mutate(payload, {
+      onSuccess: () => {
+        // Solo nos encargamos de limpiar la UI, el hook ya muestra el toast
+        form.reset();
+        onClose();
+      },
+
+      onError: (error) => {
+        console.error("Error al crear tecnico: ", error);
+      }
+      // No necesitamos onError aquí, el hook ya muestra el toast de error
+    });
   };
 
+  const handleSubmit = form.handleSubmit(onSubmit);
+
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md w-full" contentClassName="space-y-2">
         <DialogHeader>
           <DialogTitle>Agregar Nuevo Técnico</DialogTitle>
         </DialogHeader>
-        
         <Form {...form}>
           <form onSubmit={handleSubmit} className="space-y-4 pt-2">
             <FormField
               control={form.control}
-              name="Nombre"
+              name="nombre"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nombre completo</FormLabel>
+                  <FormLabel>Nombre</FormLabel>
                   <FormControl>
                     <Input
+                      id="nombre"
                       placeholder="Ejemplo: Juan Pérez"
-                      autoComplete="name"
+                      autoComplete="off"
                       {...field}
-                      disabled={mutation.isPending}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
             <FormField
               control={form.control}
-              name="Correo"
+              name="correo"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Correo institucional</FormLabel>
                   <FormControl>
                     <Input
+                      id="correo"
                       placeholder="ejemplo@ucab.edu.ve"
-                      autoComplete="email"
-                      type="email"
+                      autoComplete="off"
                       {...field}
-                      disabled={mutation.isPending}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
-            <div className="flex justify-end gap-2 pt-4">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={handleClose}
-                disabled={mutation.isPending}
-              >
+
+            <FormField
+              control={form.control}
+              name="idGrupo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Grupo de Trabajo</FormLabel>
+                  <Select
+                    onValueChange={(val) => field.onChange(Number(val))}
+                    defaultValue={field.value?.toString()}
+                    disabled={mutation.isPending}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar grupo" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {grupos?.map((grupo: any) => (
+                        <SelectItem key={grupo.id} value={grupo.id.toString()}>
+                          {grupo.nombre} ({grupo.codigo})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" type="button" onClick={onClose}>
                 Cancelar
               </Button>
               <Button
+                className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground"
                 type="submit"
-                className="bg-gema-green hover:bg-green-700 text-white"
-                disabled={mutation.isPending || !form.formState.isValid}
+                disabled={mutation.isPending}
               >
                 {mutation.isPending ? "Creando..." : "Crear Técnico"}
               </Button>
