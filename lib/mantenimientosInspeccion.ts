@@ -1,6 +1,7 @@
 'use client'
 
 import type { MantenimientoInspeccion } from "@/types/models/mantenimientosInspeccion.types";
+import { apiClient } from "@/lib/api/client";
 
 /**
  * Obtiene listado de mantenimientos por inspeccion
@@ -63,3 +64,16 @@ export async function getMantenimientosInspeccion() {
   */
 }
 
+/**
+ * Deriva un mantenimiento desde una inspección
+ * POST /mantenimientosXinspeccion
+ * @param idInspeccion - ID de la inspección de la cual derivar
+ * @param nombre - Nombre del mantenimiento a crear
+ */
+export async function derivarMantenimiento(idInspeccion: number, nombre: string) {
+  const response = await apiClient.post<{ idMantenimiento: number; nombre: string; idInspeccion: number }>(
+    "/mantenimientosXinspeccion",
+    { idInspeccion, nombre }
+  );
+  return response;
+}

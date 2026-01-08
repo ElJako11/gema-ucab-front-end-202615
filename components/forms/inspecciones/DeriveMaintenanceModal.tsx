@@ -7,15 +7,22 @@ import { Label } from "@/components/ui/label";
 interface DeriveMaintenanceModalProps {
     open: boolean;
     onClose: () => void;
-    onConfirm: (name: string) => void;
+    onConfirm: (name: string) => void | Promise<void>;
 }
 
 export const DeriveMaintenanceModal: React.FC<DeriveMaintenanceModalProps> = ({ open, onClose, onConfirm }) => {
     const [name, setName] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleConfirm = () => {
-        onConfirm(name);
-        setName('');
+    const handleConfirm = async () => {
+        if (!name.trim()) return;
+        setIsLoading(true);
+        try {
+            await onConfirm(name);
+            setName('');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -33,19 +40,21 @@ export const DeriveMaintenanceModal: React.FC<DeriveMaintenanceModalProps> = ({ 
                         placeholder="Ingrese el nombre del mantenimiento..."
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        disabled={isLoading}
                     />
                 </div>
             </div>
 
             <div className="flex justify-end gap-4 mt-2">
-                <Button variant="outline" onClick={onClose} className="min-w-[100px]">
+                <Button variant="outline" onClick={onClose} className="min-w-[100px]" disabled={isLoading}>
                     Cancelar
                 </Button>
                 <Button
                     className="bg-[#FBBF24] hover:bg-[#F59E0B] text-slate-900 min-w-[100px] font-medium"
                     onClick={handleConfirm}
+                    disabled={isLoading || !name.trim()}
                 >
-                    Derivar
+                    {isLoading ? "Derivando..." : "Derivar"}
                 </Button>
             </div>
         </Modal>
