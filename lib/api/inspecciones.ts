@@ -12,5 +12,9 @@ export const InspeccionAPI = {
 
     async delete(id: number): Promise<any> {
         return apiClient.delete<any>(`/inspecciones/${id}`);
+    },
+    
+    async getResumen(id:number): Promise<ResumenInspeccion> {
+        return apiClient.get<ResumenInspeccion>(`/inspecciones/resumen/${id}`)
     }
 }
