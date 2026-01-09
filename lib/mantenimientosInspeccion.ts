@@ -1,67 +1,25 @@
 'use client'
 
-import type { MantenimientoInspeccion } from "@/types/models/mantenimientosInspeccion.types";
+import type { MantenimientoInspeccion, MantenimientoInspeccionAPI } from "@/types/models/mantenimientosInspeccion.types";
 import { apiClient } from "@/lib/api/client";
 
 /**
  * Obtiene listado de mantenimientos por inspeccion
+ * GET /mantenimientosXinspeccion/resumen
  */
 export async function getMantenimientosInspeccion() {
-  // Datos de ejemplo - Reemplazar con llamada al backend cuando esté disponible
-  return Promise.resolve({
-    data: [
-      {
-        id: 1,
-        mantenimientoGenerado: "Mantenimiento Preventivo - Sistema de Aire Acondicionado",
-        inspeccionAsociada: "Inspección Técnica #2024-001 - Revisión de equipos HVAC",
-        estado: "culminado",
-        ubicacion: "M1-P01 Módulo 1 Piso 1",
-        nota: "- Requiere revisión de filtros y limpieza de conductos"
-      },
-      {
-        id: 2,
-        mantenimientoGenerado: "Mantenimiento Correctivo - Sistema Eléctrico",
-        inspeccionAsociada: "Inspección Técnica #2024-015 - Análisis de fallas eléctricas",
-        estado: "no_empezado",
-        ubicacion: "M2-P2 Módulo 2 Piso 2",
-        nota: "- Se detectaron irregularidades en el sistema de distribución"
-      },
-      {
-        id: 3,
-        mantenimientoGenerado: "Mantenimiento Preventivo - Sistema de Seguridad",
-        inspeccionAsociada: "Inspección Técnica #2024-008 - Verificación de sistemas de seguridad",
-        estado: "reprogramado",
-        ubicacion: "M2-P2 Módulo 2 Piso 2",
-        nota: "- Pendiente de reprogramación por disponibilidad de técnicos"
-      }
-    ]
-  });
+  const response = await apiClient.get<MantenimientoInspeccionAPI[]>("/mantenimientosXinspeccion/resumen");
 
-  /* Codigo para cuando el backend este disponible:
-  const token = localStorage.getItem("authToken");
-  if (!token) {
-    throw new Error("No se encontró el token de autenticación");
-  }
-  
-  const resp = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/mantenimientos-inspeccion`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  
-  if (!resp.ok) {
-    const data = await resp.json();
-    throw new Error(data.error || "Error al obtener los mantenimientos por inspección.");
-  }
-  
-  const data = (await resp.json()) as { data: MantenimientoInspeccion[] };
-  return data;
-  */
+  // Transformar datos del backend al formato del frontend
+  const transformedData: MantenimientoInspeccion[] = response.map((item) => ({
+    id: item.idMantenimiento,
+    mantenimientoGenerado: item.nombre,
+    inspeccionAsociada: item.trabajo,
+    ubicacion: `${item.uTabreviacion} - ${item.uTDescripcion}`,
+    nota: item.inspeccionObservacion,
+  }));
+
+  return { data: transformedData };
 }
 
 /**
