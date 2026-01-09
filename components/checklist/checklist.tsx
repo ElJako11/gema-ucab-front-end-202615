@@ -180,7 +180,7 @@ const ChecklistComp = ({ checklist, onBack, isTemplate = false }: ChecklistProps
                 <div className="items-center gap-1">
                     <div className="flex items-center gap-3 mb-1">
                         <button onClick={onBack} className="p-1 rounded-full hover:bg-slate-100 text-slate-400 transition-colors">
-                            <ArrowLeft size={20} />
+                            <ArrowLeft className="w-6 h-6 text-slate-600" />
                         </button>
                         <h1 className="text-2xl font-bold">{checklist.titulo}</h1>
                     </div>
