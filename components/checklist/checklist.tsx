@@ -16,7 +16,8 @@ import {
     CirclePlus,
     Pencil,
     Share,
-    Trash2
+    Trash2,
+    Loader2
 } from "lucide-react";
 
 interface ChecklistProps {
@@ -32,6 +33,7 @@ const ChecklistComp = ({ checklist, onBack, isTemplate = false }: ChecklistProps
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [activityToEdit, setActivityToEdit] = useState<Actividad | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
 
     // Actualizar tareas si el checklist cambia
     useEffect(() => {
@@ -48,89 +50,33 @@ const ChecklistComp = ({ checklist, onBack, isTemplate = false }: ChecklistProps
     const updatePlantillaMutation = useUpdatePlantillaItem();
 
     // Función para exportar como documento
-    const handleExport = () => {
-        const printContent = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>${checklist.titulo} - Checklist</title>
-                <style>
-                    body { font-family: Arial, sans-serif; padding: 20px; }
-                    h1 { color: #1a1a1a; border-bottom: 2px solid #10b981; padding-bottom: 10px; }
-                    .ubicacion { color: #666; margin-bottom: 20px; }
-                    .progreso { background: #f0f0f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-                    .task { padding: 10px; border: 1px solid #ddd; margin-bottom: 8px; border-radius: 4px; }
-                    .task.completada { background: #f0fdf4; border-color: #10b981; }
-                    .task.pendiente { background: #fff; }
-                    .task-name { font-weight: bold; }
-                    .task-desc { color: #666; font-size: 14px; }
-                    .status { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
-                    .status.completada { background: #10b981; color: white; }
-                    .status.pendiente { background: #f59e0b; color: white; }
-                    .stats { display: flex; gap: 20px; margin-top: 20px; }
-                    .stat { text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; flex: 1; }
-                    .stat-value { font-size: 24px; font-weight: bold; }
-                    .stat-label { color: #666; }
-                    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
-                </style>
-            </head>
-            <body>
-                <h1>${checklist.titulo}</h1>
-                <p class="ubicacion">📍 ${checklist.ubicacion}</p>
-                
-                <div class="progreso">
-                    <strong>Progreso del Mantenimiento:</strong> ${completedTasks} de ${totalTasks} actividades completadas (${progressPercentage}%)
-                </div>
-                
-                <h2>Lista de Actividades</h2>
-                ${tasks.map(task => `
-                    <div class="task ${task.estado === 'COMPLETADA' ? 'completada' : 'pendiente'}">
-                        <span class="status ${task.estado === 'COMPLETADA' ? 'completada' : 'pendiente'}">
-                            ${task.estado === 'COMPLETADA' ? '✓ Completada' : '○ Pendiente'}
-                        </span>
-                        <p class="task-name">${task.nombre}</p>
-                        <p class="task-desc">${task.descripcion}</p>
-                    </div>
-                `).join('')}
-                
-                <div class="stats">
-                    <div class="stat">
-                        <div class="stat-value" style="color: #0ea5e9;">${totalTasks}</div>
-                        <div class="stat-label">Total</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value" style="color: #10b981;">${completedTasks}</div>
-                        <div class="stat-label">Completadas</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value" style="color: #ef4444;">${pendingTasks}</div>
-                        <div class="stat-label">Pendientes</div>
-                    </div>
-                </div>
-                
-                <p style="margin-top: 30px; color: #999; font-size: 12px;">
-                    Generado el ${new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                </p>
-            </body>
-            </html>
-        `;
+    const handleExport = async () => {
+        setIsExporting(true);
+        try {
+            // Aseguramos que el loading se vea al menos 1 segundo para mejor UX
+            const minTimePromise = new Promise(resolve => setTimeout(resolve, 1000));
 
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-            printWindow.document.write(printContent);
-            printWindow.document.close();
+            const [blob] = await Promise.all([
+                exportChecklistPDF(checklist.id),
+                minTimePromise
+            ]);
+
+            const url = window.URL.createObjectURL(blob as Blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const fileName = `${checklist.titulo.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '').replace(/\s+/g, '_')}_checklist.pdf`;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            if (link.parentNode) {
+                link.parentNode.removeChild(link);
+            }
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error al exportar PDF:", error);
+        } finally {
+            setIsExporting(false);
         }
-
-        // Crear un Blob con el contenido HTML para descarga
-        const blob = new Blob([printContent], { type: 'text/html;charset=utf-8' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        const fileName = `${checklist.titulo.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '').replace(/\s+/g, '_')}_checklist.html`;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
     };
 
     //Marcar o desmarcar tarea completada
@@ -179,7 +125,7 @@ const ChecklistComp = ({ checklist, onBack, isTemplate = false }: ChecklistProps
                 <div className="items-center gap-1">
                     <div className="flex items-center gap-3 mb-1">
                         <button onClick={onBack} className="p-1 rounded-full hover:bg-slate-100 text-slate-400 transition-colors">
-                            <ArrowLeft size={20} />
+                            <ArrowLeft className="w-6 h-6 text-slate-600" />
                         </button>
                         <h1 className="text-2xl font-bold">{checklist.titulo}</h1>
                     </div>
@@ -189,9 +135,10 @@ const ChecklistComp = ({ checklist, onBack, isTemplate = false }: ChecklistProps
                 <Button
                     className="bg-sidebar-border text-black hover:bg-gray-300"
                     onClick={handleExport}
+                    disabled={isExporting}
                 >
-                    <Share size={18} />
-                    <span>Exportar</span>
+                    {isExporting ? <Loader2 className="animate-spin" size={18} /> : <Share size={18} />}
+                    <span>{isExporting ? "Exportando..." : "Exportar"}</span>
                 </Button>
             </header>
 

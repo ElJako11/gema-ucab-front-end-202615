@@ -2,16 +2,24 @@ import React from 'react';
 import Link from 'next/link';
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { useResumenInspection } from '@/hooks/inspecciones/useResumenInspection';
 
 interface InspectionSummaryModalProps {
     open: boolean;
     onClose: () => void;
     data?: any;
-    inspeccionId?: number; // ID del mantenimiento para el enlace
+    inspeccionId: number; // ID del mantenimiento para el enlace
 }
 
 export const InspectionSummaryModal: React.FC<InspectionSummaryModalProps> = ({ open, onClose, data, inspeccionId }) => {
 
+    const { data: resumen, isLoading, error } = useResumenInspection(inspeccionId);
+
+    if (isLoading) {
+        return <div>Cargando...</div>
+    }
+
+    console.log(resumen);
     return (
         <Modal
             isOpen={open}
@@ -27,19 +35,19 @@ export const InspectionSummaryModal: React.FC<InspectionSummaryModalProps> = ({ 
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="bg-slate-50 p-3 rounded-md border text-center">
                             <span className="block text-sm text-gray-500">Estado</span>
-                            <span className="font-semibold">{data?.estado || 'Realizado'}</span>
+                            <span className="font-semibold">{resumen?.estado || 'Realizado'}</span>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-md border text-center">
                             <span className="block text-sm text-gray-500">Supervisor</span>
-                            <span className="font-semibold">{data?.supervisor || 'Juan Pérez'}</span>
+                            <span className="font-semibold">{resumen?.supervisor || 'Juan Pérez'}</span>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-md border text-center">
                             <span className="block text-sm text-gray-500">Área</span>
-                            <span className="font-semibold">{data?.area || 'Mantenimiento General'}</span>
+                            <span className="font-semibold">{resumen?.areaEncargada || 'Mantenimiento General'}</span>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-md border text-center">
                             <span className="block text-sm text-gray-500">Frecuencia</span>
-                            <span className="font-semibold">{data?.frecuencia || 'Semanal'}</span>
+                            <span className="font-semibold">{resumen?.frecuencia || 'Semanal'}</span>
                         </div>
                     </div>
                 </div>
@@ -48,18 +56,9 @@ export const InspectionSummaryModal: React.FC<InspectionSummaryModalProps> = ({ 
                 <div>
                     <h3 className="text-lg font-medium mb-2">Ubicación Técnica</h3>
                     <div className="bg-slate-50 p-4 rounded-md border">
-                        <p className="text-sm">{data?.ubicacion || 'Planta Baja > Baños'}</p>
+                        <p className="text-sm">{resumen?.ubicacion || '...'}</p>
                     </div>
                 </div>
-
-                {/* Section 3: Observation */}
-                <div>
-                    <h3 className="text-lg font-medium mb-2">Observación</h3>
-                    <div className="bg-slate-50 p-4 rounded-md border hover:bg-slate-100 transition-colors">
-                        <p className="text-sm">{data?.observacion || 'Sin observaciones registradas.'}</p>
-                    </div>
-                </div>
-
             </div>
 
             <div className="flex justify-end gap-2 mt-4">
