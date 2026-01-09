@@ -3,22 +3,18 @@
 import ChecklistComponent from "@/components/checklist/checklist";
 import { useGetAllChecklistItem } from "@/hooks/checklist/useGetAllChecklistItem";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 const ChecklistPage = () => {
     //Obtener el ID de la URL
     const params = useParams();
+    const router = useRouter(); // Instanciamos el router
     const id = Number(params.id);
     const type = params.type as string;
 
     //Usar el hook para traer los datos del Backend
     const { data: checklist, isLoading, isError } = useGetAllChecklistItem(type, id);
 
-    // Estado para controlar qué vista mostrar
-    // false = Muestra el detalle general
-    // true = Muestra la pantalla de checklist (tareas)
-    const [showChecklist, setShowChecklist] = useState(false);
 
     //Manejo de estados de carga y error
     if (isLoading) {
@@ -43,7 +39,7 @@ const ChecklistPage = () => {
             <ChecklistComponent
                 idTrabajo={checklist.idTrabajo}
                 checklist={checklist}
-                onBack={() => setShowChecklist(false)} // Función para volver 
+                onBack={() => router.back()} // Usamos router.back() para volver al historial anterior
             />
         </div>
     )

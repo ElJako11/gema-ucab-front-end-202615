@@ -4,7 +4,6 @@ import DropdownFilter from "../ui/dropdownFilter";
 import { MaintenanceSummaryModal } from "@/components/forms/mantenimientos/MaintenanceSummaryModal";
 import { InspectionSummaryModal } from "@/components/forms/inspecciones/InspectionSummaryModal";
 import { useCalendarioSemanal } from "@/hooks/calendario/useCalendario";
-import { useResumenMantenimiento } from "@/hooks/mantenimientos/useResumenMantenimiento";
 
 /*Nombres de los meses */
 const MONTH_NAMES = [
