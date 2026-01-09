@@ -11,6 +11,9 @@ export const useDeleteTecnico = () => {
             queryClient.invalidateQueries({
                 queryKey: ['tecnicos']
             })
+            queryClient.invalidateQueries({
+                queryKey: ['trabajadoresPorGrupo']
+            })
             toast.success("Tecnico eliminado exitosamente!");
         },
         onError: () => {
