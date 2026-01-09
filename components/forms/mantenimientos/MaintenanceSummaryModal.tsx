@@ -2,16 +2,26 @@ import React from 'react';
 import Link from 'next/link';
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { useMantenimientoDetalle } from '@/hooks/mantenimientos/useMantenimiento';
 
 interface MaintenanceSummaryModalProps {
     open: boolean;
     onClose: () => void;
     data?: any; // To be typed properly later
-    mantenimientoId?: number; // ID del mantenimiento para el enlace
+    mantenimientoId: number; // ID del mantenimiento para el enlace
 }
 
 export const MaintenanceSummaryModal: React.FC<MaintenanceSummaryModalProps> = ({ open, onClose, data, mantenimientoId }) => {
+
+    const { data: mantenimiento, isLoading, error } = useMantenimientoDetalle(mantenimientoId);
+
+    console.log(mantenimiento)
+    if (isLoading) {
+        return <div>Cargando...</div>;
+    }
+
+
+
     return (
         <Modal
             isOpen={open}
@@ -27,20 +37,24 @@ export const MaintenanceSummaryModal: React.FC<MaintenanceSummaryModalProps> = (
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="bg-slate-50 p-3 rounded-md border text-center">
                             <span className="block text-sm text-gray-500">Estado</span>
-                            <span className="font-semibold">{data?.estado || 'Programado'}</span>
+                            <span className="font-semibold">{mantenimiento?.estado ?? '...'}</span>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-md border text-center">
                             <span className="block text-sm text-gray-500">Prioridad</span>
-                            <span className="font-semibold">{data?.prioridad || 'Alta'}</span>
+                            <span className="font-semibold">{mantenimiento?.prioridad ?? '...'}</span>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-md border text-center">
                             <span className="block text-sm text-gray-500">Frecuencia</span>
-                            <span className="font-semibold">{data?.frecuencia || 'Mensual'}</span>
+                            <span className="font-semibold">{mantenimiento?.frecuencia ?? '...'}</span>
                         </div>
-                        <div className="bg-slate-50 p-3 rounded-md border text-center">
-                            <span className="block text-sm text-gray-500">Repetición</span>
-                            <span className="font-semibold">{data?.repeticion || 'Sí'}</span>
-                        </div>
+
+                        {mantenimiento?.repeticion && (
+                            <div className="bg-slate-50 p-3 rounded-md border text-center">
+                                <span className="block text-sm text-gray-500">Repetición</span>
+                                <span className="font-semibold">{mantenimiento?.repetición ?? '...'}</span>
+                            </div>
+                        )}
+
                     </div>
                 </div>
 
@@ -48,7 +62,7 @@ export const MaintenanceSummaryModal: React.FC<MaintenanceSummaryModalProps> = (
                 <div>
                     <h3 className="text-lg font-medium mb-2">Ubicación Técnica</h3>
                     <div className="bg-slate-50 p-4 rounded-md border">
-                        <p className="text-sm">{data?.ubicacion || 'Edificio Administrativo > Piso 1 > Oficina 101'}</p>
+                        <p className="text-sm">{mantenimiento?.ubicacion ?? '...'}</p>
                     </div>
                 </div>
 
@@ -56,12 +70,9 @@ export const MaintenanceSummaryModal: React.FC<MaintenanceSummaryModalProps> = (
                 <div>
                     <h3 className="text-lg font-medium mb-2">Fecha Límite</h3>
                     <div className="bg-red-50 p-4 rounded-md border border-red-100 flex items-center gap-2">
-                        <span className="text-red-700 font-semibold">{data?.fechaLimite || '15/12/2025'}</span>
+                        <span className="text-red-700 font-semibold">{mantenimiento?.fechaLimite ?? '...'}</span>
                     </div>
                 </div>
-
-
-
             </div>
             <div className="flex justify-end gap-2 mt-4">
                 <Button variant="ghost" onClick={onClose}>Cancelar</Button>
