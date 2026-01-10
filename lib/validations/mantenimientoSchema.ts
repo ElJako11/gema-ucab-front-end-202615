@@ -32,9 +32,9 @@ export const mantenimientoSchema = z.object({
     .string()
     .min(1, "La fecha límite es requerida"),
   
-  tipoMantenimiento: z
-    .enum(["Periodico", "Condicion"])
-    .refine((val) => ["Periodico", "Condicion"].includes(val), {
+  tipo: z
+    .enum(["Periódico", "Por Condición"])
+    .refine((val) => ["Periódico", "Por Condición"].includes(val), {
       message: "Selecciona un tipo de mantenimiento válido"
     }),
   
@@ -46,6 +46,30 @@ export const mantenimientoSchema = z.object({
     .string()
     .min(1, "El especificacion es requerido")
     .max(1000, "El especificacion no puede exceder 1000 caracteres")
+});
+
+export const mantenimientoEditSchema = z.object({
+  // prioridad as enum (refine is redundant with enum)
+  titulo: z.string().max(200, "Máximo 200 caracteres"),
+  prioridad: z.enum(PRIORIDAD_OPTS),
+  
+  fechaLimite: z
+    .string()
+    .optional()
+    ,
+  
+  tipo: z
+    .enum(["Periódico", "Por Condición"])
+    ,
+  
+  frecuencia: z
+    .enum(["Diaria", "Semanal", "Mensual", "Trimestral", "Semestral", "Anual"])
+    .optional(),
+  
+  especificacion: z
+    .string()
+    .max(1000, "El especificacion no puede exceder 1000 caracteres")
+    .optional()
 });
 
 

@@ -11,7 +11,6 @@ import { mantenimientoSchema } from "@/lib/validations/mantenimientoSchema";
 import { useCreateMantenimiento } from "@/hooks/mantenimientos/useCreateMantenimientos";
 import { useUbicacionesLista } from "@/hooks/ubicaciones-tecnicas/useUbicaciones";
 import { Combobox } from "@/components/ui/combobox";
-import { useSupervisores } from "@/hooks/usuarios/useUsuarios";
 import { useGrupos } from "@/hooks/grupos-trabajo/useGrupoTrabajo";
 import { CreateMantenimientoRequest } from "@/lib/api/mantenimientos";
 
@@ -36,8 +35,6 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
     const { data: ubicaciones, isLoading: isLoadingUbicaciones } = useUbicacionesLista();
     const { data: grupos } = useGrupos();
 
-    console.log(grupos); 
-
     const form = useForm<MantenimientoFormData>({
         resolver: zodResolver(mantenimientoSchema),
         mode: "onSubmit",
@@ -50,13 +47,13 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
             idGrupo: initialValues?.idGrupo || 0,
             fechaCreacion: initialValues?.fechaCreacion || new Date().toISOString().split('T')[0],
             fechaLimite: initialValues?.fechaLimite || '',
-            tipoMantenimiento: initialValues?.tipoMantenimiento || 'Periodico',
+            tipo: initialValues?.tipo || 'Periódico',
             frecuencia: initialValues?.frecuencia,
             especificacion: initialValues?.especificacion || ''
         }
     });
 
-    const tipoMantenimiento = form.watch("tipoMantenimiento");
+    const tipoMantenimiento = form.watch("tipo");
 
     // eliminar array de encargados hardcoded
 
@@ -68,12 +65,12 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
             titulo: data.titulo,
             prioridad: data.prioridad,
             fechaCreacion: data.fechaCreacion || new Date().toISOString().split('T')[0],
-            fechaLimite: data.fechaLimite || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // +7 días si no se especifica
-            tipoMantenimiento: data.tipoMantenimiento,
+            fechaLimite: data.fechaLimite, // +7 días si no se especifica
+            tipo: data.tipo,
             frecuencia: data.frecuencia,
             idUbicacionTecnica: data.idUbicacionTecnica,
             idGrupo: data.idGrupo,
-            especificacion: data.especificacion ?? ""
+            especificacion: data.especificacion ?? " "
         }
 
         console.log("Payload to send:", payload);
@@ -180,27 +177,33 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                             )}
                         />
 
-                        {/* Tipo de mantenimiento */}
-                        <FormField
-                            control={form.control}
-                            name="tipoMantenimiento"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Tipo de mantenimiento</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger className="w-3/4">
-                                                <SelectValue placeholder="Tipo de mantenimiento" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent >
-                                            <SelectItem value="Periodico">Periódico</SelectItem>
-                                            <SelectItem value="Condicion">Por Condición</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </FormItem>
-                            )}
-                        />
+                        {/* Frecuencia (solo si es periódico) */}
+                        {tipoMantenimiento === "Periódico" && (
+                            <FormField
+                                control={form.control}
+                                name="frecuencia"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Frecuencia</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Seleccionar frecuencia" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="Diaria">Diaria</SelectItem>
+                                                <SelectItem value="Semanal">Semanal</SelectItem>
+                                                <SelectItem value="Mensual">Mensual</SelectItem>
+                                                <SelectItem value="Trimestral">Trimestral</SelectItem>
+                                                <SelectItem value="Semestral">Semestral</SelectItem>
+                                                <SelectItem value="Anual">Anual</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )}
+                            />
+                        )}
                     </div>
                     
                     <div className="flex flex-col gap-6">
@@ -244,33 +247,27 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                             )}
                         />
 
-                        {/* Frecuencia (solo si es periódico) */}
-                        {tipoMantenimiento === "Periodico" && (
-                            <FormField
-                                control={form.control}
-                                name="frecuencia"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Frecuencia</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Seleccionar frecuencia" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="Diaria">Diaria</SelectItem>
-                                                <SelectItem value="Semanal">Semanal</SelectItem>
-                                                <SelectItem value="Mensual">Mensual</SelectItem>
-                                                <SelectItem value="Trimestral">Trimestral</SelectItem>
-                                                <SelectItem value="Semestral">Semestral</SelectItem>
-                                                <SelectItem value="Anual">Anual</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </FormItem>
-                                )}
-                            />
-                        )}
+                        {/* Tipo de mantenimiento */}
+                        <FormField
+                            control={form.control}
+                            name="tipo"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Tipo de mantenimiento</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger className="w-3/4">
+                                                <SelectValue placeholder="Tipo de mantenimiento" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent >
+                                            <SelectItem value="Periódico">Periódico</SelectItem>
+                                            <SelectItem value="Por Condición">Por Condición</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        />
                     </div>                    
                 </div>
                  

@@ -104,15 +104,6 @@ export default function MantenimientoDetalle() {
                             {data.tipo}
                         </div>
                     </div>
-
-                    {/* Instancia */}
-                    <div className="space-y-2">
-                        <h3 className="font-bold text-lg">Instancia</h3>
-                        <div className="flex items-center gap-2 px-4 py-2 bg-white text-slate-700 rounded-md border border-slate-300 w-fit font-medium shadow-sm">
-                            <RotateCcw className="w-5 h-5" />
-                            {data.instancia}
-                        </div>
-                    </div>
                 </div>
 
                 <hr className="border-slate-100 my-8" />
@@ -202,8 +193,7 @@ export default function MantenimientoDetalle() {
                 open={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
                 data={data}
-                maintenanceName={data.title}
-                maintenanceId={data.idMantenimiento}
+                mantenimientoId={id}
             />
 
             {/* Delete Modal */}
@@ -211,8 +201,8 @@ export default function MantenimientoDetalle() {
                 open={deleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
                 onConfirm={() => { toast.success("Mantenimiento eliminado con éxito"); setDeleteModalOpen(false); }}
-                maintenanceName={data.title}
-                maintenanceId={data.idMantenimiento}
+                maintenanceName={data.titulo}
+                maintenanceId={data.id}
             />
 
             {/* Add Checklist Modal */}
