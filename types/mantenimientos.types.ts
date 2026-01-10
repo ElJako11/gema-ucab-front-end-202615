@@ -9,5 +9,5 @@ export type Mantenimiento = {
     Resumen: string;
     Prioridad: "Baja" | "Media" | "Alta";
     AreaEncargada: string;
-    Frecuencia?: "Diaria" | "Semanal" | "Mensual" | "Bimestral" | "Trimestral" | "Semestral" | "Anual";
+    Frecuencia?: "Diaria" | "Semanal" | "Mensual" | "Trimestral" | "Semestral" | "Anual";
 };

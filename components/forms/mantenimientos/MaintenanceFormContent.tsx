@@ -13,8 +13,8 @@ import { useUbicacionesLista } from "@/hooks/ubicaciones-tecnicas/useUbicaciones
 import { Combobox } from "@/components/ui/combobox";
 import { useSupervisores } from "@/hooks/usuarios/useUsuarios";
 import { useGrupos } from "@/hooks/grupos-trabajo/useGrupoTrabajo";
+import { CreateMantenimientoRequest } from "@/lib/api/mantenimientos";
 
-const AREA_OPTIONS = ["Electricidad", "Infraestructura", "Mecanica", "Refrigeracion", "Logistica"] as const;
 
 type MantenimientoFormData = z.infer<typeof mantenimientoSchema>;
 
@@ -22,41 +22,37 @@ interface MaintenanceFormContentProps {
     initialValues?: Partial<MantenimientoFormData>;
     onClose?: () => void;
     onSuccess?: () => void;
-    maintenanceId?: number;
     maintenanceName?: string;
 }
 
 export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
     initialValues,
     onClose,
-    onSuccess,
-    maintenanceId,
-    maintenanceName
+    onSuccess
 }) => {
 
 
     const createMantenimientoMutation = useCreateMantenimiento();
     const { data: ubicaciones, isLoading: isLoadingUbicaciones } = useUbicacionesLista();
-    const { supervisores } = useSupervisores();
     const { data: grupos } = useGrupos();
 
+    console.log(grupos); 
 
     const form = useForm<MantenimientoFormData>({
         resolver: zodResolver(mantenimientoSchema),
+        mode: "onSubmit",
+        reValidateMode: "onSubmit",
         defaultValues: {
+            tipoTrabajo: "Mantenimiento",
             titulo: initialValues?.titulo || '',
             prioridad: initialValues?.prioridad || 'Media',
-            estado: initialValues?.estado || 'no_empezado',
-            supervisor: initialValues?.supervisor || '',
-            fechaCreacion: initialValues?.fechaCreacion || '',
+            idUbicacionTecnica: initialValues?.idUbicacionTecnica || 0,
+            idGrupo: initialValues?.idGrupo || 0,
+            fechaCreacion: initialValues?.fechaCreacion || new Date().toISOString().split('T')[0],
             fechaLimite: initialValues?.fechaLimite || '',
             tipoMantenimiento: initialValues?.tipoMantenimiento || 'Periodico',
-            repeticion: initialValues?.repeticion || 'unico',
             frecuencia: initialValues?.frecuencia,
-            codigoVerificacion: initialValues?.codigoVerificacion || '',
-            codigoArea: initialValues?.codigoArea || 1,
-            areaEncargada: initialValues?.areaEncargada || undefined,
-            resumen: initialValues?.resumen || ''
+            especificacion: initialValues?.especificacion || ''
         }
     });
 
@@ -65,30 +61,23 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
     // eliminar array de encargados hardcoded
 
     const onSubmit = (data: MantenimientoFormData) => {
+        console.log("Form submitted with data:", data);
         
-        console.log("Form Data Submitted:", data);
-        // Mapear los datos del formulario al formato que espera el backend
-        const mantenimientoData = {
-            
-            nombre: maintenanceName || data.titulo,
-            tipoTrabajo: "Mantenimiento" as const,
-            fechaCreacion: new Date().toISOString(),
-            codigoVerificacion: data.codigoVerificacion,
-            codigoArea: data.codigoArea,
-            supervisorId: supervisores?.find(s => s.nombre === data.supervisor)?.id || 0, // Buscar ID del supervisor seleccionado
+        const payload: CreateMantenimientoRequest = {
+            tipoTrabajo: "Mantenimiento",
+            titulo: data.titulo,
             prioridad: data.prioridad,
-            areaEncargada: data.areaEncargada,
-            fechaLimite: data.fechaLimite,
-            frecuencia: data.frecuencia || "Mensual",
+            fechaCreacion: data.fechaCreacion || new Date().toISOString().split('T')[0],
+            fechaLimite: data.fechaLimite || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // +7 días si no se especifica
             tipoMantenimiento: data.tipoMantenimiento,
-            repeticion: data.tipoMantenimiento === 'Periodico' ? 'periodico' : 'unico',
-            estado: 'no_empezado' as const, // Default
-            resumen: data.resumen
-        };
+            frecuencia: data.frecuencia,
+            idUbicacionTecnica: data.idUbicacionTecnica,
+            idGrupo: data.idGrupo,
+            especificacion: data.especificacion ?? ""
+        }
 
-console.log("Submitting Mantenimiento Data:", mantenimientoData);
-
-        createMantenimientoMutation.mutate(mantenimientoData, {
+        console.log("Payload to send:", payload);
+        createMantenimientoMutation.mutate(payload, {
             onSuccess: () => {
                 form.reset();
                 onSuccess?.();
@@ -101,260 +90,205 @@ console.log("Submitting Mantenimiento Data:", mantenimientoData);
     };
 
     const onError = (errors: any) => {
+        console.log("Form validation errors:", errors);
     };
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-4 text-left">
+            <form onSubmit={form.handleSubmit(onSubmit, onError)}>
                 {/* Nombre del mantenimiento */}
-                <div className="col-span-2">
+
+                <div className="p-4">
                     <FormField
                         control={form.control}
                         name="titulo"
-                    render={({ field }) => (
-                            <FormItem>
+                        render={({ field }) => (
+                            <FormItem className="w-3/4 border-gray-200">
                                 <FormLabel>Nombre</FormLabel>
-                                <FormControl>
+                                <FormControl className=" border-gray-200">
                                     <Input placeholder="Ej: Mantenimiento preventivo de aires acondicionados" {...field} />
                                 </FormControl>
-                                <FormMessage />
                             </FormItem>
                         )}
                     />
                 </div>
 
-                {/* Ubicación Técnica */}
-                <div className="col-span-2">
-                    <FormField
-                        control={form.control}
-                        name="codigoVerificacion"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                                <FormLabel>Ubicación Técnica</FormLabel>
-                                <FormControl>
-                                    <Combobox
-                                        data={ubicaciones?.map(u => ({
-                                            value: u.codigo_Identificacion,
-                                            label: `${u.codigo_Identificacion} - ${u.descripcion}`
-                                        })) || []}
-                                        value={field.value || null}
-                                        onValueChange={(value) => field.onChange(value || 0)}
-                                        placeholder={isLoadingUbicaciones ? "Cargando ubicaciones..." : "Seleccionar ubicación técnica"}
-                                        searchPlaceholder="Buscar ubicación..."
-                                        triggerClassName="w-full"
-                                        contentClassName="w-full"
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-
-                <div className="grid grid-cols-2 gap-6 my-2">
-                    {/* Prioridad */}
-                    <FormField
-                        control={form.control}
-                        name="prioridad"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Prioridad</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Seleccionar prioridad" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="Baja">Baja</SelectItem>
-                                        <SelectItem value="Media">Media</SelectItem>
-                                        <SelectItem value="Alta">Alta</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* Área encargada */}
-                    <FormField
-                        control={form.control}
-                        name="areaEncargada"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Área encargada</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value ?? null}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Seleccionar área encargada" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent >
-                                        {AREA_OPTIONS.map((area) => (
-                                            <SelectItem key={area} value={area}>
-                                                {area}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-
-
-                    {/* Grupo de Trabajo */}
-                    <FormField
-                      control={form.control}
-                      name="codigoArea"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Grupo de Trabajo</FormLabel>
-                          <FormControl>
-                            <Combobox
-                              data={grupos?.map((grupo: any) => ({
-                                value: grupo.codigo,
-                                label: `${grupo.nombre} (${grupo.codigo})`,
-                              })) || []}
-                              value={field.value ? String(field.value) : null}
-                              onValueChange={(val) => field.onChange(val ? Number(val) : 0)}
-                              placeholder="Seleccionar grupo"
-                              searchPlaceholder="Buscar grupo..."
-                              triggerClassName="w-full"
-                              contentClassName="w-full"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Supervisor */}
-                    <FormField
-                        control={form.control}
-                        name="supervisor"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Supervisor Asignado</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Seleccionar supervisor" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {supervisores?.map((supervisor: any) => (
-                                            <SelectItem key={supervisor.Id} value={supervisor.Nombre}>
-                                                {supervisor.Nombre}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* Fecha de inicio */}
-                    <FormField
-                        control={form.control}
-                        name="fechaCreacion"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Fecha de inicio</FormLabel>
-                                <FormControl>
-                                    <Input type="date" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* Fecha de finalización */}
-                    <FormField
-                        control={form.control}
-                        name="fechaLimite"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Fecha de finalización</FormLabel>
-                                <FormControl>
-                                    <Input type="date" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* Tipo de mantenimiento */}
-                    <FormField
-                        control={form.control}
-                        name="tipoMantenimiento"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Tipo de mantenimiento</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Tipo de mantenimiento" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="Periodico">Periódico</SelectItem>
-                                        <SelectItem value="Condicion">Por Condición</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* Frecuencia (solo si es periódico) */}
-                    {tipoMantenimiento === "Periodico" && (
+                <div className="p-4 grid grid-cols-2 gap-6 my-2">
+                    
+                    <div className="flex flex-col gap-6">
+                        {/* Ubicación Técnica */}
                         <FormField
                             control={form.control}
-                            name="frecuencia"
+                            name="idUbicacionTecnica"
                             render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Frecuencia</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Seleccionar frecuencia" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="Diaria">Diaria</SelectItem>
-                                            <SelectItem value="Semanal">Semanal</SelectItem>
-                                            <SelectItem value="Mensual">Mensual</SelectItem>
-                                            <SelectItem value="Bimestral">Bimestral</SelectItem>
-                                            <SelectItem value="Trimestral">Trimestral</SelectItem>
-                                            <SelectItem value="Semestral">Semestral</SelectItem>
-                                            <SelectItem value="Anual">Anual</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Ubicación Técnica</FormLabel>
+                                    <FormControl>
+                                        <Combobox
+                                            data={ubicaciones?.map(u => ({
+                                                value: u.idUbicacion,
+                                                label: `${u.codigo_Identificacion} - ${u.descripcion}`
+                                            })) || []}
+                                            value={field.value || null}
+                                            onValueChange={(value) => field.onChange(value || 0)}
+                                            placeholder={isLoadingUbicaciones ? "Cargando ubicaciones..." : "Seleccionar ubicación técnica"}
+                                            searchPlaceholder="Buscar ubicación..."
+                                            triggerClassName="w-full !border-gray-200"
+                                            contentClassName="w-full border-gray-200"
+                                        />
+                                    </FormControl>
                                 </FormItem>
                             )}
                         />
-                    )}
+
+                        {/* Grupo de Trabajo */}
+                        <FormField
+                        control={form.control}
+                        name="idGrupo"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                            <FormLabel>Grupo de Trabajo</FormLabel>
+                            <FormControl>
+                                <Combobox
+                                    data={grupos?.map((grupo) => ({
+                                        value: grupo.id,
+                                        label: `${grupo.nombre} (${grupo.codigo})`,
+                                    })) || []}
+                                    value={field.value || null}
+                                    onValueChange={(value) => field.onChange(value || 0)}
+                                    placeholder="Seleccionar grupo"
+                                    searchPlaceholder="Buscar grupo..."
+                                    triggerClassName="w-full  !border-gray-200"
+                                    contentClassName="w-full"
+                                />
+                            </FormControl>
+                            </FormItem>
+                        )}
+                        />
+
+                        {/* Fecha de inicio */}
+                        <FormField
+                            control={form.control}
+                            name="fechaCreacion"
+                            render={({ field }) => (
+                                <FormItem >
+                                    <FormLabel>Fecha de inicio</FormLabel>
+                                    <FormControl className="w-full border-gray-200">
+                                        <Input type="date" {...field} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Tipo de mantenimiento */}
+                        <FormField
+                            control={form.control}
+                            name="tipoMantenimiento"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Tipo de mantenimiento</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger className="w-3/4">
+                                                <SelectValue placeholder="Tipo de mantenimiento" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent >
+                                            <SelectItem value="Periodico">Periódico</SelectItem>
+                                            <SelectItem value="Condicion">Por Condición</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                    
+                    <div className="flex flex-col gap-6">
+                        {/* Supervisor */}
+                        
+
+                        {/* Prioridad */}
+                        <FormField
+                            control={form.control}
+                            name="prioridad"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Prioridad</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger className="w-1/2">
+                                                <SelectValue placeholder="Seleccionar prioridad" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="Baja">Baja</SelectItem>
+                                            <SelectItem value="Media">Media</SelectItem>
+                                            <SelectItem value="Alta">Alta</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Fecha de finalización */}
+                        <FormField
+                            control={form.control}
+                            name="fechaLimite"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Fecha de finalización</FormLabel>
+                                    <FormControl className="w-full border-gray-200">
+                                        <Input type="date" {...field} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Frecuencia (solo si es periódico) */}
+                        {tipoMantenimiento === "Periodico" && (
+                            <FormField
+                                control={form.control}
+                                name="frecuencia"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Frecuencia</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Seleccionar frecuencia" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="Diaria">Diaria</SelectItem>
+                                                <SelectItem value="Semanal">Semanal</SelectItem>
+                                                <SelectItem value="Mensual">Mensual</SelectItem>
+                                                <SelectItem value="Trimestral">Trimestral</SelectItem>
+                                                <SelectItem value="Semestral">Semestral</SelectItem>
+                                                <SelectItem value="Anual">Anual</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )}
+                            />
+                        )}
+                    </div>                    
                 </div>
+                 
 
                 {/* Resumen */}
                 <FormField
                     control={form.control}
-                    name="resumen"
+                    name="especificacion"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Resumen</FormLabel>
-                            <FormControl>
+                        <FormItem className="p-4">
+                            <FormLabel>Especificacion</FormLabel>
+                            <FormControl >
                                 <Textarea
-                                    placeholder="Describe las tareas específicas del mantenimiento..."
+                                    placeholder="Describa el mantenimiento..."
                                     className="min-h-[100px]"
                                     {...field}
                                 />
                             </FormControl>
-                            <FormMessage />
                         </FormItem>
                     )}
                 />

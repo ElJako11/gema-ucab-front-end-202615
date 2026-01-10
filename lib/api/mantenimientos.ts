@@ -1,16 +1,16 @@
 import apiClient from "./client";
 import type { Mantenimiento } from "@/types/mantenimientos.types";
 
-interface CreateMantenimientoRequest {
+export interface CreateMantenimientoRequest {
     tipoTrabajo: "Mantenimiento";
+    titulo: string; 
+    prioridad: "Alta" | "Media" | "Baja";
     fechaCreacion: string;
+    fechaLimite: string;
+    tipoMantenimiento: "Periodico" | "Condicion";
+    frecuencia?: "Diaria" | "Semanal" | "Mensual" | "Trimestral" | "Semestral" | "Anual";
     idUbicacionTecnica: number;
     idGrupo: number;
-    areaEncargada: "Electricidad" | "Infraestructura" | "Mecanica" | "Refrigeracion" | "Logistica";
-    prioridad: "Alta" | "Media" | "Baja";
-    fechaLimite: string;
-    frecuencia: "Diaria" | "Semanal" | "Mensual" | "Bimestral" | "Trimestral" | "Semestral" | "Anual";
-    tipoMantenimiento: "Periodico" | "Condicion";
     especificacion: string;
 }
 

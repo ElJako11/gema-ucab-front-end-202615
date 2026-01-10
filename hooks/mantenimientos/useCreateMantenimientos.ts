@@ -1,41 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { mantenimientosAPI } from "@/lib/api/mantenimientos";
+import { mantenimientosAPI,CreateMantenimientoRequest } from "@/lib/api/mantenimientos";
 
 export const useCreateMantenimiento = () => {
     const queryClient = useQueryClient(); 
 
     return useMutation({
-        mutationFn: async (data: any) => {
-            
-            try {
-                const response = await mantenimientosAPI.create(data);
-                return response;
-            } catch (error) {
-                throw error;
-            }
-        },
+        mutationFn: (data: CreateMantenimientoRequest) => mantenimientosAPI.create(data),
         onSuccess: (data) => {
             toast.success("Mantenimiento creado correctamente");
             
-            // Invalidar múltiples queries para refrescar datos
-            
-            // Invalidar queries específicas
-            queryClient.invalidateQueries({ queryKey: ["mantenimientos"] });
-            queryClient.invalidateQueries({ queryKey: ["trabajos"] });
-            queryClient.invalidateQueries({ queryKey: ["elementos"] });
-            
             // Invalidar todas las queries del calendario (importante para actualización inmediata)
             queryClient.invalidateQueries({ queryKey: ["calendario"] });
-            
-            // También invalidar queries específicas del calendario por si acaso
-            queryClient.invalidateQueries({ 
-                predicate: (query) => {
-                    return query.queryKey[0] === "calendario" || 
-                           query.queryKey.includes("mantenimientos") ||
-                           query.queryKey.includes("inspecciones");
-                }
-            });
             
         },
         onError: (error: any) => {
