@@ -12,72 +12,70 @@ import { useUbicacionesLista } from "@/hooks/ubicaciones-tecnicas/useUbicaciones
 import { useSupervisores } from "@/hooks/usuarios/useUsuarios";
 import { useGrupos } from "@/hooks/grupos-trabajo/useGrupoTrabajo";
 import { useCreateInspection } from "@/hooks/inspecciones/useCreateInspection";
-import { inspeccionSchema, type InspeccionFormData } from "@/lib/validations/inspeccionSchema";
+import {  FRECUENCIA_OPTS, PRIORIDAD_OPTS } from "@/lib/validations/inspeccionSchema";
+import { CreateInspectionRequest } from '@/hooks/inspecciones/useCreateInspection';
+import { toast } from 'sonner';
+import { z } from "zod";
+
 
 const AREA_OPTIONS = ["Electricidad", "Infraestructura", "Mecanica", "Refrigeracion", "Logistica"] as const;
 
 interface InspectionFormModalProps {
     open: boolean;
     onClose: () => void;
-    initialValues?: Partial<InspeccionFormData>;
-    onSuccess?: () => void;
+    onSuccess: () => void;
 }
 
+//Esquema de validación 
+export const inspeccionSchema = z.object({
+  // tipo de trabajo 
+  tipoTrabajo: z.string("Inspeccion"),
+
+  fechaCreacion: z.string(),
+  // Campos visibles en tu form/defaults
+  prioridad: z.enum(PRIORIDAD_OPTS),
+  areaEncargada: z.enum(AREA_OPTIONS),
+
+  // Ubicación técnica y grupo
+  idUbicacionTecnica: z.number().min(1, "Selecciona una ubicación técnica"),
+  idGrupo: z.number().min(1, "Selecciona un grupo de trabajo"),
+
+  // Supervisor y fechas
+  supervisorId: z.number().min(1, "Selecciona un supervisor"),
+
+  // Frecuencia y cada cuánto
+  frecuencia: z.enum(FRECUENCIA_OPTS),
+
+  // Texto libre
+  especificacion: z.string().min(1, "La especificación es requerida"),
+});
+
+type InspeccionForm = z.infer<typeof inspeccionSchema>;
+
 export const InspectionFormContent: React.FC<{
-    initialValues?: Partial<InspeccionFormData>,
     onClose?: () => void,
     onSuccess?: () => void
-}> = ({ initialValues, onClose, onSuccess }) => {
-    const createInspectionMutation = useCreateInspection();
-    const { data: ubicaciones, isLoading: isLoadingUbicaciones } = useUbicacionesLista();
-    const { supervisores } = useSupervisores();
-    const { data: grupos } = useGrupos();
+}> = ({ onClose, onSuccess }) => {
 
-    const form = useForm<InspeccionFormData>({
+    //creamos el form 
+    const form = useForm<InspeccionForm>({
         resolver: zodResolver(inspeccionSchema),
         defaultValues: {
-            areaEncargada: initialValues?.areaEncargada || "Electricidad",
-            codigoArea: initialValues?.codigoArea || "",
-            codigoVerificacion: initialValues?.codigoVerificacion || "",
-            estado: initialValues?.estado || "Reprogramado",
-            fechaCreacion: initialValues?.fechaCreacion || "2026-01-01",
-            frecuencia: initialValues?.frecuencia || "Semanal",
-            observacion: initialValues?.observacion || "Acceso bloqueado",
-            supervisor: initialValues?.supervisor || "Carlos Ruiz",
-            titulo: initialValues?.titulo || "Verificacion Patio",
-        }
+            tipoTrabajo: "Inspeccion",
+            fechaCreacion: new Date().toISOString().split('T')[0],
+            idUbicacionTecnica: 0,
+            idGrupo: 0,
+            supervisorId: 0,
+            areaEncargada: "Electricidad",
+            prioridad: "Media",
+            frecuencia: "Semanal",
+            especificacion: "",
+        },
     });
 
-    const onSubmit = (data: InspeccionFormData) => {
-        // Fecha local (YYYY-MM-DD)
-        
 
-        createInspectionMutation.mutate(inspeccionData, {
-            onSuccess: () => {
-                form.reset();
-                onSuccess?.();
-                onClose?.();
-            }
-        });
-    };
-
-    const frecuencias = [
-        { value: 'Diaria', label: 'Diaria' },
-        { value: 'Semanal', label: 'Semanal' },
-        { value: 'Mensual', label: 'Mensual' },
-        { value: 'Anual', label: 'Anual' }
-    ];
-
-    const prioridades = [
-        { value: 'Baja', label: 'Baja' },
-        { value: 'Media', label: 'Media' },
-        { value: 'Alta', label: 'Alta' }
-    ];
-
-
-    console.log('Initial Values:', initialValues);
-
-    
+    const { data: ubicaciones, isLoading: isLoadingUbicaciones } = useUbicacionesLista();
+    const { supervisores } = useSupervisores();
     const supervisorOptions = React.useMemo(
         () =>
             Array.from(
@@ -86,12 +84,43 @@ export const InspectionFormContent: React.FC<{
                         .filter((s: any) => s && (s.id ?? s.Id) != null && (s.nombre ?? s.Nombre))
                         .map((s: any) => [
                             String(s.id ?? s.Id),
-                            { id: String(s.id ?? s.Id), nombre: s.nombre ?? s.Nombre },
+                            { id: Number(s.id ?? s.Id), nombre: s.nombre ?? s.Nombre },
                         ])
                 ).values()
             ),
         [supervisores]
     );
+    const { data: grupos } = useGrupos();
+
+
+
+    //hook para crear la inspeccion 
+    const createInspectionMutation = useCreateInspection();
+
+
+    //funcion para crear la inspeccion 
+    const onSubmit = (data: InspeccionForm) => {
+
+        const payload = {
+            ...data,
+            idUbicacionTecnica: Number(data.idUbicacionTecnica),
+            idGrupo: Number(data.idGrupo),
+            supervisorId: Number(data.supervisorId),
+        }
+
+        createInspectionMutation.mutate(payload, {
+            onSuccess: () => {
+                form.reset(); 
+                onSuccess?.();
+                onClose?.();
+            },
+            onError: (error) => {
+                console.error(error);  
+            }
+        });
+
+    }
+    
 
 
     return (
@@ -103,18 +132,18 @@ export const InspectionFormContent: React.FC<{
                         {/* Ubicación Técnica (usa código en el form y mapea a id en el submit) */}
                         <FormField
                             control={form.control}
-                            name="codigoVerificacion"
+                            name="idUbicacionTecnica"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
                                     <FormLabel>Ubicación Técnica</FormLabel>
                                     <FormControl>
                                         <Combobox
-                                            data={ubicaciones?.map((u: any) => ({
-                                                value: u.codigo_Identificacion, // código como valor del form
+                                            data={ubicaciones?.map((u) => ({
+                                                value: u.idUbicacion, // ID numérico como valor
                                                 label: `${u.codigo_Identificacion} - ${u.descripcion}`
                                             })) || []}
                                             value={field.value || null}
-                                            onValueChange={(value) => field.onChange(value || "")}
+                                            onValueChange={(value) => field.onChange(value ? Number(value) : 0)}
                                             placeholder={isLoadingUbicaciones ? "Cargando ubicaciones..." : "Seleccionar ubicación técnica"}
                                             searchPlaceholder="Buscar ubicación..."
                                             triggerClassName="w-full !border-2 !border-gray-200 !rounded-lg focus:!border-gray-200"
@@ -166,9 +195,9 @@ export const InspectionFormContent: React.FC<{
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {prioridades.map((prioridad) => (
-                                                <SelectItem key={prioridad.value} value={prioridad.value}>
-                                                    {prioridad.label}
+                                            {PRIORIDAD_OPTS.map((prioridad) => (
+                                                <SelectItem key={prioridad} value={prioridad}>
+                                                    {prioridad}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -196,9 +225,9 @@ export const InspectionFormContent: React.FC<{
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {frecuencias.map((frecuencia) => (
-                                                <SelectItem key={frecuencia.value} value={frecuencia.value}>
-                                                    {frecuencia.label}
+                                            {FRECUENCIA_OPTS.map((frecuencia) => (
+                                                <SelectItem key={frecuencia} value={frecuencia}>
+                                                    {frecuencia}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -209,16 +238,16 @@ export const InspectionFormContent: React.FC<{
                         />
                         
 
-                         {/* Supervisor (mapear a id en submit) */}
+                        {/* Supervisor (mapear a id en submit) */}
                         <FormField
                             control={form.control}
-                            name="supervisor"
+                            name="supervisorId"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Supervisor Asignado</FormLabel>
                                     <Select 
-                                        onValueChange={field.onChange} 
-                                        value={field.value}
+                                        onValueChange={(value) => field.onChange(Number(value))} 
+                                        value={field.value?.toString()}
                                     >
                                         <FormControl>
                                             <SelectTrigger className="w-44">
@@ -229,7 +258,7 @@ export const InspectionFormContent: React.FC<{
                                             className='w-full'
                                         >
                                             {supervisorOptions.map((sup) => (
-                                                <SelectItem key={`sup-${sup.id}`} value={sup.nombre}>
+                                                <SelectItem key={sup.id} value={sup.id.toString()}>
                                                     {sup.nombre}
                                                 </SelectItem>
                                             ))}
@@ -243,12 +272,12 @@ export const InspectionFormContent: React.FC<{
                         {/* Grupo de Trabajo (número en el form) */}
                         <FormField
                             control={form.control}
-                            name="codigoArea"
+                            name="idGrupo"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Grupo de Trabajo</FormLabel>
                                     <Select
-                                        onValueChange={(val) => field.onChange((val))}
+                                        onValueChange={(val) => field.onChange(Number(val))}
                                         value={field.value?.toString()}
                                     >
                                         <FormControl>
@@ -257,8 +286,8 @@ export const InspectionFormContent: React.FC<{
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {grupos?.map((grupo: any) => (
-                                                <SelectItem key={grupo.codigo} value={grupo.codigo.toString()}>
+                                            {grupos?.map((grupo) => (
+                                                <SelectItem key={grupo.id} value={grupo.id.toString()}>
                                                     {grupo.nombre} ({grupo.codigo})
                                                 </SelectItem>
                                             ))}
@@ -272,10 +301,10 @@ export const InspectionFormContent: React.FC<{
                 </div>
 
                 <div className="px-4">
-                    {/* Resumen */}
+                    {/* Especificación */}
                     <FormField
                         control={form.control}
-                        name="observacion"
+                        name="especificacion"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Especificación</FormLabel>
@@ -318,7 +347,7 @@ export const InspectionFormContent: React.FC<{
     );
 };
 
-export const InspectionFormModal: React.FC<InspectionFormModalProps> = ({ open, onClose, initialValues, onSuccess }) => {
+export const InspectionFormModal: React.FC<InspectionFormModalProps> = ({ open, onClose, onSuccess }) => {
     return (
         <Modal
             isOpen={open}
@@ -326,7 +355,7 @@ export const InspectionFormModal: React.FC<InspectionFormModalProps> = ({ open, 
             title={<span className="text-xl font-semibold">Nueva Inspección</span>}
             className="bg-white max-w-4xl" // Wider modal
         >
-            <InspectionFormContent onClose={onClose} initialValues={initialValues} onSuccess={onSuccess} />
+            <InspectionFormContent onClose={onClose} onSuccess={onSuccess} />
         </Modal>
     );
 };

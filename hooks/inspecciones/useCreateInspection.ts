@@ -3,16 +3,18 @@ import apiClient from "@/lib/api/client";
 import { toast } from "react-hot-toast";
 
 export interface CreateInspectionRequest {
-  tipoTrabajo: "Inspeccion";
+  tipoTrabajo: string;
   fechaCreacion: string;
   idUbicacionTecnica: number;
   idGrupo: number;
   supervisorId: number;
-   areaEncargada: "Electricidad" | "Infraestructura" | "Mecanica" | "Refrigeracion" | "Logistica";
-  prioridad: string;
-  fechaLimite: string;
+  areaEncargada: "Electricidad" | "Infraestructura" | "Mecanica" | "Refrigeracion" | "Logistica";
+  prioridad: "Baja" | "Media" | "Alta";
   frecuencia: string;
   especificacion: string;
+  idSupervisor?: number; 
+  codigoArea?: string; 
+  codigoVerificacion?: string; 
 }
 
 export const useCreateInspection = () => {
