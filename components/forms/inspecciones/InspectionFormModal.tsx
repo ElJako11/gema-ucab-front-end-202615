@@ -34,7 +34,6 @@ export const inspeccionSchema = z.object({
   fechaCreacion: z.string(),
   // Campos visibles en tu form/defaults
   prioridad: z.enum(PRIORIDAD_OPTS),
-  areaEncargada: z.enum(AREA_OPTIONS),
 
   // Ubicación técnica y grupo
   idUbicacionTecnica: z.number().min(1, "Selecciona una ubicación técnica"),
@@ -62,15 +61,16 @@ export const InspectionFormContent: React.FC<{
         resolver: zodResolver(inspeccionSchema),
         defaultValues: {
             tipoTrabajo: "Inspeccion",
-            fechaCreacion: new Date().toISOString().split('T')[0],
+            fechaCreacion: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
             idUbicacionTecnica: 0,
             idGrupo: 0,
             supervisorId: 0,
-            areaEncargada: "Electricidad",
             prioridad: "Media",
             frecuencia: "Semanal",
             especificacion: "",
         },
+        mode: "onSubmit",
+        reValidateMode: "onSubmit",
     });
 
 
@@ -101,12 +101,18 @@ export const InspectionFormContent: React.FC<{
     //funcion para crear la inspeccion 
     const onSubmit = (data: InspeccionForm) => {
 
-        const payload = {
-            ...data,
+        const payload: CreateInspectionRequest = {
+            tipoTrabajo: data.tipoTrabajo,
+            fechaCreacion: data.fechaCreacion,
             idUbicacionTecnica: Number(data.idUbicacionTecnica),
             idGrupo: Number(data.idGrupo),
             supervisorId: Number(data.supervisorId),
-        }
+            prioridad: data.prioridad,
+            frecuencia: data.frecuencia,
+            especificacion: data.especificacion,
+        };
+
+        console.log(payload); 
 
         createInspectionMutation.mutate(payload, {
             onSuccess: () => {
@@ -130,7 +136,8 @@ export const InspectionFormContent: React.FC<{
                     
                     <div className="p-4 flex flex-col gap-4">
                         {/* Ubicación Técnica (usa código en el form y mapea a id en el submit) */}
-                        <FormField
+                        
+                         <FormField
                             control={form.control}
                             name="idUbicacionTecnica"
                             render={({ field }) => (
@@ -146,32 +153,96 @@ export const InspectionFormContent: React.FC<{
                                             onValueChange={(value) => field.onChange(value ? Number(value) : 0)}
                                             placeholder={isLoadingUbicaciones ? "Cargando ubicaciones..." : "Seleccionar ubicación técnica"}
                                             searchPlaceholder="Buscar ubicación..."
-                                            triggerClassName="w-full !border-2 !border-gray-200 !rounded-lg focus:!border-gray-200"
-                                            contentClassName="w-full border border-gray-200 rounded-lg"
+                                            triggerClassName="w-full !border-gray-200 "
                                         />
                                     </FormControl>
-                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
 
-                        {/* Área encargada */}
+                        {/* Supervisor (mapear a id en submit) */}
                         <FormField
                             control={form.control}
-                            name="areaEncargada"
+                            name="supervisorId"
                             render={({ field }) => (
-                                <FormItem >
-                                    <FormLabel>Área encargada</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value} >
+                                <FormItem>
+                                    <FormLabel>Supervisor Asignado</FormLabel>
+                                    <Select 
+                                        onValueChange={(value) => field.onChange(Number(value))} 
+                                        value={field.value?.toString()}
+                                    >
                                         <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Seleccionar área encargada" />
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Seleccionar supervisor" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent 
+                                            className='w-full'
+                                        >
+                                            {supervisorOptions.map((sup) => (
+                                                <SelectItem key={sup.id} value={sup.id.toString()}>
+                                                    {sup.nombre}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        />
+                        
+
+
+                        
+
+                        {/* Grupo de Trabajo (número en el form) */}
+                        <FormField
+                            control={form.control}
+                            name="idGrupo"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Grupo de Trabajo</FormLabel>
+                                    <Select
+                                        onValueChange={(val) => field.onChange(Number(val))}
+                                        value={field.value?.toString()}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Seleccionar grupo" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {AREA_OPTIONS.map((area) => (
-                                                <SelectItem key={area} value={area}>
-                                                    {area}
+                                            {grupos?.map((grupo) => (
+                                                <SelectItem key={grupo.id} value={grupo.id.toString()}>
+                                                    {grupo.nombre} ({grupo.codigo})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        />
+
+                    </div>
+
+                    <div className="p-4 flex flex-col gap-4">
+
+                        {/* Frecuencia */}
+                        <FormField
+                            control={form.control}
+                            name="frecuencia"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Frecuencia</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger className='w-1/2'>
+                                                <SelectValue placeholder="Seleccionar frecuencia" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {FRECUENCIA_OPTS.map((frecuencia) => (
+                                                <SelectItem key={frecuencia} value={frecuencia}>
+                                                    {frecuencia}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -190,7 +261,7 @@ export const InspectionFormContent: React.FC<{
                                     <FormLabel>Prioridad</FormLabel>
                                     <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
-                                            <SelectTrigger>
+                                            <SelectTrigger className='w-1/2'>
                                                 <SelectValue placeholder="Seleccionar prioridad" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -202,101 +273,10 @@ export const InspectionFormContent: React.FC<{
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                    </div>
-
-                    <div className="p-4 flex flex-col gap-4">
-
-                        {/* Frecuencia */}
-                        <FormField
-                            control={form.control}
-                            name="frecuencia"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Frecuencia</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Seleccionar frecuencia" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {FRECUENCIA_OPTS.map((frecuencia) => (
-                                                <SelectItem key={frecuencia} value={frecuencia}>
-                                                    {frecuencia}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
                         
-
-                        {/* Supervisor (mapear a id en submit) */}
-                        <FormField
-                            control={form.control}
-                            name="supervisorId"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Supervisor Asignado</FormLabel>
-                                    <Select 
-                                        onValueChange={(value) => field.onChange(Number(value))} 
-                                        value={field.value?.toString()}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger className="w-44">
-                                                <SelectValue placeholder="Seleccionar supervisor" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent 
-                                            className='w-full'
-                                        >
-                                            {supervisorOptions.map((sup) => (
-                                                <SelectItem key={sup.id} value={sup.id.toString()}>
-                                                    {sup.nombre}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Grupo de Trabajo (número en el form) */}
-                        <FormField
-                            control={form.control}
-                            name="idGrupo"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Grupo de Trabajo</FormLabel>
-                                    <Select
-                                        onValueChange={(val) => field.onChange(Number(val))}
-                                        value={field.value?.toString()}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Seleccionar grupo" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {grupos?.map((grupo) => (
-                                                <SelectItem key={grupo.id} value={grupo.id.toString()}>
-                                                    {grupo.nombre} ({grupo.codigo})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
                     </div>
                 </div>
 
@@ -315,7 +295,6 @@ export const InspectionFormContent: React.FC<{
                                         {...field}
                                     />
                                 </FormControl>
-                                <FormMessage />
                             </FormItem>
                         )}
                     />

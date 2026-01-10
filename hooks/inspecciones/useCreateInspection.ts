@@ -8,7 +8,6 @@ export interface CreateInspectionRequest {
   idUbicacionTecnica: number;
   idGrupo: number;
   supervisorId: number;
-  areaEncargada: "Electricidad" | "Infraestructura" | "Mecanica" | "Refrigeracion" | "Logistica";
   prioridad: "Baja" | "Media" | "Alta";
   frecuencia: string;
   especificacion: string;
