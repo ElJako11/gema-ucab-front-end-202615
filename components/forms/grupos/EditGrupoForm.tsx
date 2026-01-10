@@ -8,20 +8,20 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useUpdateGrupo } from "@/hooks/grupos-trabajo/useEditGrupo";
 import { Combobox } from "@/components/ui/combobox";
-import { type Tecnico } from "@/types/tecnicos.types";
+import { useSupervisores } from "@/hooks/usuarios/useUsuarios";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { type GrupoTrabajo } from "@/types/grupostrabajo.types";
 import { grupoTrabajoSchema, type GrupoTrabajoForm } from "@/lib/validations/grupoTrabajoSchema";
+const AREA_OPTIONS = ["Electricidad", "Infraestructura", "Mecanica", "Refrigeracion", "Logistica"] as const;
 
 export interface EditGrupoFormProps {
   grupo: GrupoTrabajo | null;
   setGrupo: (grupo: GrupoTrabajo | null) => void;
-  tecnicosDisponibles: Tecnico[];
 }
 
 export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
   grupo,
   setGrupo,
-  tecnicosDisponibles,
 }) => {
   const form = useForm<GrupoTrabajoForm>({
     resolver: zodResolver(grupoTrabajoSchema),
@@ -34,6 +34,7 @@ export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
   });
 
   const updateGrupoMutation = useUpdateGrupo();
+  const { supervisores, isLoading: isLoadingSupervisores } = useSupervisores();
 
   const handleSubmit = (values: GrupoTrabajoForm) => {
     if (!grupo) return;
@@ -97,12 +98,16 @@ export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Área</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ejemplo: Mantenimiento, Producción, Calidad"
-                      {...field}
-                    />
-                  </FormControl>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Seleccione un área" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {AREA_OPTIONS.map((opt) => (
+                        <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -115,13 +120,13 @@ export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
                   <FormLabel>Supervisor</FormLabel>
                   <FormControl>
                     <Combobox
-                      data={tecnicosDisponibles.map((tecnico) => ({
-                        value: tecnico.Id,
-                        label: `${tecnico.Nombre} (${tecnico.Correo})`,
-                      }))}
+                      data={supervisores?.map((s) => ({
+                        value: s.id,
+                        label: `${s.nombre} (${s.correo})`,
+                      })) || []}
                       value={field.value ? Number(field.value) : null}
                       onValueChange={(value) => field.onChange(value ? String(value) : "")}
-                      placeholder="Seleccione un supervisor"
+                      placeholder={isLoadingSupervisores ? "Cargando supervisores..." : "Seleccione un supervisor"}
                       searchPlaceholder="Buscar supervisor..."
                       triggerClassName="w-full"
                       contentClassName="w-full"

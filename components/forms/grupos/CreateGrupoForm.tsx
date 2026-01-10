@@ -9,7 +9,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useCreateGrupo } from "@/hooks/grupos-trabajo/useCreateGrupo";
 import { useSupervisores } from "@/hooks/usuarios/useUsuarios";
 import { Combobox } from "@/components/ui/combobox";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { grupoTrabajoSchema, type GrupoTrabajoForm } from "@/lib/validations/grupoTrabajoSchema";
+
+const AREA_OPTIONS = ["Electricidad", "Infraestructura", "Mecanica", "Refrigeracion", "Logistica"] as const;
+
 
 interface CreateGrupoFormProps {
   open: boolean;
@@ -31,7 +35,7 @@ export const CreateGrupoForm: React.FC<CreateGrupoFormProps> = ({
   });
 
   const createGrupoMutation = useCreateGrupo();
-  const { supervisores, isLoading: isLoadingTecnicos } = useSupervisores();
+  const { supervisores, isLoading: isLoadingSupervisores } = useSupervisores();
 
   const handleSubmit = (values: GrupoTrabajoForm) => {
     createGrupoMutation.mutate({
@@ -90,12 +94,16 @@ export const CreateGrupoForm: React.FC<CreateGrupoFormProps> = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Área</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ejemplo: Mantenimiento, Producción, Calidad"
-                      {...field}
-                    />
-                  </FormControl>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Seleccione un área" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {AREA_OPTIONS.map((opt) => (
+                        <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -109,12 +117,12 @@ export const CreateGrupoForm: React.FC<CreateGrupoFormProps> = ({
                   <FormControl>
                     <Combobox
                       data={supervisores?.map((supervisor) => ({
-                        value: supervisor.Id,
-                        label: `${supervisor.Nombre} (${supervisor.Correo})`,
+                        value: supervisor.id,
+                        label: `${supervisor.nombre} (${supervisor.correo})`,
                       })) || []}
                       value={field.value ? Number(field.value) : null}
                       onValueChange={(value) => field.onChange(value ? String(value) : "")}
-                      placeholder={isLoadingTecnicos ? "Cargando técnicos..." : "Seleccione un supervisor"}
+                      placeholder={isLoadingSupervisores ? "Cargando supervisores..." : "Seleccione un supervisor"}
                       searchPlaceholder="Buscar supervisor..."
                       triggerClassName="w-full"
                       contentClassName="w-full"

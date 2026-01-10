@@ -18,7 +18,6 @@ export async function createChecklistItem(checklistId: number, data: Actividad) 
     descripcion: data.descripcion
   };
 
-  console.log("Payload para crear actividad:", payload); // Debug
 
   return apiClient.post<Actividad>(`/item-checklist`, payload);
 }

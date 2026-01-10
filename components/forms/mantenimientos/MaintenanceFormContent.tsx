@@ -22,34 +22,41 @@ interface MaintenanceFormContentProps {
     initialValues?: Partial<MantenimientoFormData>;
     onClose?: () => void;
     onSuccess?: () => void;
+    maintenanceId?: number;
+    maintenanceName?: string;
 }
 
 export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
     initialValues,
     onClose,
-    onSuccess
+    onSuccess,
+    maintenanceId,
+    maintenanceName
 }) => {
+
+
     const createMantenimientoMutation = useCreateMantenimiento();
     const { data: ubicaciones, isLoading: isLoadingUbicaciones } = useUbicacionesLista();
     const { supervisores } = useSupervisores();
     const { data: grupos } = useGrupos();
 
+
     const form = useForm<MantenimientoFormData>({
         resolver: zodResolver(mantenimientoSchema),
         defaultValues: {
-            nombre: initialValues?.nombre || '',
+            titulo: initialValues?.titulo || '',
             prioridad: initialValues?.prioridad || 'Media',
             estado: initialValues?.estado || 'no_empezado',
             supervisor: initialValues?.supervisor || '',
-            fechaInicio: initialValues?.fechaInicio || '',
-            fechaFin: initialValues?.fechaFin || '',
+            fechaCreacion: initialValues?.fechaCreacion || '',
+            fechaLimite: initialValues?.fechaLimite || '',
             tipoMantenimiento: initialValues?.tipoMantenimiento || 'Periodico',
             repeticion: initialValues?.repeticion || 'unico',
             frecuencia: initialValues?.frecuencia,
-            idUbicacionTecnica: initialValues?.idUbicacionTecnica || 0, // 0 as empty/initial
-            idGrupo: initialValues?.idGrupo || 1,
-            areaEncargada: initialValues?.areaEncargada || (initialValues as any)?.AreaEncargada || '',
-            especificacion: initialValues?.especificacion || ''
+            codigoVerificacion: initialValues?.codigoVerificacion || '',
+            codigoArea: initialValues?.codigoArea || 1,
+            areaEncargada: initialValues?.areaEncargada || undefined,
+            resumen: initialValues?.resumen || ''
         }
     });
 
@@ -58,22 +65,28 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
     // eliminar array de encargados hardcoded
 
     const onSubmit = (data: MantenimientoFormData) => {
+        
+        console.log("Form Data Submitted:", data);
         // Mapear los datos del formulario al formato que espera el backend
         const mantenimientoData = {
+            
+            nombre: maintenanceName || data.titulo,
             tipoTrabajo: "Mantenimiento" as const,
             fechaCreacion: new Date().toISOString(),
-            idUbicacionTecnica: data.idUbicacionTecnica,
-            idGrupo: data.idGrupo,
-            supervisorId: supervisores?.find(s => s.Nombre === data.supervisor)?.Id || 0, // Buscar ID del supervisor seleccionado
+            codigoVerificacion: data.codigoVerificacion,
+            codigoArea: data.codigoArea,
+            supervisorId: supervisores?.find(s => s.nombre === data.supervisor)?.id || 0, // Buscar ID del supervisor seleccionado
             prioridad: data.prioridad,
             areaEncargada: data.areaEncargada,
-            fechaLimite: data.fechaFin,
+            fechaLimite: data.fechaLimite,
             frecuencia: data.frecuencia || "Mensual",
             tipoMantenimiento: data.tipoMantenimiento,
             repeticion: data.tipoMantenimiento === 'Periodico' ? 'periodico' : 'unico',
             estado: 'no_empezado' as const, // Default
-            especificacion: data.especificacion
+            resumen: data.resumen
         };
+
+console.log("Submitting Mantenimiento Data:", mantenimientoData);
 
         createMantenimientoMutation.mutate(mantenimientoData, {
             onSuccess: () => {
@@ -88,7 +101,6 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
     };
 
     const onError = (errors: any) => {
-        console.log("Errores de validación del formulario:", errors);
     };
 
     return (
@@ -98,10 +110,10 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                 <div className="col-span-2">
                     <FormField
                         control={form.control}
-                        name="nombre"
-                        render={({ field }) => (
+                        name="titulo"
+                    render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Nombre del mantenimiento</FormLabel>
+                                <FormLabel>Nombre</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Ej: Mantenimiento preventivo de aires acondicionados" {...field} />
                                 </FormControl>
@@ -115,14 +127,14 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                 <div className="col-span-2">
                     <FormField
                         control={form.control}
-                        name="idUbicacionTecnica"
+                        name="codigoVerificacion"
                         render={({ field }) => (
                             <FormItem className="flex flex-col">
                                 <FormLabel>Ubicación Técnica</FormLabel>
                                 <FormControl>
                                     <Combobox
                                         data={ubicaciones?.map(u => ({
-                                            value: u.idUbicacion,
+                                            value: u.codigo_Identificacion,
                                             label: `${u.codigo_Identificacion} - ${u.descripcion}`
                                         })) || []}
                                         value={field.value || null}
@@ -171,13 +183,13 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Área encargada</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} value={field.value ?? null}>
                                     <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Seleccionar área encargada" />
                                         </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent>
+                                    <SelectContent >
                                         {AREA_OPTIONS.map((area) => (
                                             <SelectItem key={area} value={area}>
                                                 {area}
@@ -194,31 +206,28 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
 
                     {/* Grupo de Trabajo */}
                     <FormField
-                        control={form.control}
-                        name="idGrupo"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Grupo de Trabajo</FormLabel>
-                                <Select
-                                    onValueChange={(val) => field.onChange(Number(val))}
-                                    defaultValue={field.value?.toString()}
-                                >
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Seleccionar grupo" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {grupos?.map((grupo: any) => (
-                                            <SelectItem key={grupo.id} value={grupo.id.toString()}>
-                                                {grupo.nombre} ({grupo.codigo})
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
+                      control={form.control}
+                      name="codigoArea"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Grupo de Trabajo</FormLabel>
+                          <FormControl>
+                            <Combobox
+                              data={grupos?.map((grupo: any) => ({
+                                value: grupo.codigo,
+                                label: `${grupo.nombre} (${grupo.codigo})`,
+                              })) || []}
+                              value={field.value ? String(field.value) : null}
+                              onValueChange={(val) => field.onChange(val ? Number(val) : 0)}
+                              placeholder="Seleccionar grupo"
+                              searchPlaceholder="Buscar grupo..."
+                              triggerClassName="w-full"
+                              contentClassName="w-full"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
 
                     {/* Supervisor */}
@@ -250,7 +259,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                     {/* Fecha de inicio */}
                     <FormField
                         control={form.control}
-                        name="fechaInicio"
+                        name="fechaCreacion"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Fecha de inicio</FormLabel>
@@ -265,7 +274,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                     {/* Fecha de finalización */}
                     <FormField
                         control={form.control}
-                        name="fechaFin"
+                        name="fechaLimite"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Fecha de finalización</FormLabel>
@@ -334,7 +343,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                 {/* Resumen */}
                 <FormField
                     control={form.control}
-                    name="especificacion"
+                    name="resumen"
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Resumen</FormLabel>

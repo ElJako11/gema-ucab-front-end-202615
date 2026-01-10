@@ -4,7 +4,8 @@ class ApiClient {
   private defaultHeaders: Record<string, string>;
 
   constructor(baseURL: string) {
-    this.baseURL = baseURL;
+    // Normaliza la URL base para evitar barras duplicadas
+    this.baseURL = (baseURL || '').replace(/\/$/, '');
     this.defaultHeaders = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -37,7 +38,13 @@ class ApiClient {
     const isFormData = data instanceof FormData;
 
     try {
-      const response = await fetch(`${this.baseURL}${url}`, {
+      const fullUrl = `${this.baseURL}${url}`;
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[API] ${method} ->`, fullUrl);
+      }
+
+      const response = await fetch(fullUrl, {
         method,
         headers,
         // Si es FormData, lo pasamos directo. Si es objeto normal, lo convertimos a JSON.
@@ -50,6 +57,9 @@ class ApiClient {
 
       // Manejo de errores HTTP
       if (!response.ok) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`[API] Respuesta no OK (${response.status}) ->`, fullUrl);
+        }
         // Intentamos leer el error (puede fallar si la respuesta de error no es JSON válido)
         let errorData;
         try {
@@ -182,7 +192,9 @@ class ApiClient {
 
 // =================== INSTANCIA GLOBAL ===================
 export const apiClient = new ApiClient(
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+  process.env.NEXT_PUBLIC_API_URL
+  || process.env.NEXT_PUBLIC_BACKEND_BASE_URL
+  || 'http://localhost:3000'
 );
 
 export default apiClient;

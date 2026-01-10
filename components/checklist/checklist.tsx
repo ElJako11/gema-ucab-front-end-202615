@@ -37,7 +37,6 @@ const ChecklistComp = ({ checklist, onBack, isTemplate = false }: ChecklistProps
 
     // Actualizar tareas si el checklist cambia
     useEffect(() => {
-        console.log("Datos actualizados recibidos:", checklist.tareas); // Debug
         setTasks(checklist.tareas || []);
     }, [checklist.tareas]);
 
@@ -241,7 +240,6 @@ const ChecklistComp = ({ checklist, onBack, isTemplate = false }: ChecklistProps
                 setActividad={setActivityToDelete}
                 checklistId={checklist.id}
                 onDelete={(id) => {
-                    console.log("Elemento eliminado:", id);
                 }}
                 isTemplate={isTemplate}
             />

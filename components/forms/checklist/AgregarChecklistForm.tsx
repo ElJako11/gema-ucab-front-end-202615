@@ -102,13 +102,11 @@ export const AgregarChecklistForm: React.FC<AgregarChecklistFormProps> = ({
                 nombre: data.nombre!
             }, {
                 onSuccess: () => {
-                    console.log("Checklist created successfully");
                     if (onSuccess) onSuccess(data);
                     handleClose();
                     router.push(`/detalle-trabajo/${type}/${maintenanceId}`);
                 },
                 onError: (error) => {
-                    console.error("Error creating checklist:", error);
                 }
             });
         } else {
@@ -119,7 +117,6 @@ export const AgregarChecklistForm: React.FC<AgregarChecklistFormProps> = ({
                     idPlantilla: data.plantilla
                 }, {
                     onSuccess: () => {
-                        console.log("Checklist created from template successfully");
                         if (onSuccess) onSuccess(data);
                         handleClose();
                         router.push(`/detalle-trabajo/${type}/${maintenanceId}`);

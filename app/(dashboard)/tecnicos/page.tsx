@@ -23,6 +23,8 @@ const Tecnicos = () => {
 
   const { tecnicos, isLoading } = useTecnicos();
 
+console.log("Técnicos cargados:", tecnicos);
+
   if (isLoading) {
     return (
       <div className="p-6 text-center">

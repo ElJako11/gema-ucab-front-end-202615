@@ -173,7 +173,6 @@ const resumen = () => {
 
     const handleExport = async () => {
         try {
-            console.log("Generando PDF..."); // Feedback visual opcional
 
             // response SERÁ el objeto Blob directamente gracias al cambio en client.ts
             const blob = await exportResumenPDF(apiDateParams, vistaActual);
@@ -188,11 +187,11 @@ const resumen = () => {
 
             link.parentNode?.removeChild(link);
             window.URL.revokeObjectURL(url);
-
-            console.log("PDF descargado correctamente");
+            
+        
         } catch (error) {
             console.error("Error al exportar PDF:", error);
-            console.log("Error al descargar el PDF");
+     
         }
     };
 

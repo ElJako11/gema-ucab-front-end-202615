@@ -41,7 +41,7 @@ export default function MantenimientoDetalle() {
     // Usar datos reales cuando estén disponibles, sino mock data
     const data = maintenanceData;
 
-    console.log(data);
+
     return (
         <div className="p-8 space-y-6 min-h-screen">
             {/* Top Navigation / Header */}
@@ -202,6 +202,8 @@ export default function MantenimientoDetalle() {
                 open={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
                 data={data}
+                maintenanceName={data.title}
+                maintenanceId={data.idMantenimiento}
             />
 
             {/* Delete Modal */}
@@ -218,7 +220,6 @@ export default function MantenimientoDetalle() {
                 open={addChecklistModalOpen}
                 onClose={() => setAddChecklistModalOpen(false)}
                 onSuccess={(data) => {
-                    console.log("Checklist added:", data);
                     setAddChecklistModalOpen(false);
                 }}
                 maintenanceId={id}

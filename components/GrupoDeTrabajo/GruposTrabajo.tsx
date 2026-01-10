@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { UserCheck, CirclePlus, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useGruposTrabajo } from "@/hooks/grupos-de-trabajo/useGrupoTrabajo";
-import { useTecnicos } from "@/hooks/grupos-trabajo/useTecnicos";
+import { useGrupo, useGrupos} from "@/hooks/grupos-trabajo/useGrupoTrabajo";
+import { useTecnicos } from "@/hooks/tecnicos/useTecnicos";
+import { useSupervisores } from "@/hooks/usuarios/useUsuarios";
 import { useTrabajadoresPorGrupo } from "@/hooks/grupos-trabajo/useTrabajadoresPorGrupo";
 import { CreateGrupoForm } from "@/components/forms/grupos/CreateGrupoForm";
 import { EditGrupoForm } from "@/components/forms/grupos/EditGrupoForm";
@@ -12,6 +13,7 @@ import { EliminarGrupoForm } from "@/components/forms/grupos/EliminarGrupoForm";
 import { GestionTecnicosForm } from "@/components/forms/grupos/GestionTecnicosForm";
 import { GruposTable } from "@/components/GrupoDeTrabajo/tables/gruposTable";
 import { GruposCards } from "@/components/GrupoDeTrabajo/cards/GruposCards";
+import React from 'react';
 
 const GruposTrabajo: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,11 +22,12 @@ const GruposTrabajo: React.FC = () => {
   const [grupoEditar, setGrupoEditar] = useState<any>(null);
   const [grupoEliminar, setGrupoEliminar] = useState<any>(null);
 
-  const { grupos, isLoading: gruposLoading } = useGruposTrabajo();
-  const { tecnicos, isLoading: tecnicosLoading } = useTecnicos();
-  const { trabajadoresPorGrupo, isLoading: trabajadoresLoading } = useTrabajadoresPorGrupo();
+  const { data: grupos = [], isLoading: gruposLoading } = useGrupos();
+  const { tecnicos = [], isLoading: tecnicosLoading } = useTecnicos();
+  const { supervisores, isLoading: supervisoresLoading } = useSupervisores();
+  const { data: trabajadoresPorGrupo = [], isLoading: trabajadoresLoading } = useTrabajadoresPorGrupo();
 
-  const isLoading = gruposLoading || tecnicosLoading || trabajadoresLoading;
+  const isLoading = gruposLoading || tecnicosLoading || supervisoresLoading || trabajadoresLoading;
 
   const openTecnicosModal = (grupoId: number) => {
     setSelectedGrupoId(grupoId);
@@ -32,7 +35,7 @@ const GruposTrabajo: React.FC = () => {
   };
 
   const getSupervisorNombre = (id: number | null) =>
-    tecnicos?.find((s) => s.Id === id)?.Nombre || "No asignado";
+    supervisores?.find((s) => s.id === id)?.nombre || "No asignado";
 
   if (isLoading) {
     return (
@@ -44,6 +47,11 @@ const GruposTrabajo: React.FC = () => {
 
   const selectedGrupo = grupos?.find((g) => g.id === selectedGrupoId) || null;
 
+
+  console.log("Grupos de Trabajo:", grupos);
+  console.log("Técnicos:", tecnicos);
+  console.log("Supervisores:", supervisores);
+  console.log("Trabajadores por Grupo:", trabajadoresPorGrupo);
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-6">
@@ -61,7 +69,6 @@ const GruposTrabajo: React.FC = () => {
       <CreateGrupoForm
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
-        tecnicosDisponibles={tecnicos || []}
       />
 
       <GestionTecnicosForm
@@ -73,13 +80,12 @@ const GruposTrabajo: React.FC = () => {
 
       <EditGrupoForm
         grupo={grupoEditar}
-        onClose={() => setGrupoEditar(null)}
-        tecnicosDisponibles={tecnicos || []}
+        setGrupo={setGrupoEditar}
       />
 
       <EliminarGrupoForm
         grupo={grupoEliminar}
-        onClose={() => setGrupoEliminar(null)}
+        setGrupo={setGrupoEliminar}
       />
 
       {/* Vista responsiva */}

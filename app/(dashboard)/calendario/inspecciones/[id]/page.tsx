@@ -39,7 +39,6 @@ export default function InspeccionDetalle() {
         )
     }
 
-    console.log(data);
 
     return (
         <div className="p-8 space-y-6  min-h-screen">
@@ -184,7 +183,9 @@ export default function InspeccionDetalle() {
 
             </div>
 
-            {/* Derive Maintenance Modal */}
+            {/* Derive Maintenance Modal */
+            
+            }
             <DeriveMaintenanceModal
                 open={deriveModalOpen}
                 idInsp={id}
@@ -196,8 +197,11 @@ export default function InspeccionDetalle() {
                 open={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
                 onConfirm={() => { alert('Editando...'); setEditModalOpen(false); }}
-                inspectionName={"fata"}
+                inspectionName={data.titulo}
+                data={data}
             />
+
+
 
             {/* Delete Modal */}
             <DeleteInspectionModal
@@ -213,7 +217,6 @@ export default function InspeccionDetalle() {
                 open={addChecklistModalOpen}
                 onClose={() => setAddChecklistModalOpen(false)}
                 onSuccess={(data) => {
-                    console.log("Checklist added:", data);
                     setAddChecklistModalOpen(false);
                 }}
                 maintenanceId={id}

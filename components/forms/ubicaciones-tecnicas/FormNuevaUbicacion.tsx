@@ -199,7 +199,6 @@ const FormNuevaUbicacion: React.FC<Props> = ({
 
   // ✅ Función onSubmit mejorada con validación de duplicados
   const onSubmit = () => {
-    console.log("🚀 Iniciando envío de formulario de ubicación...");
     
     // Limpiar mensaje de error previo
     setErrorMessage("");
@@ -268,7 +267,6 @@ const FormNuevaUbicacion: React.FC<Props> = ({
       const padreFisico = flatUbicaciones.find(u => u.codigo_Identificacion === codigoSinUltimoNivel);
       
       if (padreFisico) {
-        console.log("🔗 Agregando padre físico:", padreFisico);
         padresArray.push({
           idPadre: padreFisico.idUbicacion,
           esUbicacionFisica: true
@@ -288,7 +286,6 @@ const FormNuevaUbicacion: React.FC<Props> = ({
           esUbicacionFisica: false
         }));
 
-      console.log("🔗 Agregando padres lógicos:", padresLogicos);
 
       // Evitar duplicados
       for (const padreLogico of padresLogicos) {
@@ -303,18 +300,11 @@ const FormNuevaUbicacion: React.FC<Props> = ({
       payload.padres = padresArray;
     }
 
-    console.log("📦 Enviando payload:", payload);
-    console.log("📊 Resumen:", {
-      descripcion: payload.descripcion,
-      abreviacion: payload.abreviacion,
-      cantidadPadres: payload.padres?.length || 0,
-      padres: payload.padres
-    });
 
     // ✅ Usar hook de creación
     createMutation.mutate(payload, {
       onSuccess: () => {
-        console.log("✅ Creación exitosa");
+      
         closeModal();
         toast.success("Ubicación técnica creada correctamente");
       },
