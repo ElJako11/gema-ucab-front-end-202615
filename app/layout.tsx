@@ -20,7 +20,7 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: 'Tu App',
+  title: 'GEMA',
   description: 'Descripción de tu aplicación',
 }
 
