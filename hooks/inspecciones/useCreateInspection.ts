@@ -7,11 +7,9 @@ export interface CreateInspectionRequest {
   fechaCreacion: string;
   idUbicacionTecnica: number;
   idGrupo: number;
-  supervisorId: number;
   prioridad: "Baja" | "Media" | "Alta";
   frecuencia: string;
   especificacion: string;
-  idSupervisor?: number; 
   codigoArea?: string; 
   codigoVerificacion?: string; 
 }

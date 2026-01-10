@@ -39,10 +39,7 @@ export const inspeccionSchema = z.object({
   idUbicacionTecnica: z.number().min(1, "Selecciona una ubicación técnica"),
   idGrupo: z.number().min(1, "Selecciona un grupo de trabajo"),
 
-  // Supervisor y fechas
-  supervisorId: z.number().min(1, "Selecciona un supervisor"),
-
-  // Frecuencia y cada cuánto
+  // Frecuencia
   frecuencia: z.enum(FRECUENCIA_OPTS),
 
   // Texto libre
@@ -64,7 +61,6 @@ export const InspectionFormContent: React.FC<{
             fechaCreacion: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
             idUbicacionTecnica: 0,
             idGrupo: 0,
-            supervisorId: 0,
             prioridad: "Media",
             frecuencia: "Semanal",
             especificacion: "",
@@ -75,21 +71,7 @@ export const InspectionFormContent: React.FC<{
 
 
     const { data: ubicaciones, isLoading: isLoadingUbicaciones } = useUbicacionesLista();
-    const { supervisores } = useSupervisores();
-    const supervisorOptions = React.useMemo(
-        () =>
-            Array.from(
-                new Map(
-                    (supervisores ?? [])
-                        .filter((s: any) => s && (s.id ?? s.Id) != null && (s.nombre ?? s.Nombre))
-                        .map((s: any) => [
-                            String(s.id ?? s.Id),
-                            { id: Number(s.id ?? s.Id), nombre: s.nombre ?? s.Nombre },
-                        ])
-                ).values()
-            ),
-        [supervisores]
-    );
+
     const { data: grupos } = useGrupos();
 
 
@@ -106,7 +88,6 @@ export const InspectionFormContent: React.FC<{
             fechaCreacion: data.fechaCreacion,
             idUbicacionTecnica: Number(data.idUbicacionTecnica),
             idGrupo: Number(data.idGrupo),
-            supervisorId: Number(data.supervisorId),
             prioridad: data.prioridad,
             frecuencia: data.frecuencia,
             especificacion: data.especificacion,
@@ -137,7 +118,7 @@ export const InspectionFormContent: React.FC<{
                     <div className="p-4 flex flex-col gap-4">
                         {/* Ubicación Técnica (usa código en el form y mapea a id en el submit) */}
                         
-                         <FormField
+                        <FormField
                             control={form.control}
                             name="idUbicacionTecnica"
                             render={({ field }) => (
@@ -161,34 +142,7 @@ export const InspectionFormContent: React.FC<{
                         />
 
                         {/* Supervisor (mapear a id en submit) */}
-                        <FormField
-                            control={form.control}
-                            name="supervisorId"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Supervisor Asignado</FormLabel>
-                                    <Select 
-                                        onValueChange={(value) => field.onChange(Number(value))} 
-                                        value={field.value?.toString()}
-                                    >
-                                        <FormControl>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Seleccionar supervisor" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent 
-                                            className='w-full'
-                                        >
-                                            {supervisorOptions.map((sup) => (
-                                                <SelectItem key={sup.id} value={sup.id.toString()}>
-                                                    {sup.nombre}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </FormItem>
-                            )}
-                        />
+                       
                         
 
 
