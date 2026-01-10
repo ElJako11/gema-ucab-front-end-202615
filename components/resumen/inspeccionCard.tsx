@@ -66,7 +66,7 @@ const InspeccionCard = ({
             <div className="m-4">
                 <span className={`
                 px-3 py-1 rounded-full text-xs font-bold shadow-sm whitespace-nowrap
-                ${statusStyles[inspeccion.estado] || 'bg-gray-200 text-gray-800'}
+                ${statusStyles[inspeccion.estado] || 'bg-white text-gray-800'}
                 `}>
                 {inspeccion.estado}
                 </span>
