@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Button } from "@/components/ui/button";
-import { EditarMantenimientoFormContent } from '@/components/forms/mantenimientos/EditarMantenmientoContent';
+import { EditMaintenanceModal } from "@/components/forms/mantenimientos/EditMaintenanceModal";
 import { DeleteMaintenanceModal } from "@/components/forms/mantenimientos/DeleteMaintenanceModal";
 import { useMantenimientoDetalle } from "@/hooks/mantenimientos/useMantenimiento";
 import { useGetAllChecklistItem } from "@/hooks/checklist/useGetAllChecklistItem";
@@ -40,7 +40,7 @@ export default function MantenimientoDetalle() {
     // Obtener datos del checklist
     // Solo intentar buscar checklist si el mantenimiento tiene uno asociado
     const { data: checklistData } = useGetAllChecklistItem("mantenimientos", id, {
-        enabled: !!maintenanceData?.idChecklist
+        enabled: !!maintenanceData
     });
 
     // Estados de carga y error
@@ -127,7 +127,7 @@ export default function MantenimientoDetalle() {
                 <div className="mb-8">
                     <h3 className="font-bold text-lg mb-3">Resumen</h3>
                     <div className="p-4 border border-slate-300 rounded-lg text-slate-700">
-                        {data.especificacion}
+                        {data.resumen || data.especificacion}
                     </div>
                 </div>
 
@@ -226,6 +226,13 @@ export default function MantenimientoDetalle() {
                 </div>
 
             </div>
+
+            {/* Edit Modal */}
+            <EditMaintenanceModal
+                open={editModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                data={data}
+            />
 
             {/* Delete Modal */}
             <DeleteMaintenanceModal

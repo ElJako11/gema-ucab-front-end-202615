@@ -11,7 +11,10 @@ export const useUpdateChecklist = () => {
         onSuccess: () => {
             toast.success("Checklist actualizado correctamente");
             queryClient.invalidateQueries({ queryKey: ["checklist"] });
+            queryClient.invalidateQueries({ queryKey: ["checklist"] });
             queryClient.invalidateQueries({ queryKey: ["mantenimiento"] });
+            queryClient.invalidateQueries({ queryKey: ["mantenimiento", "detalle"] });
+            queryClient.invalidateQueries({ queryKey: ["mantenimientos"] });
             queryClient.invalidateQueries({ queryKey: ["Inspeccion"] });
         },
         onError: (error: any) => {
