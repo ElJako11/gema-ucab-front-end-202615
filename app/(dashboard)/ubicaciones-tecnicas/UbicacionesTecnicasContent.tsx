@@ -324,7 +324,7 @@ function UbicacionesTecnicasContent() {
               </p>
             )}
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setVerDetalle(null)}>
+              <Button variant="destructive" onClick={() => setVerDetalle(null)}>
                 Cerrar
               </Button>
             </div>
@@ -379,7 +379,7 @@ function UbicacionesTecnicasContent() {
               </p>
             )}
 
-            <div className="flex flex-col sm:flex-row justify-between items-center pt-4 gap-4 sm:gap-0">
+            <div className="flex flex-col sm:flex-row sm:justify-end items-center pt-4 gap-4 sm:gap-2 sm:ml-auto">
               <Button
                 className="bg-gema-blue hover:bg-blue-500 text-black w-full sm:w-auto"
                 onClick={handleExportExcel}
@@ -392,7 +392,7 @@ function UbicacionesTecnicasContent() {
                 {isExporting ? "Exportando..." : "Guardar respaldo"}
               </Button>
 
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-[70%]">
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <Button
                   variant="outline"
                   onClick={() => setBorrarUbicacion(null)}

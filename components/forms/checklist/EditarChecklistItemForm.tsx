@@ -109,8 +109,8 @@ export const EditarChecklistItemForm: React.FC<ChecklistProps> = ({
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="max-w-md w-full space-y-2">
-                <DialogHeader>
+            <DialogContent className="max-w-md w-full space-y-2" contentClassName="pt-6">
+                <DialogHeader className="pb-2">
                     <DialogTitle>Nueva Actividad</DialogTitle>
                 </DialogHeader>
 
@@ -166,7 +166,7 @@ export const EditarChecklistItemForm: React.FC<ChecklistProps> = ({
                                 className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground"
                                 disabled={updateMutation.isPending || !form.formState.isValid}
                             >
-                                {updateMutation.isPending ? "Actualizando..." : "Guardar"}
+                                {updateMutation.isPending ? "Guardando cambios..." : "Guardar cambios"}
                             </Button>
                         </div>
                     </form>

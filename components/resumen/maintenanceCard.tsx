@@ -17,7 +17,7 @@ const MaintenanceCard = ({
 }: MaintenanceCardProps) => {
     // Diccionario para asignar colores según el estado
     const statusStyles = {
-        'No Empezado': 'bg-gema-darkgrey text-black',
+        'No Empezado': 'bg-white text-black',
         'Reprogramado': 'bg-gema-yellow text-black', 
         'En Ejecucion': 'bg-gema-blue text-black',
         'Culminado': 'bg-gema-green text-black',
@@ -54,7 +54,7 @@ const MaintenanceCard = ({
             <div className="m-4">
                 <span className={`
                 px-3 py-1 rounded-full text-xs font-bold shadow-sm whitespace-nowrap
-                ${statusStyles[mantenimiento.estado] || 'bg-gray-200 text-gray-800'}
+                ${statusStyles[mantenimiento.estado] || 'bg-white text-gray-800'}
                 `}>
                 {mantenimiento.estado}
                 </span>

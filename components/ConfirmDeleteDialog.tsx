@@ -29,17 +29,21 @@ export default function ConfirmDeleteDialog({
 }: Props) {
     return (
         <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-            <DialogContent className="sm:max-w-[425px] pb-6">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-[425px] pb-6" contentClassName="pt-6">
+                <DialogHeader className="pb-2">
                     <DialogTitle>{title}</DialogTitle>
-                    <DialogDescription className="py-4">
+                    <DialogDescription className="pb-6">
                         {description}
                     </DialogDescription>
                 </DialogHeader>
-                <DialogFooter className="gap-3 pt-2">
-                    <Button variant="outline" onClick={onClose} disabled={isLoading}>
-                        Cancelar
-                    </Button>
+                <DialogFooter className="gap-3 pt-4">
+                        <Button
+                            variant="outline"
+                            onClick={onClose}
+                            disabled={isLoading}
+                        >
+                            Cancelar
+                        </Button>
                     <Button
                         variant="destructive"
                         onClick={onConfirm}

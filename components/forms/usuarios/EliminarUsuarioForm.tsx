@@ -31,14 +31,14 @@ export const EliminarUsuarioForm: React.FC<EliminarUsuarioFormProps> = ({
 
     return (
         <Dialog open={!!usuario} onOpenChange={handleOpenChange}>
-            <DialogContent>
-                <DialogHeader>
+            <DialogContent contentClassName="pt-6">
+                <DialogHeader className="pb-2">
                     <DialogTitle>Eliminar Usuario</DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="pb-6">
                         ¿Estás seguro que deseas eliminar al usuario <strong>{usuario?.nombre}</strong>? Esta acción no se puede deshacer.
                     </DialogDescription>
                 </DialogHeader>
-                <DialogFooter>
+                <DialogFooter className="pt-4">
                     <Button
                         variant="outline"
                         onClick={() => setUsuario(null)}

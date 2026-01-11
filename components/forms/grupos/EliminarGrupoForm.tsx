@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useDeleteGrupo } from "@/hooks/grupos-trabajo/useDeleteGrupo";
 import type { GrupoTrabajo } from "@/types/grupostrabajo.types";
@@ -29,34 +29,31 @@ export const EliminarGrupoForm: React.FC<EliminarGrupoFormProps> = ({
     <Dialog open={grupo !== null} onOpenChange={(open) => {
       if (!open) setGrupo(null);
     }}>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent contentClassName="pt-6">
+        <DialogHeader className="pb-2">
           <DialogTitle>Eliminar Grupo</DialogTitle>
+          <DialogDescription className="pb-6">
+            ¿Estás seguro de que deseas eliminar el grupo <strong>{grupo?.nombre}</strong>? Esta acción no se puede deshacer.
+          </DialogDescription>
         </DialogHeader>
-        <div className="p-6">
-          <p className="mb-4">
-            ¿Estás seguro de que deseas eliminar el grupo{" "}
-            <strong>{grupo?.nombre}</strong>? Esta acción no se puede deshacer.
-          </p>
-          <div className="flex justify-end space-x-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setGrupo(null)}
-              disabled={deleteGrupoMutation.isPending}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="button"
-              className="bg-red-600 hover:bg-red-700"
-              onClick={handleDelete}
-              disabled={deleteGrupoMutation.isPending}
-            >
-              {deleteGrupoMutation.isPending ? "Eliminando..." : "Eliminar"}
-            </Button>
-          </div>
-        </div>
+        <DialogFooter className="gap-3 pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setGrupo(null)}
+            disabled={deleteGrupoMutation.isPending}
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={deleteGrupoMutation.isPending}
+          >
+            {deleteGrupoMutation.isPending ? "Eliminando..." : "Eliminar"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

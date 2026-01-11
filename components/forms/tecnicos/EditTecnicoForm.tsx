@@ -105,8 +105,8 @@ export const EditarTecnicoForm: React.FC<Props> = ({ open, onClose, tecnico }) =
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="max-w-md w-full">
-                <DialogHeader>
+            <DialogContent className="max-w-md w-full" contentClassName="pt-6">
+                <DialogHeader className="pb-2">
                     <DialogTitle>Editar Técnico</DialogTitle>
                 </DialogHeader>
                 <Form {...form}>
@@ -178,7 +178,11 @@ export const EditarTecnicoForm: React.FC<Props> = ({ open, onClose, tecnico }) =
                         />
 
                         <div className="flex justify-end gap-2 pt-4">
-                            <Button variant="outline" type="button" onClick={onClose}>
+                            <Button
+                                variant="outline"
+                                type="button"
+                                onClick={onClose}
+                            >
                                 Cancelar
                             </Button>
                             <Button
@@ -186,7 +190,7 @@ export const EditarTecnicoForm: React.FC<Props> = ({ open, onClose, tecnico }) =
                                 type="submit"
                                 disabled={mutation.isPending}
                             >
-                                {mutation.isPending ? "Guardando..." : "Guardar Cambios"}
+                                {mutation.isPending ? "Guardando cambios..." : "Guardar cambios"}
                             </Button>
                         </div>
                     </form>

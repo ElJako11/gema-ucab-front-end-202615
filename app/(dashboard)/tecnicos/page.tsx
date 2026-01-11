@@ -54,19 +54,19 @@ console.log("Técnicos cargados:", tecnicos);
 
       {/* Tabla para desktop */}
       <div className="overflow-x-auto">
-        <table className="hidden md:table min-w-full bg-white border border-gray-200 rounded-lg">
+        <table className="hidden md:table min-w-full table-fixed bg-white border border-gray-200 rounded-lg">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
                 Nombre
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase w-1/4">
                 Correo
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase w-1/4">
                 Area
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase w-1/4">
                 Acciones
               </th>
             </tr>
@@ -74,16 +74,22 @@ console.log("Técnicos cargados:", tecnicos);
           <tbody className="divide-y divide-gray-200">
             {tecnicos.map((tecnico) => (
               <tr key={tecnico.idTecnico} className="hover:bg-gray-50">
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                  {tecnico.nombre}
+                <td className="px-6 py-4 text-sm font-medium text-gray-900 w-1/4 max-w-0">
+                  <div className="truncate" title={tecnico.nombre}>
+                    {tecnico.nombre}
+                  </div>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {tecnico.correo || "No disponible"}
+                <td className="px-6 py-4 text-sm text-gray-600 w-1/4 max-w-0">
+                  <div className="truncate" title={tecnico.correo || "No disponible"}>
+                    {tecnico.correo || "No disponible"}
+                  </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {tecnico.area || "No disponible"}
+                <td className="px-6 py-4 text-sm w-1/4 max-w-0">
+                  <div className="truncate" title={tecnico.area || "No disponible"}>
+                    {tecnico.area || "No disponible"}
+                  </div>
                 </td>
-                <td>
+                <td className="w-1/4">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="inline-block m-2 p-1 border-2 border-gray-200 rounded-sm">

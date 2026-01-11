@@ -15,17 +15,18 @@ export const ConfirmUpdateMaintenanceModal: React.FC<ConfirmUpdateMaintenanceMod
             isOpen={open}
             onClose={onClose}
             title={<span className="text-xl font-semibold">Confirmar Modificación</span>}
+            description={<>
+                ¿Estás seguro que deseas modificar el mantenimiento <strong className="text-gray-900">{maintenanceName}</strong>? Esta acción no se puede deshacer.
+            </>}
             className="bg-white max-w-md"
+            contentClassName="pt-6"
         >
-            <div className="py-6 text-center">
-                <p className="text-gray-600">
-                    ¿Estás seguro que deseas modificar el mantenimiento <strong className="text-gray-900">{maintenanceName}</strong>?
-                    Esta acción no se puede deshacer.
-                </p>
-            </div>
-
-            <div className="flex justify-end gap-4 mt-2">
-                <Button variant="outline" onClick={onClose} className="min-w-[100px]">
+            <div className="flex justify-end gap-4 pt-4">
+                <Button
+                    variant="outline"
+                    onClick={onClose}
+                    className="min-w-[100px]"
+                >
                     Cancelar
                 </Button>
                 <Button

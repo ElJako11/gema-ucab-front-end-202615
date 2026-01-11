@@ -202,8 +202,10 @@ const resumen = () => {
                     <h1 className="text-2xl font-bold">Resumen de Mantenimientos e Inspecciones</h1>
                     <h2 className="text-lg text-gray-500">{labelHeader}</h2>
                 </div>
-                <Button className="bg-sidebar-border text-black hover:bg-gray-300"
-                    onClick={handleExport}>
+                <Button
+                    className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground"
+                    onClick={handleExport}
+                >
                     <Upload className="mr-2 h-4 w-4" />
                     Exportar
                 </Button>
@@ -217,14 +219,18 @@ const resumen = () => {
                     filtroActual={filtroActivo}
                     onFiltroChange={setFiltroActivo}
                 />
-                <Button onClick={alternarVista} className="bg-sidebar-border text-black hover:bg-gray-300">
+                <Button onClick={alternarVista} variant="outline">
                     <Calendar className="mr-2 h-4 w-4" />
                     {vistaActual === 'mensual' ? 'Vista Semanal' : 'Vista Mensual'}
                 </Button>
-                <span className="text-gema-green font-semibold flex items-center">
+                <Button
+                    variant="outline"
+                    className="text-gema-green border-gema-green/50 hover:bg-gema-green/10"
+                    disabled
+                >
                     <Calendar className="mr-2 h-4 w-4" />
                     {vistaActual === 'mensual' ? 'Vista Mensual' : 'Vista Semanal'}
-                </span>
+                </Button>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 w-full">
                 {/*CARDS CON LOS DATOS */}

@@ -64,8 +64,9 @@ const EditUbicacionForm: React.FC<EditUbicacionProps> = ({
       isOpen={open}
       onClose={onClose}
       className="max-w-lg bg-white"
+      contentClassName="pt-6"
     >
-      <div className="space-y-2">
+      <div className="space-y-2 pb-2">
         <Label>Descripción</Label>
         <Input
           value={descripcion}
@@ -74,8 +75,11 @@ const EditUbicacionForm: React.FC<EditUbicacionProps> = ({
         />
       </div>
 
-      <div className="flex justify-end gap-2 mt-6">
-        <Button variant="outline" onClick={onClose}>
+      <div className="flex justify-end gap-2 pt-4">
+        <Button
+          variant="outline"
+          onClick={onClose}
+        >
           Cancelar
         </Button>
         <Button
@@ -83,7 +87,7 @@ const EditUbicacionForm: React.FC<EditUbicacionProps> = ({
           disabled={!descripcion.trim() || updateMutation.isPending}
           className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground"
         >
-          {updateMutation.isPending ? "Actualizando..." : "Actualizar"}
+          {updateMutation.isPending ? "Guardando cambios..." : "Guardar cambios"}
         </Button>
       </div>
     </Modal>

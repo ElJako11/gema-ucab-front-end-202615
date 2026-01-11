@@ -59,7 +59,12 @@ export const DeriveMaintenanceModal: React.FC<DeriveMaintenanceModalProps> = ({ 
             </div>
 
             <div className="flex justify-end gap-4 mt-2">
-                <Button variant="outline" onClick={onClose} className="min-w-[100px]" disabled={isLoading}>
+                <Button
+                    variant="outline"
+                    onClick={onClose}
+                    className="min-w-[100px]"
+                    disabled={isLoading}
+                >
                     Cancelar
                 </Button>
                 <Button

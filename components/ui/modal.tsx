@@ -7,10 +7,11 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 interface ModalProps {
     title: React.ReactNode;
-    description?: string;
+    description?: React.ReactNode;
     isOpen: boolean;
     onClose: (open: boolean) => void;
     children: React.ReactNode;
@@ -29,10 +30,17 @@ export const Modal: React.FC<ModalProps> = ({
 }) => {
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className={className} contentClassName={contentClassName}>
-                <DialogHeader>
+            <DialogContent
+                className={className}
+                contentClassName={cn("pt-6", contentClassName)}
+            >
+                <DialogHeader className="pb-2">
                     <DialogTitle>{title}</DialogTitle>
-                    {description && <DialogDescription>{description}</DialogDescription>}
+                    {description && (
+                        <DialogDescription className="pb-6">
+                            {description}
+                        </DialogDescription>
+                    )}
                 </DialogHeader>
                 <div>{children}</div>
             </DialogContent>

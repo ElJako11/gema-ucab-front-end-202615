@@ -272,7 +272,7 @@ export const InspectionFormContent: React.FC<{
                         className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground"
                         disabled={createInspectionMutation.isPending}
                     >
-                        {createInspectionMutation.isPending ? "Guardando..." : "Guardar"}
+                        {createInspectionMutation.isPending ? "Guardando cambios..." : "Guardar cambios"}
                     </Button>
                 </div>
             </form>

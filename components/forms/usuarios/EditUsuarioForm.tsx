@@ -119,8 +119,8 @@ export const EditUsuarioForm: React.FC<EditUsuarioFormProps> = ({
     return (
         <div>
         <Dialog open={!!usuario} onOpenChange={handleOpenChange}>
-            <DialogContent>
-                <DialogHeader>
+            <DialogContent contentClassName="pt-6">
+                <DialogHeader className="pb-2">
                     <DialogTitle>Editar Usuario</DialogTitle>
                 </DialogHeader>
                 <Form {...form}>
@@ -186,7 +186,7 @@ export const EditUsuarioForm: React.FC<EditUsuarioFormProps> = ({
                                 </FormItem>
                             )}
                         />
-                        <div className="flex justify-end space-x-3">
+                        <div className="flex justify-end space-x-3 pt-4">
                             <Button
                                 type="button"
                                 variant="outline"
@@ -199,7 +199,7 @@ export const EditUsuarioForm: React.FC<EditUsuarioFormProps> = ({
                                 className="bg-gema-green/80 hover:bg-gema-green"
                                 disabled={editUsuarioMutation.isPending}
                             >
-                                {editUsuarioMutation.isPending ? "Guardando..." : "Guardar"}
+                                {editUsuarioMutation.isPending ? "Guardando cambios..." : "Guardar cambios"}
                             </Button>
                         </div>
                     </form>
@@ -208,14 +208,14 @@ export const EditUsuarioForm: React.FC<EditUsuarioFormProps> = ({
         </Dialog>
 
         <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
-            <DialogContent>
-                <DialogHeader>
+            <DialogContent contentClassName="pt-6">
+                <DialogHeader className="pb-2">
                     <DialogTitle>¿Deseas editar este ítem?</DialogTitle>
                 </DialogHeader>
                 <div className="py-2 text-sm text-gray-600">
                     Se actualizarán los datos del usuario seleccionado.
                 </div>
-                <div className="flex justify-end gap-3 pt-2">
+                <div className="flex justify-end gap-3 pt-4">
                     <Button
                         variant="outline"
                         onClick={() => setShowConfirm(false)}
@@ -228,7 +228,7 @@ export const EditUsuarioForm: React.FC<EditUsuarioFormProps> = ({
                         className="bg-gema-green/80 hover:bg-gema-green"
                         disabled={editUsuarioMutation.isPending}
                     >
-                        {editUsuarioMutation.isPending ? "Guardando..." : "Confirmar"}
+                        {editUsuarioMutation.isPending ? "Guardando cambios..." : "Guardar cambios"}
                     </Button>
                 </div>
             </DialogContent>

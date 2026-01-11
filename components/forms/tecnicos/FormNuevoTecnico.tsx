@@ -166,7 +166,11 @@ const FormNuevoTecnico: React.FC<Props> = ({ open, onClose }) => {
             />
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" type="button" onClick={onClose}>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={onClose}
+              >
                 Cancelar
               </Button>
               <Button

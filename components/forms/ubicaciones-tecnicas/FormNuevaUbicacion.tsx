@@ -531,7 +531,13 @@ const FormNuevaUbicacion: React.FC<Props> = ({
       )}
 
       <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={closeModal} className="px-4 md:px-8">Cancelar</Button>
+        <Button
+          variant="outline"
+          onClick={closeModal}
+          className="px-4 md:px-8 rounded-md"
+        >
+          Cancelar
+        </Button>
         <Button className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground px-4 md:px-8" onClick={onSubmit} disabled={createMutation.isPending}>
           {createMutation.isPending ? "Creando..." : "Crear Ubicación"}
         </Button>

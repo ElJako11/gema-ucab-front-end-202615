@@ -17,6 +17,7 @@ export const EditInspectionModal: React.FC<EditInspectionModalProps> = ({ open, 
             onClose={onClose}
             title={<span className="text-xl font-semibold">Editar Inspección</span>}
             className="bg-white max-w-4xl"
+            contentClassName="pt-6"
         >
             <InspectionFormContent initialValues={data} onClose={onClose} />
         </Modal>

@@ -62,7 +62,7 @@ export const InspectionSummaryModal: React.FC<InspectionSummaryModalProps> = ({ 
             </div>
 
             <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-                <Button variant="ghost" onClick={onClose} className="w-full sm:w-auto">Cancelar</Button>
+                <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">Cancelar</Button>
                 <Link href={`/calendario/inspecciones/${inspeccionId}`} className="w-full sm:w-auto block">
                     <Button variant="outline" className="w-full border-gema-green text-gema-green hover:bg-gema-green/10">
                         Ver detalle de inspección

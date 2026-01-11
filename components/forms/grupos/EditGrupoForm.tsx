@@ -57,8 +57,8 @@ export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
 
   return (
     <Dialog open={!!grupo} onOpenChange={(open) => { if (!open) setGrupo(null); }}>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent contentClassName="pt-6">
+        <DialogHeader className="pb-2">
           <DialogTitle>Editar Grupo</DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -136,7 +136,7 @@ export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
                 </FormItem>
               )}
             />
-            <div className="flex justify-end space-x-3">
+            <div className="flex justify-end space-x-3 pt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -149,7 +149,7 @@ export const EditGrupoForm: React.FC<EditGrupoFormProps> = ({
                 className="bg-gema-green/80 hover:bg-gema-green"
                 disabled={updateGrupoMutation.isPending}
               >
-                {updateGrupoMutation.isPending ? "Guardando..." : "Guardar cambios"}
+                {updateGrupoMutation.isPending ? "Guardando cambios..." : "Guardar cambios"}
               </Button>
             </div>
           </form>

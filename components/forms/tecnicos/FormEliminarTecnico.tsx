@@ -35,14 +35,14 @@ export const EliminarTecnicoForm: React.FC<EliminarTecnicoFormProps> = ({
 
     return (
         <Dialog open={!!tecnico} onOpenChange={handleOpenChange}>
-            <DialogContent>
-                <DialogHeader>
+            <DialogContent contentClassName="pt-6">
+                <DialogHeader className="pb-2">
                     <DialogTitle>Eliminar Tecnico</DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="pb-6">
                         ¿Estás seguro que deseas eliminar al tecnico <strong>{tecnico?.nombre}</strong>? Esta acción no se puede deshacer.
                     </DialogDescription>
                 </DialogHeader>
-                <DialogFooter>
+                <DialogFooter className="pt-4">
                     <Button
                         variant="outline"
                         onClick={() => setTecnico(null)}

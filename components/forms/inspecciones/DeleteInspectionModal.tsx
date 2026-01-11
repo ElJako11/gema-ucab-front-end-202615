@@ -36,24 +36,27 @@ export const DeleteInspectionModal: React.FC<DeleteInspectionModalProps> = ({ op
             isOpen={open}
             onClose={onClose}
             title={<span className="text-xl font-semibold">Eliminar Inspección</span>}
+            description={<>
+                ¿Estás seguro que deseas eliminar la inspección <strong className="text-gray-900">{inspectionName}</strong>? Esta acción no se puede deshacer.
+            </>}
             className="bg-white max-w-md"
+            contentClassName="pt-6"
         >
-            <div className="py-6 text-center">
-                <p className="text-gray-600">
-                    ¿Estás seguro que deseas eliminar la inspección <strong className="text-gray-900">{inspectionName}</strong>?
-                    Esta acción no se puede deshacer.
-                </p>
-            </div>
-
-            <div className="flex justify-end gap-4 mt-2">
-                <Button variant="outline" onClick={onClose} className="min-w-[100px]">
+            <div className="flex justify-end gap-4 pt-4">
+                <Button
+                    variant="outline"
+                    onClick={onClose}
+                    className="min-w-[100px]"
+                >
                     Cancelar
                 </Button>
                 <Button
-                    className="bg-red-600 hover:bg-red-700 text-white min-w-[100px]"
+                    variant="destructive"
+                    className="min-w-[100px]"
                     onClick={handleConfirmDelete}
+                    disabled={isPending}
                 >
-                    Eliminar
+                    {isPending ? "Eliminando..." : "Eliminar"}
                 </Button>
             </div>
         </Modal>
