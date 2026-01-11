@@ -15,7 +15,7 @@ import {
     AlertCircle,
     Wrench,
     RotateCcw, // For 'Reabierto' icon similar to the image
-    Pencil,
+    ClipboardPen,
     Trash2,
     Plus,
     ArrowLeft
@@ -75,7 +75,7 @@ export default function MantenimientoDetalle() {
                         className="bg-[#0EA5E9] hover:bg-[#0284C7] text-white gap-2" // Custom blue from image
                         onClick={() => setEditModalOpen(true)}
                     >
-                        <Pencil className="w-4 h-4" />
+                        <ClipboardPen className="w-4 h-4" />
                         Editar
                     </Button>
                     <Button
@@ -197,11 +197,8 @@ export default function MantenimientoDetalle() {
                                     <span className="font-medium text-slate-900">{checklistTitle}</span>
                                 </Link>
                                 {checklistId && (
-                                    <div className="flex gap-2 z-10 relative">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-8 w-8 p-0"
+                                    <div className="flex z-10 relative">
+                                        <div className="inline-block p-1 border-2 border-gray-200 rounded-[10px] mx-1 cursor-pointer hover:bg-gray-50 transition-colors"
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
@@ -209,12 +206,9 @@ export default function MantenimientoDetalle() {
                                                 setEditChecklistModalOpen(true);
                                             }}
                                         >
-                                            <Pencil className="h-4 w-4 text-slate-500 hover:text-blue-500" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-8 w-8 p-0"
+                                            <ClipboardPen className="h-5 w-5 text-blue-500" />
+                                        </div>
+                                        <div className="inline-block p-1 border-2 border-gray-200 rounded-[10px] mx-1 cursor-pointer hover:bg-gray-50 transition-colors"
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
@@ -222,8 +216,8 @@ export default function MantenimientoDetalle() {
                                                 setDeleteChecklistModalOpen(true);
                                             }}
                                         >
-                                            <Trash2 className="h-4 w-4 text-slate-500 hover:text-red-500" />
-                                        </Button>
+                                            <Trash2 className="h-5 w-5 text-red-500" />
+                                        </div>
                                     </div>
                                 )}
                             </div>
