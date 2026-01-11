@@ -81,7 +81,7 @@ export const EditarChecklistForm: React.FC<EditarChecklistFormProps> = ({
                             <Button type="button" variant="outline" onClick={onClose}>
                                 Cancelar
                             </Button>
-                            <Button type="submit" disabled={updateChecklist.isPending}>
+                            <Button type="submit" className="bg-gema-green hover:bg-gema-green/90 text-white" disabled={updateChecklist.isPending}>
                                 {updateChecklist.isPending ? "Guardando..." : "Guardar"}
                             </Button>
                         </DialogFooter>
