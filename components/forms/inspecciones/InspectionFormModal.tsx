@@ -134,7 +134,7 @@ export const InspectionFormContent: React.FC<{
                                             onValueChange={(value) => field.onChange(value ? Number(value) : 0)}
                                             placeholder={isLoadingUbicaciones ? "Cargando ubicaciones..." : "Seleccionar ubicación técnica"}
                                             searchPlaceholder="Buscar ubicación..."
-                                            triggerClassName="w-full !border-gray-200 "
+                                            triggerClassName="w-full !border-gray-200 overflow-hidden text-ellipsis"
                                         />
                                     </FormControl>
                                 </FormItem>
@@ -160,7 +160,7 @@ export const InspectionFormContent: React.FC<{
                                         value={field.value?.toString()}
                                     >
                                         <FormControl>
-                                            <SelectTrigger className="w-full">
+                                            <SelectTrigger className="w-full overflow-hidden text-ellipsis">
                                                 <SelectValue placeholder="Seleccionar grupo" />
                                             </SelectTrigger>
                                         </FormControl>

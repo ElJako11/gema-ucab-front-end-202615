@@ -17,9 +17,9 @@ const MaintenanceCard = ({
 }: MaintenanceCardProps) => {
     // Diccionario para asignar colores según el estado
     const statusStyles = {
-        'No Empezado': 'bg-white text-black',
+        'No empezado': 'bg-white text-black',
         'Reprogramado': 'bg-gema-yellow text-black', 
-        'En Ejecucion': 'bg-gema-blue text-black',
+        'En ejecucion': 'bg-gema-blue text-black',
         'Culminado': 'bg-gema-green text-black',
     };
     return(

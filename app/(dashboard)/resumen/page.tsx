@@ -239,12 +239,12 @@ const resumen = () => {
                         filteredTasks.map((task) => (
                             "idMantenimiento" in task ? (
                                 <MaintenanceCard
-                                    key={task.idMantenimiento}
+                                    key={`m-${task.idMantenimiento}`}
                                     mantenimiento={task}
                                 />
                             ) : (
                                 <InspeccionCard
-                                    key={(task as any).idInspeccion}
+                                    key={`i-${(task as any).idInspeccion}`}
                                     inspeccion={task as any}
                                 />
                             )

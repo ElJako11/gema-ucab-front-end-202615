@@ -59,6 +59,19 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
 
     const onSubmit = (data: MantenimientoFormData) => {
         console.log("Form submitted with data:", data);
+
+        // Validar que la fecha límite sea posterior a la fecha de inicio
+        if (data.fechaCreacion && data.fechaLimite) {
+            const inicio = new Date(data.fechaCreacion);
+            const fin = new Date(data.fechaLimite);
+            if (fin <= inicio) {
+                form.setError("fechaLimite", {
+                    type: "manual",
+                    message: "La fecha de finalización debe ser posterior a la fecha de inicio",
+                });
+                return;
+            }
+        }
         
         const payload: CreateMantenimientoRequest = {
             tipoTrabajo: "Mantenimiento",
@@ -118,10 +131,11 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                             control={form.control}
                             name="idUbicacionTecnica"
                             render={({ field }) => (
-                                <FormItem className="flex flex-col">
+                                <FormItem className="flex flex-col ">
                                     <FormLabel>Ubicación Técnica</FormLabel>
                                     <FormControl>
                                         <Combobox
+                                            
                                             data={ubicaciones?.map(u => ({
                                                 value: u.idUbicacion,
                                                 label: `${u.codigo_Identificacion} - ${u.descripcion}`
@@ -130,8 +144,8 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                                             onValueChange={(value) => field.onChange(value || 0)}
                                             placeholder={isLoadingUbicaciones ? "Cargando ubicaciones..." : "Seleccionar ubicación técnica"}
                                             searchPlaceholder="Buscar ubicación..."
-                                            triggerClassName="w-full !border-gray-200"
-                                            contentClassName="w-full border-gray-200"
+                                            triggerClassName="w-full !border-gray-200 overflow-hidden text-ellipsis"
+                                            contentClassName="w-full border-gray-200 overflow-hidden"
                                         />
                                     </FormControl>
                                 </FormItem>
@@ -155,7 +169,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                                     onValueChange={(value) => field.onChange(value || 0)}
                                     placeholder="Seleccionar grupo"
                                     searchPlaceholder="Buscar grupo..."
-                                    triggerClassName="w-full  !border-gray-200"
+                                    triggerClassName="w-full !border-gray-200 overflow-hidden text-ellipsis"
                                     contentClassName="w-full"
                                 />
                             </FormControl>
@@ -243,6 +257,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                                     <FormControl className="w-full border-gray-200">
                                         <Input type="date" {...field} />
                                     </FormControl>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
