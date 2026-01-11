@@ -50,7 +50,7 @@ const GruposTrabajo: React.FC = () => {
     };
 
     const getSupervisorNombre = (id: number | null) =>
-        supervisores?.find((s) => s.Id === id)?.Nombre || "No asignado";
+        supervisores?.find((s) => s.id === id)?.nombre || "No asignado";
 
     if (isLoading) {
         return (

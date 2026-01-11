@@ -41,7 +41,7 @@ export default function MantenimientoDetalle() {
     // Usar datos reales cuando estén disponibles, sino mock data
     const data = maintenanceData;
 
-    console.log(data);
+
     return (
         <div className="p-8 space-y-6 min-h-screen">
             {/* Top Navigation / Header */}
@@ -102,15 +102,6 @@ export default function MantenimientoDetalle() {
                         <div className="flex items-center gap-2 px-4 py-2 bg-slate-200 text-slate-700 rounded-md border border-slate-300 w-fit font-medium">
                             <Wrench className="w-5 h-5" />
                             {data.tipo}
-                        </div>
-                    </div>
-
-                    {/* Instancia */}
-                    <div className="space-y-2">
-                        <h3 className="font-bold text-lg">Instancia</h3>
-                        <div className="flex items-center gap-2 px-4 py-2 bg-white text-slate-700 rounded-md border border-slate-300 w-fit font-medium shadow-sm">
-                            <RotateCcw className="w-5 h-5" />
-                            {data.instancia}
                         </div>
                     </div>
                 </div>
@@ -202,6 +193,7 @@ export default function MantenimientoDetalle() {
                 open={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
                 data={data}
+                mantenimientoId={id}
             />
 
             {/* Delete Modal */}
@@ -209,8 +201,8 @@ export default function MantenimientoDetalle() {
                 open={deleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
                 onConfirm={() => { toast.success("Mantenimiento eliminado con éxito"); setDeleteModalOpen(false); }}
-                maintenanceName={data.title}
-                maintenanceId={data.idMantenimiento}
+                maintenanceName={data.titulo}
+                maintenanceId={data.id}
             />
 
             {/* Add Checklist Modal */}
@@ -218,7 +210,6 @@ export default function MantenimientoDetalle() {
                 open={addChecklistModalOpen}
                 onClose={() => setAddChecklistModalOpen(false)}
                 onSuccess={(data) => {
-                    console.log("Checklist added:", data);
                     setAddChecklistModalOpen(false);
                 }}
                 maintenanceId={id}

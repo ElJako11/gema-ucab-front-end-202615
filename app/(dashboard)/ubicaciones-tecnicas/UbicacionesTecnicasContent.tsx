@@ -99,10 +99,8 @@ function UbicacionesTecnicasContent() {
   const deleteMutation = useDeleteUbicacion();
 
   const initializeFormValues = (codigo: string) => {
-    console.log("🔧 Inicializando formulario desde código:", codigo);
 
     const nivelesExtraidos = codigo.split("-");
-    console.log("📋 Niveles extraídos:", nivelesExtraidos);
 
     const valoresIniciales = { ...formValues };
     let levelAmount = 0;
@@ -111,18 +109,11 @@ function UbicacionesTecnicasContent() {
       const valor = nivelesExtraidos[index] || "";
       valoresIniciales[nivel] = valor;
       if (valor) levelAmount++;
-      console.log(`📝 Nivel ${index + 1} (${nivel}): "${valor}"`);
     });
 
     const newDisplayedLevels = Math.min(levelAmount + 1, NIVELES.length);
 
-    console.log("🎯 Configuración final:", {
-      valoresIniciales,
-      levelAmount,
-      newDisplayedLevels,
-      abrirModal: true
-    });
-
+   
     setFormValues(valoresIniciales);
     setDisplayedLevels(newDisplayedLevels);
     setOpen(true);

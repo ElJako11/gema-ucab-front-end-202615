@@ -74,12 +74,12 @@ export const GestionTecnicosForm: React.FC<GestionTecnicosFormProps> = ({
                   .filter(
                     (tec) =>
                       !trabajadoresPorGrupo[grupoTrabajo.id]?.some(
-                        (t) => t.Id === tec.Id
+                        (t) => t.idTecnico === tec.idTecnico
                       )
                   )
                   .map((tecnico) => ({
-                    value: tecnico.Id,
-                    label: `${tecnico.Nombre} (${tecnico.Correo})`,
+                    value: tecnico.idTecnico,
+                    label: `${tecnico.nombre ?? 'Sin nombre'} (${tecnico.correo ?? 'Sin correo'})`,
                   }))}
                 value={tecnicoSeleccionado}
                 onValueChange={(value) => setTecnicoSeleccionado(value as number | null)}
@@ -107,17 +107,17 @@ export const GestionTecnicosForm: React.FC<GestionTecnicosFormProps> = ({
               {trabajadoresPorGrupo[grupoTrabajo.id]?.length ? (
                 trabajadoresPorGrupo[grupoTrabajo.id].map((tecnico) => (
                   <div
-                    key={tecnico.Id}
+                    key={tecnico.idTecnico}
                     className="p-4 flex justify-between items-center hover:bg-gray-50"
                   >
                     <div>
-                      <p className="font-medium">{tecnico.Nombre}</p>
-                      <p className="text-sm text-gray-600">{tecnico.Correo}</p>
+                      <p className="font-medium">{tecnico.nombre}</p>
+                      <p className="text-sm text-gray-600">{tecnico.correo ?? 'Sin correo'}</p>
                     </div>
                     <Button
                       variant="ghost"
                       className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => handleRemoveTecnico(tecnico.Id)}
+                      onClick={() => handleRemoveTecnico(tecnico.idTecnico)}
                       disabled={deleteAsignacionMutation.isPending}
                     >
                       <UserMinus className="h-4 w-4" />

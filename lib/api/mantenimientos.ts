@@ -1,17 +1,29 @@
 import apiClient from "./client";
 import type { Mantenimiento } from "@/types/mantenimientos.types";
 
-interface CreateMantenimientoRequest {
+export interface CreateMantenimientoRequest {
     tipoTrabajo: "Mantenimiento";
+    titulo: string; 
+    prioridad: "Alta" | "Media" | "Baja";
     fechaCreacion: string;
+    fechaLimite: string;
+    tipo: "Periódico" | "Por Condición";
+    frecuencia?: "Diaria" | "Semanal" | "Mensual" | "Trimestral" | "Semestral" | "Anual";
     idUbicacionTecnica: number;
     idGrupo: number;
-    areaEncargada: "Electricidad" | "Infraestructura" | "Mecanica" | "Refrigeracion" | "Logistica";
-    prioridad: "Alta" | "Media" | "Baja";
-    fechaLimite: string;
-    frecuencia: "Diaria" | "Semanal" | "Mensual" | "Bimestral" | "Trimestral" | "Semestral" | "Anual";
-    tipoMantenimiento: "Periodico" | "Condicion";
     especificacion: string;
+}
+
+export interface EditMantenimientoRequest {
+    id: number;
+    titulo?: string; 
+    prioridad?: "Alta" | "Media" | "Baja";
+    fechaCreacion?: string;
+    fechaLimite?: string; 
+    frecuencia?: "Diaria" | "Semanal" | "Mensual" | "Trimestral" | "Semestral" | "Anual";
+    resumen?: string;
+    tipo?: "Periódico" | "Por Condición",
+    instancia?: string; 
 }
 
 interface MantenimientosResponse {
@@ -35,11 +47,15 @@ export const mantenimientosAPI = {
         return apiClient.get<any>(`/mantenimientos/${id}/resumen`);
     },
 
-    async getDetalle(id: number): Promise<any> {
+    async getDetalle(id: number): Promise<Mantenimiento> {
         return apiClient.get<any>(`/mantenimientos/${id}`);
     },
 
     async delete(id: number): Promise<any> {
         return apiClient.delete<any>(`/mantenimientos/${id}`)
+    },
+
+    async update(data:EditMantenimientoRequest) {
+        return apiClient.patch<any>(`/mantenimientos/${data.id}`,data)
     }
 }

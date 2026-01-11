@@ -6,10 +6,8 @@ export const useCreateUbicacion = () => {
 
     return useMutation({
         mutationFn: async (data: any) => {
-            console.log("🔄 Enviando datos al API:", data);
             try {
                 const result = await ubicacionesTecnicasAPI.create(data);
-                console.log("✅ Respuesta exitosa del API:", result);
                 return result;
             } catch (error) {
                 console.error("❌ Error en API:", error);
@@ -17,7 +15,6 @@ export const useCreateUbicacion = () => {
             }
         },
         onSuccess: (data) => {
-            console.log("✅ Mutación exitosa:", data);
             queryClient.invalidateQueries({ queryKey: ["ubicacionesTecnicas"] });
             // No mostrar toast aquí, se maneja en el componente
         },

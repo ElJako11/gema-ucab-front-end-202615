@@ -3,16 +3,15 @@ import apiClient from "@/lib/api/client";
 import { toast } from "react-hot-toast";
 
 export interface CreateInspectionRequest {
-  tipoTrabajo: "Inspeccion";
+  tipoTrabajo: string;
   fechaCreacion: string;
   idUbicacionTecnica: number;
   idGrupo: number;
-  supervisorId: number;
-   areaEncargada: "Electricidad" | "Infraestructura" | "Mecanica" | "Refrigeracion" | "Logistica";
-  prioridad: string;
-  fechaLimite: string;
+  prioridad: "Baja" | "Media" | "Alta";
   frecuencia: string;
   especificacion: string;
+  codigoArea?: string; 
+  codigoVerificacion?: string; 
 }
 
 export const useCreateInspection = () => {
@@ -24,12 +23,7 @@ export const useCreateInspection = () => {
       
       try {
         const response = await apiClient.post("/work-creation", data);
-        console.log("✅ [INSPECCIÓN] Respuesta exitosa del servidor:", response);
-        console.log("🔍 [INSPECCIÓN] Verificación de respuesta del servidor:", {
-          tieneData: !!response?.data,
-          fechaCreacionEnRespuesta: response?.data?.fechaCreacion || response?.fechaCreacion,
-          respuestaCompleta: response
-        });
+       
         return response;
       } catch (error) {
         console.error("❌ [INSPECCIÓN] Error en la petición:", error);
@@ -37,11 +31,9 @@ export const useCreateInspection = () => {
       }
     },
     onSuccess: (data) => {
-      console.log("🎉 [INSPECCIÓN] Inspección creada exitosamente:", data);
       toast.success("Inspección creada exitosamente");
       
       // Invalidar múltiples queries para refrescar datos
-      console.log("🔄 [INSPECCIÓN] Invalidando queries...");
       
       // Invalidar queries específicas
       queryClient.invalidateQueries({ queryKey: ["inspecciones"] });

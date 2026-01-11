@@ -13,6 +13,7 @@ interface TecnicosResponse {
 
 export const tecnicosAPI = {
     async getAll(): Promise<TecnicosResponse> {
+        // Ajuste de endpoint: muchos backends exponen la lista en /tecnicos
         return apiClient.get<TecnicosResponse>('/tecnicos/lista')
     },
 

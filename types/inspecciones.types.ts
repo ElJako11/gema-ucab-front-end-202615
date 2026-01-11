@@ -3,10 +3,11 @@ export type Inspeccion = {
     titulo?: string;
     fechaCreacion: Date;
     ubicacion: string;
-    estado: "NO EMPEZADO" | "EN EJECUCION" | "REPROGRAMADO" | "CULMINADO";
+    estado: "No empezado" | "En ejecución" | "Reprogramado" | "Culminado" | "Cancelado";
     supervisor: string;
     observacion: string;
     frecuencia: string;
     areaEncargada: string;
     codigoVerificacion?: string;
+    idSupervisor?: number; 
 };

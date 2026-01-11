@@ -1,4 +1,4 @@
-import type { Usuario } from "./usuarios.types";
+import type { Usuarios } from "./usuarios.types";
 
 export type GrupoTrabajo = {
   id: number;
@@ -9,5 +9,5 @@ export type GrupoTrabajo = {
 
 export type TrabajaEnGrupo = {
   grupoDeTrabajoId: number;
-  usuarios: Usuario[];
+  usuarios: Usuarios;
 };

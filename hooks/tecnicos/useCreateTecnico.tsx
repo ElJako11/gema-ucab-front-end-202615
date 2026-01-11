@@ -11,6 +11,9 @@ export const useCreateTecnico = () => {
             queryClient.invalidateQueries({
                 queryKey: ['tecnicos']
             })
+            queryClient.invalidateQueries({
+                queryKey: ['trabajadoresPorGrupo']
+            })
             toast.success("Tecnico creado exitosamente!");
         },
         onError: () => {
