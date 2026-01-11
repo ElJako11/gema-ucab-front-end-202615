@@ -55,7 +55,7 @@ export const mantenimientosAPI = {
         return apiClient.delete<any>(`/mantenimientos/${id}`)
     },
 
-    async update(data:EditMantenimientoRequest) {
+    async update(id: number, data: EditMantenimientoRequest) {
         return apiClient.patch<any>(`/mantenimientos/${data.id}`,data)
     }
 }
