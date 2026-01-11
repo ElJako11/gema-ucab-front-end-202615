@@ -72,10 +72,14 @@ export const MaintenanceSummaryModal: React.FC<MaintenanceSummaryModalProps> = (
                     </div>
                 </div>
             </div>
-            <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-                <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">Cancelar</Button>
-                <Link href={`/calendario/mantenimientos/${mantenimientoId}`} className="w-full sm:w-auto block">
-                    <Button variant="outline" className="w-full border-gema-green text-gema-green hover:bg-gema-green/10">
+
+            <div className="flex justify-end gap-2 mt-4">
+                <Button variant="outline" onClick={onClose}>
+                    Cancelar
+                </Button>
+                <Link href={`/calendario/mantenimientos/${mantenimientoId}`}>
+                    <Button variant="outline" className="border-gema-green text-gema-green hover:bg-gema-green/10">
+
                         Ver detalle del mantenimiento
                     </Button>
                 </Link>
