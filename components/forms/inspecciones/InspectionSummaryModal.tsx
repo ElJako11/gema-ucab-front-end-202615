@@ -19,11 +19,9 @@ export const InspectionSummaryModal: React.FC<InspectionSummaryModalProps> = ({ 
         return <div>Cargando...</div>
     }
 
-    const resumen: any = [];
+    const resumen = (data && data.length > 0) ? data[0] : null;
 
-    if (data != undefined) {
-        const resumen = data[0];
-    }
+
     return (
         <Modal
             isOpen={open}
