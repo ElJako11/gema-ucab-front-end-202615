@@ -127,7 +127,7 @@ export default function MantenimientoDetalle() {
                 <div className="mb-8">
                     <h3 className="font-bold text-lg mb-3">Resumen</h3>
                     <div className="p-4 border border-slate-300 rounded-lg text-slate-700">
-                        {data.resumen || data.especificacion}
+                        {data.resumen ?? "Ninguno."}
                     </div>
                 </div>
 
@@ -232,6 +232,7 @@ export default function MantenimientoDetalle() {
                 open={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
                 data={data}
+                mantenimientoId={id}
             />
 
             {/* Delete Modal */}
@@ -240,7 +241,7 @@ export default function MantenimientoDetalle() {
                 onClose={() => setDeleteModalOpen(false)}
                 onConfirm={() => { toast.success("Mantenimiento eliminado con éxito"); setDeleteModalOpen(false); }}
                 maintenanceName={data.titulo}
-                maintenanceId={data.id}
+                maintenanceId={id}
             />
 
             {/* Add Checklist Modal */}
