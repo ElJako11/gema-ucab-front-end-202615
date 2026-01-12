@@ -99,15 +99,6 @@ export default function InspeccionDetalle() {
 
                 {/* Status & Supervisor Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 w-full md:w-2/3">
-                    {/* Estado */}
-                    <div className="space-y-2">
-                        <h3 className="font-bold text-lg">Estado</h3>
-                        <div className="flex items-center gap-2 px-4 py-2 bg-sky-300 text-slate-900 rounded-md border border-sky-400 w-fit font-medium">
-                            <Check className="w-4 h-4" />
-                            {data?.estado}
-                        </div>
-                    </div>
-
                     {/* Supervisor */}
                     <div className="space-y-2">
                         <h3 className="font-bold text-lg">Supervisor</h3>

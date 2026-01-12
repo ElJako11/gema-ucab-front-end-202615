@@ -45,7 +45,6 @@ export default function MantenimientoDetalle() {
 
     // Estados de carga y error
     if (isLoading) return <div className="p-8">Cargando mantenimiento...</div>;
-    if (error) return <div className="p-8">Error: {error.message}</div>;
     if (!maintenanceData) return <div className="p-8">Mantenimiento no encontrado</div>;
 
     // Usar datos reales cuando estén disponibles, sino mock data

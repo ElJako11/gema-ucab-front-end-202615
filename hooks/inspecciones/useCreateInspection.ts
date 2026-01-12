@@ -18,7 +18,6 @@ export interface CreateInspectionRequest {
 
 export interface EditInspectionRequest {
   id: number;
-  prioridad: "BAJA" | "MEDIA" | "ALTA";
   frecuencia: "Diaria" | "Semanal" | "Mensual" | "Trimestral" | "Anual";
   especificacion: string;
 }

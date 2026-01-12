@@ -19,8 +19,6 @@ const AREA_OPTIONS = ["Electricidad", "Infraestructura", "Mecanica", "Refrigerac
 
 //Esquema de validación 
 export const inspeccionSchema = z.object({
-
-    prioridad: z.enum(PRIORIDAD_OPTS),
     frecuencia: z.enum(FRECUENCIA_OPTS),
     especificacion: z.string()
 });
@@ -56,7 +54,6 @@ export const InspectionFormContent: React.FC<{
 
         const payload: EditInspectionRequest = {
             id: initialData.idInspeccion,
-            prioridad: data.prioridad,
             frecuencia: data.frecuencia,
             especificacion: data.especificacion,
         };
@@ -82,60 +79,31 @@ export const InspectionFormContent: React.FC<{
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 text-left">
                 <div className="grid grid-cols-2 gap-4">
-
-                    <div className="p-4 flex flex-col gap-4">
-                        {/* Prioridad */}
-                        <FormField
-                            control={form.control}
-                            name="prioridad"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Prioridad</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger className='w-1/2'>
-                                                <SelectValue placeholder="Seleccionar prioridad" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="BAJA">Baja</SelectItem>
-                                            <SelectItem value="MEDIA">Media</SelectItem>
-                                            <SelectItem value="ALTA">Alta</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-
-                    <div className="p-4 flex flex-col gap-4">
-
-                        {/* Frecuencia */}
-                        <FormField
-                            control={form.control}
-                            name="frecuencia"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Frecuencia</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger className='w-1/2'>
-                                                <SelectValue placeholder="Seleccionar frecuencia" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {FRECUENCIA_OPTS.map((frecuencia) => (
-                                                <SelectItem key={frecuencia} value={frecuencia}>
-                                                    {frecuencia}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
+                    {/* Frecuencia */}
+                    <FormField
+                        control={form.control}
+                        name="frecuencia"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Frecuencia</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger className='w-1/2'>
+                                            <SelectValue placeholder="Seleccionar frecuencia" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {FRECUENCIA_OPTS.map((frecuencia) => (
+                                            <SelectItem key={frecuencia} value={frecuencia}>
+                                                {frecuencia}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </div>
 
                 <div className="px-4">
