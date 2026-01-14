@@ -188,13 +188,20 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
                         const tieneInspecciones = hasInspecciones(item.date);
                         const isToday = item.date.toDateString() === new Date().toDateString();
 
+                        // Verifica si el dia es pasado
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const dayToCompare = new Date(item.date);
+                        dayToCompare.setHours(0, 0, 0, 0);
+                        const isPastDay = dayToCompare < today;
+
                         return (
                             <div
                                 key={index}
                                 onClick={() => handleDayClick(item)}
                                 className={`
                                         relative min-h-30 max-w-full p-2 rounded-lg flex flex-col gap-2 transition-all hover:ring-2 hover:ring-blue-100 cursor-pointer 
-                                        ${item.actual ? 'bg-gema-lightgrey hover:bg-gray-50' : 'bg-gema-darkgrey cursor-default'}
+                                        ${!item.actual ? 'bg-gema-darkgrey cursor-default' : isPastDay ? 'bg-gema-darkgrey' : 'bg-gema-lightgrey hover:bg-gray-50'}
                                     `}
                             >
                                 {isToday && (

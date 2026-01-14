@@ -290,20 +290,27 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
           const exactDate = new Date(startOfWeek);
           exactDate.setDate(startOfWeek.getDate() + index);
 
+          // Verifica si el dia es pasado
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const dayToCompare = new Date(exactDate);
+          dayToCompare.setHours(0, 0, 0, 0);
+          const isPastDay = dayToCompare < today;
+
           return (
             <div key={index} className="flex flex-col h-full">
               {/* Cabecera de la Columna (Día y Número) */}
               <div className="text-center mb-4">
-                <span className="block text-sm font-bold text-gray-400 uppercase tracking-wide">
+                <span className={`block text-sm font-bold uppercase tracking-wide ${isPastDay ? 'text-gray-400' : 'text-gray-400'}`}>
                   {diaItem.dia}
                 </span>
-                <span className="block text-3xl font-bold text-gray-900 mt-1">
+                <span className={`block text-3xl font-bold mt-1 ${isPastDay ? 'text-gray-400' : 'text-gray-900'}`}>
                   {diaItem.fecha}
                 </span>
               </div>
 
               {/* Cuerpo de la Columna (El contenedor largo) */}
-              <div className="flex-1 border border-gray-200 rounded-2xl min-h-[200px] md:min-h-[500px] bg-white flex flex-col gap-3 overflow-hidden">
+              <div className={`flex-1 border rounded-2xl min-h-[200px] md:min-h-[500px] flex flex-col gap-3 overflow-hidden ${isPastDay ? 'bg-gema-darkgrey border-gray-300' : 'bg-white border-gray-200'}`}>
                 {/* Pill de Conteo (Encabezado gris dentro de la columna) */}
                 <div className="bg-gray-200 py-2 text-center relative overflow-hidden">
                   {/* Simulación del degradado superior si es hoy */}
