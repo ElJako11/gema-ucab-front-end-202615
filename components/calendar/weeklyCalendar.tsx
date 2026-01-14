@@ -111,7 +111,7 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
     return semanaDataBase.map(dia => {
       const diaDateStr = dia.fullDate.toISOString().split('T')[0];
 
-      // Filtrar eventos para este día con estructura adaptada
+      // Filtrar eventos para este día with estructura adaptada
       const tareasDelDia = eventos
         .filter((evento: any) => {
           // Usar el campo correcto según el tipo de evento
@@ -297,19 +297,28 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
                 <span className="block text-sm font-bold text-gray-400 uppercase tracking-wide">
                   {diaItem.dia}
                 </span>
-                <span className="block text-3xl font-bold text-gray-900 mt-1">
-                  {diaItem.fecha}
-                </span>
+                {
+                  exactDate.toDateString() === new Date().toDateString() ? (
+                    <div className="flex justify-center mt-1">
+                        <div className="relative flex items-center justify-center w-30 h-10">
+                            <div className="absolute inset-0  bg-linear-to-r from-gema-yellow via-gema-blue to-gema-green blur-[2px] opacity-65" />
+                            <span className="relative z-10 text-2xl font-bold text-gray-900">
+                                {diaItem.fecha}
+                            </span>
+                        </div>
+                    </div>
+                  ) : (
+                    <span className="block text-3xl font-bold text-gray-900 mt-1">
+                      {diaItem.fecha}
+                    </span>
+                  )
+                }
               </div>
 
               {/* Cuerpo de la Columna (El contenedor largo) */}
               <div className="flex-1 border border-gray-200 rounded-2xl min-h-[200px] md:min-h-[500px] bg-white flex flex-col gap-3 overflow-hidden">
                 {/* Pill de Conteo (Encabezado gris dentro de la columna) */}
                 <div className="bg-gray-200 py-2 text-center relative overflow-hidden">
-                  {/* Simulación del degradado superior si es hoy */}
-                  {exactDate.toDateString() === new Date().toDateString() && (
-                    <div className="absolute top-0 left-0 right-0 h-1.5 rounded-t-lg bg-linear-to-r from-gema-yellow via-gema-blue to-gema-green" />
-                  )}
                   <span className="text-xs font-bold text-gray-700">
                     {filtroActivo === 'todos' ? 'Mantenimientos' :
                       filtroActivo === 'mantenimientos' ? 'Mantenimientos' : 'Inspecciones'} - {tareasFiltradas.length}

@@ -193,31 +193,36 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
                                 key={index}
                                 onClick={() => handleDayClick(item)}
                                 className={`
-                                        relative min-h-30 max-w-full p-2 rounded-lg flex flex-col gap-2 transition-all hover:ring-2 hover:ring-blue-100 cursor-pointer 
+                                        group relative min-h-30 max-w-full p-2 rounded-lg flex flex-col gap-2 transition-all hover:ring-2 hover:ring-blue-100 cursor-pointer 
                                         ${item.actual ? 'bg-gema-lightgrey hover:bg-gray-50' : 'bg-gema-darkgrey cursor-default'}
                                     `}
                             >
                                 {isToday && (
-                                    <div className="absolute top-0 left-0 right-0 h-1.5 rounded-t-lg bg-linear-to-r from-gema-yellow via-gema-blue to-gema-green" />
+                                    <>
+                                        <div className="absolute inset-0 rounded-lg bg-linear-to-r from-gema-yellow via-gema-blue to-gema-green" />
+                                        <div className="absolute inset-[4px] rounded-lg bg-gema-lightgrey group-hover:bg-gray-50" />
+                                    </>
                                 )}
-                                {/* Número del día */}
-                                <span className={`text-sm font-bold text-gema-grey-text`}>
-                                    {item.dia < 10 ? `0${item.dia}` : item.dia}
-                                </span>
+                                <div className="relative z-10 flex flex-col gap-2 h-full w-full">
+                                    {/* Número del día */}
+                                    <span className={`text-sm font-bold text-gema-grey-text`}>
+                                        {item.dia < 10 ? `0${item.dia}` : item.dia}
+                                    </span>
 
-                                {/* Iconos de contenido */}
-                                <div className="flex gap-1">
-                                    {/* Icono de Mantenimientos (azul) */}
-                                    {(filtroActivo === 'todos' || filtroActivo === 'mantenimientos') &&
-                                        tieneMantenimientos && (
-                                            <FileCog className="w-7 h-7 text-gema-blue" />
-                                        )}
+                                    {/* Iconos de contenido */}
+                                    <div className="flex gap-1">
+                                        {/* Icono de Mantenimientos (azul) */}
+                                        {(filtroActivo === 'todos' || filtroActivo === 'mantenimientos') &&
+                                            tieneMantenimientos && (
+                                                <FileCog className="w-7 h-7 text-gema-blue" />
+                                            )}
 
-                                    {/* Icono de Inspecciones (verde) */}
-                                    {(filtroActivo === 'todos' || filtroActivo === 'inspecciones') &&
-                                        tieneInspecciones && (
-                                            <FileSearchCorner className="w-7 h-7 text-gema-green" />
-                                        )}
+                                        {/* Icono de Inspecciones (verde) */}
+                                        {(filtroActivo === 'todos' || filtroActivo === 'inspecciones') &&
+                                            tieneInspecciones && (
+                                                <FileSearchCorner className="w-7 h-7 text-gema-green" />
+                                            )}
+                                    </div>
                                 </div>
                             </div>
                         );
