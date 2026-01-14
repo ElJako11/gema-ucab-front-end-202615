@@ -20,6 +20,8 @@ export const MaintenanceSummaryModal: React.FC<MaintenanceSummaryModalProps> = (
         return <div>Cargando...</div>;
     }
 
+
+
     return (
         <Modal
             isOpen={open}
@@ -42,17 +44,13 @@ export const MaintenanceSummaryModal: React.FC<MaintenanceSummaryModalProps> = (
                             <span className="font-semibold">{mantenimiento?.prioridad ?? '...'}</span>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-md border text-center">
+                            <span className="block text-sm text-gray-500">Tipo </span>
+                            <span className="font-semibold">{(mantenimiento?.tipo === "Condicion" ? "Por Condición" : mantenimiento?.tipo) ?? "..."}</span>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-md border text-center">
                             <span className="block text-sm text-gray-500">Frecuencia</span>
                             <span className="font-semibold">{mantenimiento?.frecuencia ?? '...'}</span>
                         </div>
-
-                        {mantenimiento?.frecuencia && (
-                            <div className="bg-slate-50 p-3 rounded-md border text-center">
-                                <span className="block text-sm text-gray-500">Repetición</span>
-                                <span className="font-semibold">{mantenimiento?.frecuencia ?? '...'}</span>
-                            </div>
-                        )}
-
                     </div>
                 </div>
 

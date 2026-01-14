@@ -1,13 +1,14 @@
 import React from 'react';
 import { Modal } from "@/components/ui/modal";
-import { InspectionFormContent } from '@/components/forms/inspecciones/InspectionFormModal';
+import { InspectionFormContent } from './EditInspectionContent';
+import { Inspeccion } from '@/types/inspecciones.types';
 
 interface EditInspectionModalProps {
     open: boolean;
     onClose: () => void;
     onConfirm?: () => void;
     inspectionName?: string;
-    data?: any;
+    data: Inspeccion;
 }
 
 export const EditInspectionModal: React.FC<EditInspectionModalProps> = ({ open, onClose, data }) => {
@@ -19,7 +20,7 @@ export const EditInspectionModal: React.FC<EditInspectionModalProps> = ({ open, 
             className="bg-white max-w-4xl"
             contentClassName="pt-6"
         >
-            <InspectionFormContent initialValues={data} onClose={onClose} />
+            <InspectionFormContent initialData={data} onClose={onClose} />
         </Modal>
     );
 };

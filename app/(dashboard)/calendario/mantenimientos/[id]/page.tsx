@@ -40,12 +40,11 @@ export default function MantenimientoDetalle() {
     // Obtener datos del checklist
     // Solo intentar buscar checklist si el mantenimiento tiene uno asociado
     const { data: checklistData } = useGetAllChecklistItem("mantenimientos", id, {
-        enabled: !!maintenanceData
+        enabled: !!maintenanceData && !!maintenanceData.idChecklist
     });
 
     // Estados de carga y error
     if (isLoading) return <div className="p-8">Cargando mantenimiento...</div>;
-    if (error) return <div className="p-8">Error: {error.message}</div>;
     if (!maintenanceData) return <div className="p-8">Mantenimiento no encontrado</div>;
 
     // Usar datos reales cuando estén disponibles, sino mock data
@@ -127,7 +126,7 @@ export default function MantenimientoDetalle() {
                 <div className="mb-8">
                     <h3 className="font-bold text-lg mb-3">Resumen</h3>
                     <div className="p-4 border border-slate-300 rounded-lg text-slate-700">
-                        {data.resumen || data.especificacion}
+                        {data.resumen ?? "Ninguno."}
                     </div>
                 </div>
 
@@ -232,6 +231,7 @@ export default function MantenimientoDetalle() {
                 open={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
                 data={data}
+                mantenimientoId={id}
             />
 
             {/* Delete Modal */}
@@ -240,7 +240,7 @@ export default function MantenimientoDetalle() {
                 onClose={() => setDeleteModalOpen(false)}
                 onConfirm={() => { toast.success("Mantenimiento eliminado con éxito"); setDeleteModalOpen(false); }}
                 maintenanceName={data.titulo}
-                maintenanceId={data.id}
+                maintenanceId={id}
             />
 
             {/* Add Checklist Modal */}

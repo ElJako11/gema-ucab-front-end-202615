@@ -1,20 +1,19 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { dataTagErrorSymbol, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
+import { EditMantenimientoRequest } from "@/lib/api/mantenimientos";
 import { mantenimientosAPI } from "@/lib/api/mantenimientos";
-import { toast } from "sonner";
 
-export const useUpdateMantenimiento = () => {
+export const useUpdateMantenimiento = (id:number) => {
     const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: ({ id, data }: { id: number; data: any }) =>
-            mantenimientosAPI.update(id, data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["mantenimientos"] });
-            queryClient.invalidateQueries({ queryKey: ["mantenimiento"] });
-        },
-        onError: (error: any) => {
-            console.error("Error updating maintenance:", error);
-            toast.error("Error al actualizar el mantenimiento");
-        }
-    });
+  return useMutation({
+    mutationFn: (data:EditMantenimientoRequest) => mantenimientosAPI.update(data),
+    onSuccess: () => {
+      toast.success("Mantenimiento actualizado exitosamente!");
+      queryClient.invalidateQueries({queryKey:["mantenimiento", "detalle",id ]})
+    },
+    onError: () => {
+      toast.error("Error al actualizar el mantenimiento");
+    },
+  });
 };

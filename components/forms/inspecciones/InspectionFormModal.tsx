@@ -12,9 +12,8 @@ import { useUbicacionesLista } from "@/hooks/ubicaciones-tecnicas/useUbicaciones
 import { useSupervisores } from "@/hooks/usuarios/useUsuarios";
 import { useGrupos } from "@/hooks/grupos-trabajo/useGrupoTrabajo";
 import { useCreateInspection } from "@/hooks/inspecciones/useCreateInspection";
-import {  FRECUENCIA_OPTS, PRIORIDAD_OPTS } from "@/lib/validations/inspeccionSchema";
+import { FRECUENCIA_OPTS, PRIORIDAD_OPTS } from "@/lib/validations/inspeccionSchema";
 import { CreateInspectionRequest } from '@/hooks/inspecciones/useCreateInspection';
-import { toast } from 'sonner';
 import { z } from "zod";
 
 
@@ -28,22 +27,23 @@ interface InspectionFormModalProps {
 
 //Esquema de validación 
 export const inspeccionSchema = z.object({
-  // tipo de trabajo 
-  tipoTrabajo: z.string("Inspeccion"),
+    nombre: z.string().optional(),
+    // tipo de trabajo 
+    tipoTrabajo: z.string("Inspeccion"),
 
-  fechaCreacion: z.string(),
-  // Campos visibles en tu form/defaults
-  prioridad: z.enum(PRIORIDAD_OPTS),
+    fechaCreacion: z.string(),
+    // Campos visibles en tu form/defaults
+    prioridad: z.enum(PRIORIDAD_OPTS),
 
-  // Ubicación técnica y grupo
-  idUbicacionTecnica: z.number().min(1, "Selecciona una ubicación técnica"),
-  idGrupo: z.number().min(1, "Selecciona un grupo de trabajo"),
+    // Ubicación técnica y grupo
+    idUbicacionTecnica: z.number().min(1, "Selecciona una ubicación técnica"),
+    idGrupo: z.number().min(1, "Selecciona un grupo de trabajo"),
 
-  // Frecuencia
-  frecuencia: z.enum(FRECUENCIA_OPTS),
+    // Frecuencia
+    frecuencia: z.enum(FRECUENCIA_OPTS),
 
-  // Texto libre
-  especificacion: z.string().min(1, "La especificación es requerida"),
+    // Texto libre
+    especificacion: z.string().min(1, "La Observación es requerida"),
 });
 
 type InspeccionForm = z.infer<typeof inspeccionSchema>;
@@ -57,11 +57,12 @@ export const InspectionFormContent: React.FC<{
     const form = useForm<InspeccionForm>({
         resolver: zodResolver(inspeccionSchema),
         defaultValues: {
+            nombre: " ",
             tipoTrabajo: "Inspeccion",
             fechaCreacion: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
             idUbicacionTecnica: 0,
             idGrupo: 0,
-            prioridad: "Media",
+            prioridad: "MEDIA",
             frecuencia: "Semanal",
             especificacion: "",
         },
@@ -84,6 +85,7 @@ export const InspectionFormContent: React.FC<{
     const onSubmit = (data: InspeccionForm) => {
 
         const payload: CreateInspectionRequest = {
+            nombre: "Inspección - " + data.especificacion,
             tipoTrabajo: data.tipoTrabajo,
             fechaCreacion: data.fechaCreacion,
             idUbicacionTecnica: Number(data.idUbicacionTecnica),
@@ -93,31 +95,31 @@ export const InspectionFormContent: React.FC<{
             especificacion: data.especificacion,
         };
 
-        console.log(payload); 
+        console.log(payload);
 
         createInspectionMutation.mutate(payload, {
             onSuccess: () => {
-                form.reset(); 
+                form.reset();
                 onSuccess?.();
                 onClose?.();
             },
             onError: (error) => {
-                console.error(error);  
+                console.error(error);
             }
         });
 
     }
-    
+
 
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 text-left">
                 <div className="grid grid-cols-2 gap-4">
-                    
+
                     <div className="p-4 flex flex-col gap-4">
                         {/* Ubicación Técnica (usa código en el form y mapea a id en el submit) */}
-                        
+
                         <FormField
                             control={form.control}
                             name="idUbicacionTecnica"
@@ -142,11 +144,11 @@ export const InspectionFormContent: React.FC<{
                         />
 
                         {/* Supervisor (mapear a id en submit) */}
-                       
-                        
 
 
-                        
+
+
+
 
                         {/* Grupo de Trabajo (número en el form) */}
                         <FormField
@@ -220,17 +222,15 @@ export const InspectionFormContent: React.FC<{
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {PRIORIDAD_OPTS.map((prioridad) => (
-                                                <SelectItem key={prioridad} value={prioridad}>
-                                                    {prioridad}
-                                                </SelectItem>
-                                            ))}
+                                            <SelectItem value="BAJA">Baja</SelectItem>
+                                            <SelectItem value="MEDIA">Media</SelectItem>
+                                            <SelectItem value="ALTA">Alta</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </FormItem>
                             )}
                         />
-                        
+
                     </div>
                 </div>
 
@@ -241,7 +241,7 @@ export const InspectionFormContent: React.FC<{
                         name="especificacion"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Especificación</FormLabel>
+                                <FormLabel>Observación</FormLabel>
                                 <FormControl>
                                     <Textarea
                                         placeholder="Describe las tareas específicas de la inspección..."
@@ -249,12 +249,13 @@ export const InspectionFormContent: React.FC<{
                                         {...field}
                                     />
                                 </FormControl>
+                                <FormMessage />
                             </FormItem>
                         )}
                     />
                 </div>
 
-                
+
 
                 <div className="flex justify-end gap-2 mt-4">
                     {onClose && (

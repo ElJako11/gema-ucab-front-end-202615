@@ -22,8 +22,8 @@ export const useUbicaciones = () => {
 export const useUbicacionPadres = (idUbicacion?: number) => {
     return useQuery({
         queryKey: ["padresUbicacion", idUbicacion],
-        queryFn: () => 
-            idUbicacion 
+        queryFn: () =>
+            idUbicacion
                 ? ubicacionesTecnicasAPI.getPadres(idUbicacion)
                 : Promise.resolve({ data: [] }),
         enabled: !!idUbicacion,

@@ -1,3 +1,5 @@
+import { Frecuencia } from "@/lib/validations/inspeccionSchema";
+
 export type Mantenimiento = {
     id: number;
     titulo: string;
@@ -5,15 +7,15 @@ export type Mantenimiento = {
     fechaLimite: string;
     ubicacion: string;
     estado: "No empezado" | "En ejecución" | "Reprogramado" | "Culminado";
-    tipo: "Periódico" | "Por Condición";
-    especificacion: string;
-    prioridad: "Baja" | "Media" | "Alta";
+    tipo: "Periodico" | "Condicion";
+    especificacion?: string;
+    resumen?: string;
+    prioridad: "BAJA" | "MEDIA" | "ALTA";
     areaEncargada: string;
-    frecuencia?: "Diaria" | "Semanal" | "Mensual" | "Trimestral" | "Semestral" | "Anual";
+    frecuencia?: Frecuencia;
     codigoVerificacion: string;
     abreviacion: string;
     codigoArea: string;
     tituloChecklist: string | null;
     idChecklist?: number;
-    resumen?: string;
 };

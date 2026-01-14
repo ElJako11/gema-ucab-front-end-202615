@@ -42,14 +42,14 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
         defaultValues: {
             tipoTrabajo: "Mantenimiento",
             titulo: initialValues?.titulo || '',
-            prioridad: initialValues?.prioridad || 'Media',
+            prioridad: initialValues?.prioridad || 'MEDIA',
             idUbicacionTecnica: initialValues?.idUbicacionTecnica || 0,
             idGrupo: initialValues?.idGrupo || 0,
             fechaCreacion: initialValues?.fechaCreacion || new Date().toISOString().split('T')[0],
             fechaLimite: initialValues?.fechaLimite || '',
-            tipo: initialValues?.tipo || 'Periódico',
+            tipo: initialValues?.tipo || 'Periodico',
             frecuencia: initialValues?.frecuencia,
-            especificacion: initialValues?.especificacion || ''
+            resumen: initialValues?.resumen || ''
         }
     });
 
@@ -72,10 +72,10 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                 return;
             }
         }
-        
+
         const payload: CreateMantenimientoRequest = {
             tipoTrabajo: "Mantenimiento",
-            titulo: data.titulo,
+            nombre: data.titulo,
             prioridad: data.prioridad,
             fechaCreacion: data.fechaCreacion || new Date().toISOString().split('T')[0],
             fechaLimite: data.fechaLimite, // +7 días si no se especifica
@@ -83,7 +83,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
             frecuencia: data.frecuencia,
             idUbicacionTecnica: data.idUbicacionTecnica,
             idGrupo: data.idGrupo,
-            especificacion: data.especificacion ?? " "
+            resumen: data.resumen ?? " "
         }
 
         console.log("Payload to send:", payload);
@@ -124,8 +124,24 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                 </div>
 
                 <div className="p-4 grid grid-cols-2 gap-6 my-2">
-                    
+
                     <div className="flex flex-col gap-6">
+
+                        {/* Fecha de inicio */}
+                        <FormField
+                            control={form.control}
+                            name="fechaCreacion"
+                            render={({ field }) => (
+                                <FormItem >
+                                    <FormLabel>Fecha de inicio</FormLabel>
+                                    <FormControl className="w-full border-gray-200">
+                                        <Input type="date" {...field} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+
+
                         {/* Ubicación Técnica */}
                         <FormField
                             control={form.control}
@@ -135,7 +151,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                                     <FormLabel>Ubicación Técnica</FormLabel>
                                     <FormControl>
                                         <Combobox
-                                            
+
                                             data={ubicaciones?.map(u => ({
                                                 value: u.idUbicacion,
                                                 label: `${u.codigo_Identificacion} - ${u.descripcion}`
@@ -154,45 +170,33 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
 
                         {/* Grupo de Trabajo */}
                         <FormField
-                        control={form.control}
-                        name="idGrupo"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                            <FormLabel>Grupo de Trabajo</FormLabel>
-                            <FormControl>
-                                <Combobox
-                                    data={grupos?.map((grupo) => ({
-                                        value: grupo.id,
-                                        label: `${grupo.nombre} (${grupo.codigo})`,
-                                    })) || []}
-                                    value={field.value || null}
-                                    onValueChange={(value) => field.onChange(value || 0)}
-                                    placeholder="Seleccionar grupo"
-                                    searchPlaceholder="Buscar grupo..."
-                                    triggerClassName="w-full !border-gray-200 overflow-hidden text-ellipsis"
-                                    contentClassName="w-full"
-                                />
-                            </FormControl>
-                            </FormItem>
-                        )}
-                        />
-
-                        {/* Fecha de inicio */}
-                        <FormField
                             control={form.control}
-                            name="fechaCreacion"
+                            name="idGrupo"
                             render={({ field }) => (
-                                <FormItem >
-                                    <FormLabel>Fecha de inicio</FormLabel>
-                                    <FormControl className="w-full border-gray-200">
-                                        <Input type="date" {...field} />
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Grupo de Trabajo</FormLabel>
+                                    <FormControl>
+                                        <Combobox
+                                            data={grupos?.map((grupo) => ({
+                                                value: grupo.id,
+                                                label: `${grupo.nombre} (${grupo.codigo})`,
+                                            })) || []}
+                                            value={field.value || null}
+                                            onValueChange={(value) => field.onChange(value || 0)}
+                                            placeholder="Seleccionar grupo"
+                                            searchPlaceholder="Buscar grupo..."
+                                            triggerClassName="w-full  !border-gray-200"
+                                            contentClassName="w-full"
+                                        />
                                     </FormControl>
                                 </FormItem>
                             )}
                         />
 
+
+
                         {/* Frecuencia (solo si es periódico) */}
-                        {tipoMantenimiento === "Periódico" && (
+                        {tipoMantenimiento === "Periodico" && (
                             <FormField
                                 control={form.control}
                                 name="frecuencia"
@@ -210,7 +214,6 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                                                 <SelectItem value="Semanal">Semanal</SelectItem>
                                                 <SelectItem value="Mensual">Mensual</SelectItem>
                                                 <SelectItem value="Trimestral">Trimestral</SelectItem>
-                                                <SelectItem value="Semestral">Semestral</SelectItem>
                                                 <SelectItem value="Anual">Anual</SelectItem>
                                             </SelectContent>
                                         </Select>
@@ -219,10 +222,22 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                             />
                         )}
                     </div>
-                    
+
                     <div className="flex flex-col gap-6">
-                        {/* Supervisor */}
-                        
+                        {/* Fecha de finalización */}
+                        <FormField
+                            control={form.control}
+                            name="fechaLimite"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Fecha de finalización</FormLabel>
+                                    <FormControl className="w-full border-gray-200">
+                                        <Input type="date" {...field} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+
 
                         {/* Prioridad */}
                         <FormField
@@ -238,26 +253,11 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="Baja">Baja</SelectItem>
-                                            <SelectItem value="Media">Media</SelectItem>
-                                            <SelectItem value="Alta">Alta</SelectItem>
+                                            <SelectItem value="BAJA">Baja</SelectItem>
+                                            <SelectItem value="MEDIA">Media</SelectItem>
+                                            <SelectItem value="ALTA">Alta</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Fecha de finalización */}
-                        <FormField
-                            control={form.control}
-                            name="fechaLimite"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Fecha de finalización</FormLabel>
-                                    <FormControl className="w-full border-gray-200">
-                                        <Input type="date" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -276,24 +276,24 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent >
-                                            <SelectItem value="Periódico">Periódico</SelectItem>
-                                            <SelectItem value="Por Condición">Por Condición</SelectItem>
+                                            <SelectItem value="Periodico">Periodico</SelectItem>
+                                            <SelectItem value="Condicion">Por Condición</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </FormItem>
                             )}
                         />
-                    </div>                    
+                    </div>
                 </div>
-                 
+
 
                 {/* Resumen */}
                 <FormField
                     control={form.control}
-                    name="especificacion"
+                    name="resumen"
                     render={({ field }) => (
                         <FormItem className="p-4">
-                            <FormLabel>Especificacion</FormLabel>
+                            <FormLabel>Resumen</FormLabel>
                             <FormControl >
                                 <Textarea
                                     placeholder="Describa el mantenimiento..."

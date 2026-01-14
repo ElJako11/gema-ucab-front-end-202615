@@ -1,21 +1,18 @@
 import React from 'react';
 import { Modal } from "@/components/ui/modal";
-import { MaintenanceFormContent } from './MaintenanceFormContent';
+import { EditarMantenimientoFormContent } from './EditarMantenmientoContent';
+import type { Mantenimiento } from "@/types/mantenimientos.types";
+
 
 interface EditMaintenanceModalProps {
     open: boolean;
     onClose: () => void;
-    // We can accept onConfirm if we want the external page to handle the submit, 
-    // but the form content has its own save button styling. 
-    // For now, let's just make it render the content.
     onConfirm?: () => void;
-    maintenanceName?: string; // Optional now as we show full form
-    maintenanceId?: number; // Optional maintenance ID
-    data?: any; // The data to populate the form
-
+    data:Mantenimiento,
+    mantenimientoId: number,
 }
 
-export const EditMaintenanceModal: React.FC<EditMaintenanceModalProps> = ({ open, onClose, data, maintenanceId, maintenanceName }) => {
+export const EditMaintenanceModal: React.FC<EditMaintenanceModalProps> = ({ open, onClose, data,mantenimientoId }) => {
     return (
         <Modal
             isOpen={open}
@@ -24,7 +21,7 @@ export const EditMaintenanceModal: React.FC<EditMaintenanceModalProps> = ({ open
             className="bg-white max-w-4xl" // Expanded width for the form
             contentClassName="pt-6"
         >
-            <MaintenanceFormContent initialValues={data} maintenanceId={maintenanceId} maintenanceName={maintenanceName} onClose={onClose} />
+            <EditarMantenimientoFormContent initialValues={data} onClose={onClose} mantenimientoId={mantenimientoId}/>
         </Modal>
     );
 };

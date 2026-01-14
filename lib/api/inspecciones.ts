@@ -7,14 +7,14 @@ interface inspeccionRequest {
 
 export const InspeccionAPI = {
     async getDetalle(id: number): Promise<any> {
-        return apiClient.get<ResumenInspeccion>(`/inspecciones/${id}`);
+        return apiClient.get<any>(`/inspecciones/${id}`);
     },
 
     async delete(id: number): Promise<any> {
         return apiClient.delete<any>(`/inspecciones/${id}`);
     },
-    
-    async getResumen(id:number): Promise<ResumenInspeccion> {
+
+    async getResumen(id: number): Promise<ResumenInspeccion> {
         return apiClient.get<ResumenInspeccion>(`/inspecciones/resumen/${id}`)
     }
 }
