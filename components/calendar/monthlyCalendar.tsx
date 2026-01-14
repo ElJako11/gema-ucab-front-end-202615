@@ -200,8 +200,7 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
                                 key={index}
                                 onClick={() => handleDayClick(item)}
                                 className={`
-                                        group relative min-h-30 max-w-full p-2 rounded-lg flex flex-col gap-2 transition-all hover:ring-2 hover:ring-blue-100 cursor-pointer 
-                                        ${item.actual ? 'bg-gema-lightgrey hover:bg-gray-50' : 'bg-gema-darkgrey cursor-default'}
+                                        
                                         relative min-h-30 max-w-full p-2 rounded-lg flex flex-col gap-2 transition-all hover:ring-2 hover:ring-blue-100 cursor-pointer 
                                         ${!item.actual ? 'bg-gema-darkgrey cursor-default' : isPastDay ? 'bg-gema-darkgrey' : 'bg-gema-lightgrey hover:bg-gray-50'}
                                     `}
