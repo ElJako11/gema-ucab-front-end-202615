@@ -19,7 +19,7 @@ export const InspectionSummaryModal: React.FC<InspectionSummaryModalProps> = ({ 
         return <div>Cargando...</div>
     }
 
-    const resumen = (data && data.length > 0) ? data[0] : null;
+    const resumen = data || null;
 
 
     return (
