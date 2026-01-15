@@ -145,7 +145,7 @@ export default function InspeccionDetalle() {
                     <h3 className="font-bold text-lg mb-4">Programación de Inspección</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-2">
-                            <span className="font-bold">Fecha de creación</span>
+                            <span className="font-bold">Fecha de Incio</span>
                             <div className="p-3 border border-slate-300 rounded-md text-slate-700 font-medium">
                                 {data?.fechaCreacion}
                             </div>

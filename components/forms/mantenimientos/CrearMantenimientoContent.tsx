@@ -276,7 +276,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent >
-                                            <SelectItem value="Periodico">Periodico</SelectItem>
+                                            <SelectItem value="Periodico">Periódico</SelectItem>
                                             <SelectItem value="Condicion">Por Condición</SelectItem>
                                         </SelectContent>
                                     </Select>

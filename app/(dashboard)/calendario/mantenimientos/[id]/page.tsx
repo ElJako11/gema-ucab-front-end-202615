@@ -115,7 +115,7 @@ export default function MantenimientoDetalle() {
                         <h3 className="font-bold text-lg">Tipo</h3>
                         <div className="flex items-center gap-2 px-4 py-2 bg-slate-200 text-slate-700 rounded-md border border-slate-300 w-fit font-medium">
                             <Wrench className="w-5 h-5" />
-                            {data.tipo}
+                            {data.tipo === "Periodico" ? "Periódico" : data.tipo}
                         </div>
                     </div>
                 </div>
@@ -157,7 +157,7 @@ export default function MantenimientoDetalle() {
                     <h3 className="font-bold text-lg mb-4">Programación del mantenimiento</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-2">
-                            <span className="font-bold">Fecha de creación</span>
+                            <span className="font-bold">Fecha de Inicio</span>
                             <div className="p-3 border border-slate-300 rounded-md text-slate-700 font-medium">
                                 {data.fechaCreacion}
                             </div>
