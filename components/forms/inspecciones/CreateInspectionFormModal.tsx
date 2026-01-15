@@ -68,6 +68,7 @@ export const InspectionFormContent: React.FC<{
             prioridad: "MEDIA",
             frecuencia: "Semanal",
             especificacion: "",
+            fechaInicio: "",
         },
         mode: "onSubmit",
         reValidateMode: "onSubmit",
@@ -119,7 +120,7 @@ export const InspectionFormContent: React.FC<{
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 text-left">
                 {/* Nombre de la inspeccíon  */}
-                    
+
                 <div className="px-4">
                     <FormField
                         control={form.control}
@@ -134,10 +135,10 @@ export const InspectionFormContent: React.FC<{
                         )}
                     />
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 flex flex-col gap-4">
-                        
+
                         {/* Grupo de trabajo   */}
                         <FormField
                             control={form.control}
@@ -163,7 +164,7 @@ export const InspectionFormContent: React.FC<{
                             )}
                         />
 
-        
+
                         {/* Grupo de Trabajo (número en el form) */}
                         <FormField
                             control={form.control}
