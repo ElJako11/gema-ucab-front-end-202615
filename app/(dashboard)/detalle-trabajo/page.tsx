@@ -43,7 +43,7 @@ const ChecklistPage = () => {
   const checklistData: Checklist = {
     id: plantilla.id,
     titulo: plantilla.plantilla,
-    ubicacion: "Ubicación por definir",
+    ubicacion: "",
     tareas: plantilla.actividades || [],
     idTrabajo: 0
   };

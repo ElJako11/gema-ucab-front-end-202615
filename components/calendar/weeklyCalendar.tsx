@@ -307,12 +307,9 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
                 {
                   exactDate.toDateString() === new Date().toDateString() ? (
                     <div className="flex justify-center mt-1">
-                        <div className="relative flex items-center justify-center w-30 h-10">
-                            <div className="absolute inset-0  bg-linear-to-r from-gema-yellow via-gema-blue to-gema-green blur-[2px] opacity-65" />
-                            <span className="relative z-10 text-2xl font-bold text-gray-900">
-                                {diaItem.fecha}
-                            </span>
-                        </div>
+                      <span className="text-3xl font-bold text-gema-green">
+                        {diaItem.fecha}
+                      </span>
                     </div>
                   ) : (
                     <span className="block text-3xl font-bold text-gray-900 mt-1">
