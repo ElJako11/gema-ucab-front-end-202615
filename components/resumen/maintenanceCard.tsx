@@ -19,7 +19,7 @@ const MaintenanceCard = ({
     const statusStyles = {
         'No empezado': 'bg-white text-black',
         'Reprogramado': 'bg-gema-yellow text-black',
-        'En Ejecución': 'bg-gema-blue text-black',
+        'En ejecución': 'bg-gema-blue text-black',
         'Culminado': 'bg-gema-green text-black',
     };
     return (
