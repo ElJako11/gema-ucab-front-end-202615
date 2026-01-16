@@ -76,7 +76,7 @@ export const EditarMantenimientoFormContent: React.FC<MaintenanceFormContentProp
 
         const payload: EditMantenimientoRequest = {
             id: mantenimientoId,
-            titulo: data.titulo,
+            nombre: data.titulo,
             prioridad: data.prioridad?.toUpperCase(),
             fechaLimite: data.fechaLimite,
             tipo: data.tipo === "Periodico" ? "Periodico" : "Condicion",

@@ -8,7 +8,8 @@ import type { resumen } from "@/types/resume.types";
 import { useSearchParams } from "next/navigation";
 import {
     Calendar,
-    Upload
+    Upload,
+    Loader2
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import InspeccionCard from "@/components/resumen/inspeccionCard";
@@ -42,6 +43,9 @@ const resumen = () => {
 
     // Este estado controla qué se mostrara en el resumen
     const [filtroActivo, setFiltroActivo] = useState('todos');
+
+    // Estado para controlar la carga de la exportación del PDF
+    const [isExporting, setIsExporting] = useState(false);
 
     // Formatear la fecha para la API (YYYY-MM-DD)
     const apiDateParams = useMemo(() => {
@@ -172,26 +176,34 @@ const resumen = () => {
     });
 
     const handleExport = async () => {
+        setIsExporting(true);
         try {
+            // Aseguramos que el loading se vea al menos 1 segundo para mejor UX
+            const minTimePromise = new Promise(resolve => setTimeout(resolve, 1000));
 
             // response SERÁ el objeto Blob directamente gracias al cambio en client.ts
-            const blob = await exportResumenPDF(apiDateParams, vistaActual);
+            const [blob] = await Promise.all([
+                exportResumenPDF(apiDateParams, vistaActual),
+                minTimePromise
+            ]);
 
             // Crear URL y descargar
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `pdf`);
+            link.setAttribute('download', `resumen_${vistaActual}_${apiDateParams}.pdf`);
             document.body.appendChild(link);
             link.click();
 
             link.parentNode?.removeChild(link);
             window.URL.revokeObjectURL(url);
-            
-        
+
+
         } catch (error) {
             console.error("Error al exportar PDF:", error);
-     
+
+        } finally {
+            setIsExporting(false);
         }
     };
 
@@ -205,9 +217,11 @@ const resumen = () => {
                 <Button
                     className="bg-gema-green/80 hover:bg-gema-green text-primary-foreground"
                     onClick={handleExport}
+                    disabled={isExporting}
                 >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Exportar
+                    {!isExporting && <Upload className="mr-2 h-4 w-4" />}
+                    {isExporting ? "Exportando..." : "Exportar"}
+                    {isExporting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
                 </Button>
             </div>
             <div className="w-full flex justify-end items-center gap-4 mb-4">

@@ -16,7 +16,7 @@ export interface CreateMantenimientoRequest {
 
 export interface EditMantenimientoRequest {
     id: number;
-    titulo?: string;
+    nombre?: string;
     prioridad?: string;
     fechaCreacion?: string;
     fechaLimite?: string;
