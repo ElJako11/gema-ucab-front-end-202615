@@ -29,18 +29,21 @@ export default function MantenimientoDetalle() {
     const [addChecklistModalOpen, setAddChecklistModalOpen] = useState(false);
     const [editChecklistModalOpen, setEditChecklistModalOpen] = useState(false);
     const [deleteChecklistModalOpen, setDeleteChecklistModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Obtener el ID de la URL
     const params = useParams();
     const id = parseInt(params.id as string);
 
     // Usar el hook para obtener datos del mantenimiento
-    const { data: maintenanceData, isLoading, error } = useMantenimientoDetalle(id);
+    const { data: maintenanceData, isLoading, error } = useMantenimientoDetalle(id, {
+        enabled: !isDeleting
+    });
 
     // Obtener datos del checklist
     // Solo intentar buscar checklist si el mantenimiento tiene uno asociado
     const { data: checklistData } = useGetAllChecklistItem("mantenimientos", id, {
-        enabled: !!maintenanceData && !!maintenanceData.idChecklist
+        enabled: !!maintenanceData && !!maintenanceData.idChecklist && !isDeleting
     });
 
     // Estados de carga y error
@@ -238,7 +241,11 @@ export default function MantenimientoDetalle() {
             <DeleteMaintenanceModal
                 open={deleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
-                onConfirm={() => { toast.success("Mantenimiento eliminado con éxito"); setDeleteModalOpen(false); }}
+                onConfirm={() => {
+                    setIsDeleting(true);
+                    toast.success("Mantenimiento eliminado con éxito");
+                    setDeleteModalOpen(false);
+                }}
                 maintenanceName={data.titulo}
                 maintenanceId={id}
             />

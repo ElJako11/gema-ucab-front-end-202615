@@ -10,9 +10,9 @@ export const useDeleteMantenimiento = (id: number) => {
         mutationFn: (id: number) => mantenimientosAPI.delete(id),
 
         //En caso de ser existosa 
-        onSuccess: (_data, variables) => {
+        onSuccess: async (_data, variables) => {
             // Evitamos que intente volver a buscar el mantenimiento eliminado
-            queryClient.cancelQueries({ queryKey: ["mantenimiento", "detalle", variables] });
+            await queryClient.cancelQueries({ queryKey: ["mantenimiento", "detalle", variables] });
             queryClient.setQueryData(["mantenimiento", "detalle", variables], null);
 
             //invalidamos las consulta relacionadas para que la lista se refresque 

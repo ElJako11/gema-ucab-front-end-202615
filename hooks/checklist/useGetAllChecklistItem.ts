@@ -6,5 +6,6 @@ export const useGetAllChecklistItem = (type: string, checklistId: number, option
         queryKey: ["checklistItems", type, checklistId],
         queryFn: () => getChecklistItems(type, checklistId),
         enabled: options?.enabled,
+        retry: false,
     });
 };  
