@@ -21,7 +21,6 @@ export const InspectionSummaryModal: React.FC<InspectionSummaryModalProps> = ({ 
 
     const resumen = data || null;
 
-
     return (
         <Modal
             isOpen={open}
