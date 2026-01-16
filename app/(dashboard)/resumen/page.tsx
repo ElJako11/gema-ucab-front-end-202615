@@ -27,7 +27,7 @@ const opcionesFiltro = [
     { id: 'todos', label: 'Todos', color: null },
     { id: 'no-empezado', label: 'No empezado', color: 'bg-gema-darkgrey' },
     { id: 'reprogramado', label: 'Reprogramado', color: 'bg-gema-yellow' },
-    { id: 'en-ejecucion', label: 'En ejecucion', color: 'bg-gema-blue' },
+    { id: 'en-ejecucion', label: 'En Ejecución', color: 'bg-gema-blue' },
     { id: 'culminado', label: 'Culminado', color: 'bg-gema-green' },
 ];
 
