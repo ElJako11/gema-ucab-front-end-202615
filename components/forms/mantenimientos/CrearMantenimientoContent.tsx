@@ -46,7 +46,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
             idUbicacionTecnica: initialValues?.idUbicacionTecnica || 0,
             idGrupo: initialValues?.idGrupo || 0,
             fechaCreacion: initialValues?.fechaCreacion || new Date().toISOString().split('T')[0],
-            fechaLimite: initialValues?.fechaLimite,
+            fechaLimite: initialValues?.fechaLimite || '',
             tipo: initialValues?.tipo,
             frecuencia: initialValues?.frecuencia,
             resumen: initialValues?.resumen || ''

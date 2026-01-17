@@ -15,6 +15,10 @@ export const useDeleteMantenimiento = (id: number) => {
             await queryClient.cancelQueries({ queryKey: ["mantenimiento", "detalle", variables] });
             queryClient.setQueryData(["mantenimiento", "detalle", variables], null);
 
+            // También limpiamos el checklist asociado para evitar errores 404
+            await queryClient.cancelQueries({ queryKey: ["checklistItems", "mantenimientos", variables] });
+            queryClient.setQueryData(["checklistItems", "mantenimientos", variables], null);
+
             //invalidamos las consulta relacionadas para que la lista se refresque 
             queryClient.invalidateQueries({ queryKey: ["mantenimientos"] });
             queryClient.invalidateQueries({ queryKey: ["calendario"] });
