@@ -64,7 +64,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
         if (data.fechaCreacion && data.fechaLimite) {
             const inicio = new Date(data.fechaCreacion);
             const fin = new Date(data.fechaLimite);
-            if (fin <= inicio) {
+            if (fin < inicio) {
                 form.setError("fechaLimite", {
                     type: "manual",
                     message: "La fecha de finalización debe ser posterior a la fecha de inicio",

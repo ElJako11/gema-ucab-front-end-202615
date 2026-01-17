@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useCreateUsuario } from "@/hooks/usuarios/useCreateUsuario";
+import { useUsuarios } from "@/hooks/usuarios/useUsuarios";
 
 const usuarioSchema = z.object({
     nombre: z.string().min(1, "El nombre es requerido"),
@@ -41,8 +42,16 @@ export const CreateUsuarioForm: React.FC<CreateUsuarioFormProps> = ({
     const { errors } = form.formState;
 
     const createUsuarioMutation = useCreateUsuario();
+    const { usuarios } = useUsuarios();
 
     const handleSubmit = (values: z.infer<typeof usuarioSchema>) => {
+        // Validar si el correo ya existe en la lista de usuarios cargada (verificación frontend)
+        if (usuarios && usuarios.some(u => u.correo.toLowerCase() === values.correo.trim().toLowerCase())) {
+            form.setError("correo", { type: "manual", message: "Este correo ya está asignado a un usuario" });
+            form.setFocus("correo");
+            return;
+        }
+
         createUsuarioMutation.mutate({
             nombre: values.nombre,
             correo: values.correo,
@@ -56,8 +65,10 @@ export const CreateUsuarioForm: React.FC<CreateUsuarioFormProps> = ({
             onError: (error) => {
                 const message = error instanceof Error ? error.message : "Error al crear usuario";
                 const lower = message.toLowerCase();
-                if (lower.includes("correo") || lower.includes("email")) {
-                    form.setError("correo", { type: "manual", message: "El correo electrónico ya está en uso" });
+                
+                // Catch duplicates (often 500 or specific message)
+                if (lower.includes("correo") || lower.includes("email") || lower.includes("error interno") || lower.includes("server error")) {
+                    form.setError("correo", { type: "manual", message: "Este correo ya está asignado a un usuario" });
                     form.setFocus("correo");
                 }
             }

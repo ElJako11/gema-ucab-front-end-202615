@@ -115,7 +115,8 @@ class ApiClient {
       case 422:
         return data.errors?.join(', ') || 'Datos inválidos';
       case 500:
-        console.error('Server Error:', data);
+        // Usamos warn en vez de error para evitar que Next.js muestre la superposición de error en desarrollo
+        console.warn('Server Error (500):', data);
         return 'Error interno del servidor';
       default:
         return data.message || `Error ${status}`;

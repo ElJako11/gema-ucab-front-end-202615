@@ -9,31 +9,21 @@ import {
     User
 } from "lucide-react";
 
-import {
-    fetchUsuarios as getAllUsuarios,
-} from "@/services/usuarios";
-
-
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 import { CreateUsuarioForm } from "@/components/forms/usuarios/CreateUsuarioForm";
 import { EditUsuarioForm } from "@/components/forms/usuarios/EditUsuarioForm";
 import { EliminarUsuarioForm } from "@/components/forms/usuarios/EliminarUsuarioForm";
 import { Usuario } from "@/types/usuarios.types";
+import { useUsuarios } from "@/hooks/usuarios/useUsuarios";
 
 const RegistroUsuarios: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [usuarioEditar, setUsuarioEditar] = useState<any | null>(null);
     const [usuarioEliminar, setUsuarioEliminar] = useState<any | null>(null);
 
-    const usuariosQuery = useQuery({
-        queryKey: ["usuarios"],
-        queryFn: () => getAllUsuarios(),
-    });
-
-    const isLoading = usuariosQuery.isLoading;
+    const { usuarios, isLoading } = useUsuarios();
 
     if (isLoading) {
         return (
@@ -94,8 +84,8 @@ const RegistroUsuarios: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {usuariosQuery.data?.map((usuario: Usuario) => (
-                            <tr key={usuario.id}>
+                        {usuarios?.map((usuario: Usuario) => (
+                            <tr key={usuario.id || usuario.correo}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     <div className="flex items-center gap-2">
                                         <User className="h-5 w-5 text-gray-500" />
@@ -148,9 +138,9 @@ const RegistroUsuarios: React.FC = () => {
 
                 {/* Cards en móvil */}
                 <div className="md:hidden space-y-4">
-                    {usuariosQuery.data?.map((usuario: Usuario) => (
+                    {usuarios?.map((usuario: Usuario) => (
                         <div
-                            key={usuario.id}
+                            key={usuario.id || usuario.correo}
                             className="bg-white p-4 rounded-lg shadow border border-gray-200"
                         >
                             <div className="space-y-3">
