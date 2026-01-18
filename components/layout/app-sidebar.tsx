@@ -112,7 +112,7 @@ export function AppSidebar() {
                   <span className="text-[1.05rem] font-semibold text-wrap!">
                     {user?.Nombre || "Usuario"}
                   </span>
-                  <span className="text-sm">Coordinador</span>
+                  <span className="text-sm">{user?.Tipo || "Rol no definido"}</span>
                 </div>
               </div>
             </SidebarMenuButton>
