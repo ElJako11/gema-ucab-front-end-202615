@@ -14,7 +14,8 @@ import {
     Trash2,
     Plus,
     ArrowLeft,
-    CornerUpRight
+    CornerUpRight,
+    Clock
 } from "lucide-react";
 import Link from 'next/link';
 import { useInspeccionDetalle } from '@/hooks/inspecciones/useInspecciones';
@@ -99,6 +100,14 @@ export default function InspeccionDetalle() {
 
                 {/* Status & Supervisor Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 w-full md:w-2/3">
+                    {/* Estado */}
+                    <div className="space-y-2">
+                        <h3 className="font-bold text-lg">Estado</h3>
+                        <div className="flex items-center gap-2 px-4 py-2 bg-sky-100 text-sky-700 rounded-md border border-sky-200 w-fit font-medium">
+                            <Clock className="w-5 h-5" />
+                            {data.estado}
+                        </div>
+                    </div>
                     {/* Supervisor */}
                     <div className="space-y-2">
                         <h3 className="font-bold text-lg">Supervisor</h3>
