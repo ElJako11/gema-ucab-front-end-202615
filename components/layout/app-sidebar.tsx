@@ -2,7 +2,8 @@
 'use client'
 
 import { useEffect, useRef } from "react"
-import { LogOut, MapPin, UserCircle, Users, UserPlus, FileText, ClipboardCheck, Calendar, User, BarChart3, File } from "lucide-react"
+import { LogOut, MapPin, Users, UserPlus, FileText, ClipboardCheck, Calendar, User, BarChart3, File } from "lucide-react"
+import Image from "next/image"
 import {
   Sidebar,
   SidebarContent,
@@ -119,7 +120,15 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <div className="py-4 px-10 flex items-center h-fit">
-                <UserCircle size={24} />
+                <div className="mr-3">
+                  <Image
+                    src="/favicon.ico"
+                    alt="Gema Logo"
+                    width={32}
+                    height={32}
+                    className="object-contain"
+                  />
+                </div>
                 <div className="flex flex-col group-data-[collapsible=icon]:hidden">
                   <span className="text-[1.05rem] font-semibold text-wrap!">
                     {user?.nombre || "Usuario"}
