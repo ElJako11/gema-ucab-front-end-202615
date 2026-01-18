@@ -2,7 +2,7 @@
 
 import { File } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
 
 export default function VerManualDialog({
@@ -45,6 +45,9 @@ export default function VerManualDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
+        <DialogTitle className="text-lg font-semibold text-center">
+          Guía de Ubicaciones
+        </DialogTitle>
         <div className="space-y-4 p-4">
           <p className="text-center text-sm">
             Antes de empezar, te recomendamos leer la guía de ubicaciones
