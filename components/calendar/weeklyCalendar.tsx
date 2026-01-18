@@ -415,7 +415,7 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
                   ) : (
                     tareasFiltradas.map((tarea) => (
                       <div
-                        key={tarea.id}
+                        key={`${tarea.tipo}-${tarea.id}`}
                         onClick={() => handleTaskClick(tarea, exactDate)}
                         className={`
                                 relative p-3 rounded-r-xl rounded-l-sm border-l-[6px] shadow-sm transition-opacity
