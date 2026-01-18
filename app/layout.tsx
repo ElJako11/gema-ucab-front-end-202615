@@ -1,6 +1,6 @@
 // app/layout.tsx
 import type { Metadata } from 'next'
-import { Poppins, Inter } from 'next/font/google'
+// import { Poppins, Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '../lib/auth/context'
 import { QueryProvider } from '@/lib/providers/query-providers'
@@ -8,16 +8,16 @@ import { Toaster } from 'react-hot-toast'
 import { SidebarProvider } from '@/components/sidebar/sidebar' // ← AÑADE ESTO
 
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter'
-})
+// const inter = Inter({
+//   subsets: ['latin'],
+//   variable: '--font-inter'
+// })
 
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-poppins'
-})
+// const poppins = Poppins({
+//   subsets: ['latin'],
+//   weight: ['300', '400', '500', '600', '700'],
+//   variable: '--font-poppins'
+// })
 
 export const metadata: Metadata = {
   title: 'GEMA',
@@ -31,7 +31,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className={`${poppins.variable} ${inter.variable}`}>
+      <body className={`font-sans antialiased`}>
         <QueryProvider>
           <AuthProvider>
             <SidebarProvider> {/* ← ENVUELVE CON ESTO */}

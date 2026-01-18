@@ -128,6 +128,19 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
         return inspeccionesDelDia.length > 0;
     };
 
+    // Helper para verificar si hay proyecciones en una fecha
+    const hasProjections = (date: Date, tipo: 'Mantenimiento' | 'Inspeccion') => {
+        const dateStr = date.toISOString().split('T')[0];
+        const list = tipo === 'Mantenimiento' ? mantenimientos : inspecciones;
+
+        const projections = list.filter((item: any) => {
+            const fechaProj = item.fechaProximaGeneracion ? item.fechaProximaGeneracion.split('T')[0] : '';
+            return fechaProj === dateStr;
+        });
+
+        return projections.length > 0;
+    };
+
     // Generar días del calendario basándose en la fecha actual
     const diasCalendario = generateCalendarDays(currentDate);
 
@@ -186,6 +199,8 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
                     {diasCalendario.map((item, index) => {
                         const tieneMantenimientos = hasMantenimientos(item.date);
                         const tieneInspecciones = hasInspecciones(item.date);
+                        const tieneProyeccionMantenimiento = hasProjections(item.date, 'Mantenimiento');
+                        const tieneProyeccionInspeccion = hasProjections(item.date, 'Inspeccion');
                         const isToday = item.date.toDateString() === new Date().toDateString();
 
                         // Verifica si el dia es pasado
@@ -218,7 +233,7 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
                                     </span>
 
                                     {/* Iconos de contenido */}
-                                    <div className="flex gap-1">
+                                    <div className="flex gap-1 flex-wrap">
                                         {/* Icono de Mantenimientos (azul) */}
                                         {(filtroActivo === 'todos' || filtroActivo === 'mantenimientos') &&
                                             tieneMantenimientos && (
@@ -229,6 +244,18 @@ const MonthlyCalendar = ({ onDayClick }: MonthlyCalendarProps) => {
                                         {(filtroActivo === 'todos' || filtroActivo === 'inspecciones') &&
                                             tieneInspecciones && (
                                                 <FileSearchCorner className="w-7 h-7 text-gema-green" />
+                                            )}
+
+                                        {/* Icono de Proyecciones Mantenimientos (azul transparente) */}
+                                        {(filtroActivo === 'todos' || filtroActivo === 'mantenimientos') &&
+                                            tieneProyeccionMantenimiento && (
+                                                <FileCog className="w-7 h-7 text-gema-blue opacity-40" />
+                                            )}
+
+                                        {/* Icono de Proyecciones Inspecciones (verde transparente) */}
+                                        {(filtroActivo === 'todos' || filtroActivo === 'inspecciones') &&
+                                            tieneProyeccionInspeccion && (
+                                                <FileSearchCorner className="w-7 h-7 text-gema-green opacity-40" />
                                             )}
                                     </div>
                                 </div>
