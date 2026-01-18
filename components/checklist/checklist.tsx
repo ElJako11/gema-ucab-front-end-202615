@@ -132,14 +132,16 @@ const ChecklistComp = ({ checklist, onBack, isTemplate = false }: ChecklistProps
                     <p className="text-slate-500 ml-10 font-medium">{checklist.ubicacion}</p>
                 </div>
 
-                <Button
-                    className="bg-sidebar-border text-black hover:bg-gray-300"
-                    onClick={handleExport}
-                    disabled={isExporting}
-                >
-                    {isExporting ? <Loader2 className="animate-spin" size={18} /> : <Share size={18} />}
-                    <span>{isExporting ? "Exportando..." : "Exportar"}</span>
-                </Button>
+                {!isTemplate && (
+                    <Button
+                        className="bg-sidebar-border text-black hover:bg-gray-300"
+                        onClick={handleExport}
+                        disabled={isExporting}
+                    >
+                        {isExporting ? <Loader2 className="animate-spin" size={18} /> : <Share size={18} />}
+                        <span>{isExporting ? "Exportando..." : "Exportar"}</span>
+                    </Button>
+                )}
             </header>
 
             {/* PROGRESO */}
