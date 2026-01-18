@@ -22,10 +22,10 @@ import Link from "next/link"
 type UserRole = 'SUPERVISOR' | 'COORDINADOR' | 'DIRECTOR';
 
 interface MenuItem {
-    icon: any;
-    label: string;
-    path: string;
-    roles?: UserRole[]; // Roles permitidos para ver este ítem. Si no se define, es público para todos los logueados.
+  icon: any;
+  label: string;
+  path: string;
+  roles?: UserRole[]; // Roles permitidos para ver este ítem. Si no se define, es público para todos los logueados.
 }
 
 const items: MenuItem[] = [
@@ -94,16 +94,13 @@ export function AppSidebar() {
       // 1. Ejecutar la lógica del contexto (que llama a la API)
       await logout()
 
-      // 2. Redirigir al login
-      router.push("/login")
-
-      // 3. Refrescar para limpiar cachés de Next.js
-      router.refresh()
+      // 2. Redirigir al login forzando recarga
+      window.location.href = "/login"
 
     } catch (error) {
       console.error("Error al cerrar sesión:", error)
       // Fallback en caso de error crítico
-      router.push("/login")
+      window.location.href = "/login"
     }
   }
 
@@ -142,10 +139,10 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarMenu>
           {items.filter(item => {
-             if (!item.roles) return true;
-             // Normalizar el rol del usuario a mayúsculas para comparar
-             const currentRole = user?.tipo?.toUpperCase() as UserRole;
-             return item.roles.includes(currentRole);
+            if (!item.roles) return true;
+            // Normalizar el rol del usuario a mayúsculas para comparar
+            const currentRole = user?.tipo?.toUpperCase() as UserRole;
+            return item.roles.includes(currentRole);
           }).map((item) => (
             <SidebarMenuItem key={item.label}>
               <SidebarMenuButton
