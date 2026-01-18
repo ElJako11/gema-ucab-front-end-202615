@@ -96,7 +96,7 @@ export const InspectionFormContent: React.FC<{
             idGrupo: Number(data.idGrupo),
             prioridad: data.prioridad,
             frecuencia: data.frecuencia,
-            especificacion: data.especificacion,
+            observacion: data.especificacion,
         };
 
         console.log(payload);

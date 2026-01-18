@@ -103,7 +103,7 @@ export default function InspeccionDetalle() {
                     <div className="space-y-2">
                         <h3 className="font-bold text-lg">Supervisor</h3>
                         <div className="p-2 bg-slate-200/50 rounded-md border border-slate-300 font-medium text-slate-700 min-w-[200px]">
-                            {data.supervisor}
+                            {data.supervisor ? data.supervisor : "Sin supervisor asignado"}
                         </div>
                     </div>
                 </div>
@@ -114,7 +114,7 @@ export default function InspeccionDetalle() {
                 <div className="mb-8">
                     <h3 className="font-bold text-lg mb-3">Observación</h3>
                     <div className="p-4 border border-slate-300 rounded-lg text-slate-700 min-h-[60px]">
-                        {data?.observacion}
+                        {data?.observacion ? data.observacion : "Sin observaciones"}
                     </div>
                 </div>
 

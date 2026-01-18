@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -32,7 +32,7 @@ export const EditarMantenimientoFormContent: React.FC<MaintenanceFormContentProp
 
 
     //tipo de mantenimiento a mostrar 
-    const [tipo,setTipo] = React.useState<string>(initialValues.tipo);
+    const [tipo, setTipo] = React.useState<string>(initialValues.tipo);
 
     const mutation = useUpdateMantenimiento(mantenimientoId);
 
@@ -45,8 +45,8 @@ export const EditarMantenimientoFormContent: React.FC<MaintenanceFormContentProp
             prioridad: initialValues.prioridad,
             fechaLimite: initialValues.fechaLimite,
             tipo: initialValues.tipo,
-            frecuencia: initialValues.frecuencia,
-            resumen: initialValues.resumen,
+            frecuencia: initialValues.frecuencia || undefined,
+            resumen: initialValues.resumen || "",
         }
     });
 
@@ -128,9 +128,9 @@ export const EditarMantenimientoFormContent: React.FC<MaintenanceFormContentProp
                                     <FormLabel>Tipo de mantenimiento</FormLabel>
                                     <Select onValueChange={(value) => {
                                         field.onChange(value);
-                                        setTipo(value); 
-                                    }} 
-                                            value={field.value}>
+                                        setTipo(value);
+                                    }}
+                                        value={field.value}>
                                         <FormControl>
                                             <SelectTrigger className="w-3/4">
                                                 <SelectValue placeholder="Tipo de mantenimiento" />
@@ -146,7 +146,7 @@ export const EditarMantenimientoFormContent: React.FC<MaintenanceFormContentProp
                             )}
                         />
 
-                        
+
                         {/* Prioridad */}
                         <FormField
                             control={form.control}

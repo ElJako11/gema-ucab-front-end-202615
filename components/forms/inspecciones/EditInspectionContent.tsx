@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -20,7 +21,8 @@ const AREA_OPTIONS = ["Electricidad", "Infraestructura", "Mecanica", "Refrigerac
 //Esquema de validación 
 export const inspeccionSchema = z.object({
     frecuencia: z.enum(FRECUENCIA_OPTS),
-    especificacion: z.string()
+    especificacion: z.string(),
+    fechaCreacion: z.string().optional()
 });
 
 type InspeccionForm = z.infer<typeof inspeccionSchema>;
@@ -36,9 +38,9 @@ export const InspectionFormContent: React.FC<{
     const form = useForm<InspeccionForm>({
         resolver: zodResolver(inspeccionSchema),
         defaultValues: {
-            prioridad: initialData.prioridad,
             frecuencia: initialData.frecuencia,
             especificacion: initialData.observacion,
+            fechaCreacion: initialData.fechaCreacion ? new Date(initialData.fechaCreacion).toISOString().split('T')[0] : undefined
         },
         mode: "onSubmit",
         reValidateMode: "onSubmit",
@@ -53,9 +55,12 @@ export const InspectionFormContent: React.FC<{
     const onSubmit = (data: InspeccionForm) => {
 
         const payload: EditInspectionRequest = {
-            id: initialData.idInspeccion,
+            idMantenimiento: "0",
+            idInspeccion: initialData.idInspeccion.toString(),
             frecuencia: data.frecuencia,
-            especificacion: data.especificacion,
+            observacion: data.especificacion,
+            fechaCreacion: data.fechaCreacion,
+            prioridad: initialData.prioridad
         };
 
         console.log(payload);
@@ -88,7 +93,7 @@ export const InspectionFormContent: React.FC<{
                                 <FormLabel>Frecuencia</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
-                                        <SelectTrigger className='w-1/2'>
+                                        <SelectTrigger className='w-full'>
                                             <SelectValue placeholder="Seleccionar frecuencia" />
                                         </SelectTrigger>
                                     </FormControl>
@@ -100,6 +105,25 @@ export const InspectionFormContent: React.FC<{
                                         ))}
                                     </SelectContent>
                                 </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* Fecha de Creacion */}
+                    <FormField
+                        control={form.control}
+                        name="fechaCreacion"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Fecha</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="date"
+                                        className="w-full"
+                                        {...field}
+                                    />
+                                </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}

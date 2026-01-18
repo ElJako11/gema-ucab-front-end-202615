@@ -10,16 +10,23 @@ export interface CreateInspectionRequest {
   idGrupo: number;
   prioridad: "BAJA" | "MEDIA" | "ALTA";
   frecuencia: string;
-  especificacion: string;
+  observacion: string;
   codigoArea?: string;
   codigoVerificacion?: string;
 }
 
 
 export interface EditInspectionRequest {
-  id: number;
-  frecuencia: "Diaria" | "Semanal" | "Mensual" | "Trimestral" | "Anual";
-  especificacion: string;
+  idMantenimiento: string;
+  idInspeccion: string;
+  nombre?: string;
+  tipo?: 'Periodico' | 'Condicion';
+  fechaLimite?: string;
+  prioridad?: 'BAJA' | 'MEDIA' | 'ALTA';
+  frecuencia?: 'Diaria' | 'Semanal' | 'Mensual' | 'Trimestral' | 'Anual';
+  resumen?: string;
+  observacion?: string;
+  fechaCreacion?: string;
 }
 
 export const useCreateInspection = () => {

@@ -8,12 +8,15 @@ export const useUpdateInspection = (id: number) => {
 
   return useMutation({
     mutationFn: async (data: EditInspectionRequest) => {
-      const response = await apiClient.patch(`/inspecciones/${id}`, data);
+      const response = await apiClient.patch(`/work-creation`, data);
       return response;
     },
     onSuccess: () => {
       toast.success("Inspección actualizada exitosamente");
       queryClient.invalidateQueries({ queryKey: ["Inspeccion", "detalle", id] });
+      queryClient.invalidateQueries({ queryKey: ["inspecciones"] });
+      queryClient.invalidateQueries({ queryKey: ["trabajos"] });
+      queryClient.invalidateQueries({ queryKey: ["calendario"] });
     },
     onError: () => {
       toast.error("Error al actualizar la inspección");

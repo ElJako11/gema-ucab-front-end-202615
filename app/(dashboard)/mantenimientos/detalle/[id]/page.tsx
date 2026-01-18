@@ -6,70 +6,60 @@ import { Button } from "@/components/ui/button";
 import { EditMaintenanceModal } from "@/components/forms/mantenimientos/EditMaintenanceModal";
 import { DeleteMaintenanceModal } from "@/components/forms/mantenimientos/DeleteMaintenanceModal";
 import { useMantenimientoDetalle } from "@/hooks/mantenimientos/useMantenimiento";
-import { useGetAllChecklistItem } from "@/hooks/checklist/useGetAllChecklistItem";
-import { AgregarChecklistForm } from "@/components/forms/checklist/AgregarChecklistForm";
-import { EditarChecklistForm } from "@/components/forms/checklist/EditarChecklistForm";
-import { DeleteChecklistModal } from "@/components/forms/checklist/DeleteChecklistModal";
 import {
     Clock,
     AlertCircle,
     Wrench,
     RotateCcw, // For 'Reabierto' icon similar to the image
-    ClipboardPen,
+    Pencil,
     Trash2,
     Plus,
+    CheckSquare,
     ArrowLeft
 } from "lucide-react";
 import Link from 'next/link';
-import { toast } from 'sonner';
 
 export default function MantenimientoDetalle() {
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [addChecklistModalOpen, setAddChecklistModalOpen] = useState(false);
-    const [editChecklistModalOpen, setEditChecklistModalOpen] = useState(false);
-    const [deleteChecklistModalOpen, setDeleteChecklistModalOpen] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
 
     // Obtener el ID de la URL
     const params = useParams();
     const id = parseInt(params.id as string);
 
     // Usar el hook para obtener datos del mantenimiento
-    const { data: maintenanceData, isLoading, error } = useMantenimientoDetalle(id, {
-        enabled: !isDeleting
-    });
+    const { data: maintenanceData, isLoading, error } = useMantenimientoDetalle(id);
 
-    // Obtener datos del checklist
-    // Solo intentar buscar checklist si el mantenimiento tiene uno asociado
-    const { data: checklistData } = useGetAllChecklistItem("mantenimientos", id, {
-        enabled: !!maintenanceData && !isDeleting
-    });
+    // Console.log para ver la estructura de los datos
+    useEffect(() => {
+        console.log("🔍 [MANTENIMIENTO DETALLE] Datos recibidos:", maintenanceData);
+        console.log("🔍 [MANTENIMIENTO DETALLE] Loading:", isLoading);
+        console.log("🔍 [MANTENIMIENTO DETALLE] Error:", error);
+        console.log("🔍 [MANTENIMIENTO DETALLE] ID:", id);
+    }, [maintenanceData, isLoading, error, id]);
 
     // Estados de carga y error
     if (isLoading) return <div className="p-8">Cargando mantenimiento...</div>;
+    if (error) return <div className="p-8">Error: {error.message}</div>;
     if (!maintenanceData) return <div className="p-8">Mantenimiento no encontrado</div>;
 
     // Usar datos reales cuando estén disponibles, sino mock data
     const data = maintenanceData;
 
-    console.log("Maintenance Data:", data);
-    console.log("Checklist Data:", checklistData);
 
-    const checklistId = checklistData?.id || data.idChecklist;
-    const checklistTitle = data.tituloChecklist;
+    console.log(data);
 
     return (
         <div className="p-8 space-y-6 min-h-screen">
             {/* Top Navigation / Header */}
             <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-4">
-                    <Link href="/calendario" className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                    <Link href="/MockCalendar" className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                         <ArrowLeft className="w-6 h-6 text-slate-600" />
                     </Link>
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">{data.titulo}</h1>
-                        <p className="text-slate-500 font-medium">{data.codigoVerificacion}</p>
+                        <p className="text-slate-500 font-medium">{data.code}</p>
                     </div>
                 </div>
                 <div className="flex gap-3">
@@ -77,7 +67,7 @@ export default function MantenimientoDetalle() {
                         className="bg-[#0EA5E9] hover:bg-[#0284C7] text-white gap-2" // Custom blue from image
                         onClick={() => setEditModalOpen(true)}
                     >
-                        <ClipboardPen className="w-4 h-4" />
+                        <Pencil className="w-4 h-4" />
                         Editar
                     </Button>
                     <Button
@@ -94,7 +84,7 @@ export default function MantenimientoDetalle() {
             <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
 
                 {/* Status Row */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     {/* Estado */}
                     <div className="space-y-2">
                         <h3 className="font-bold text-lg">Estado</h3>
@@ -118,7 +108,16 @@ export default function MantenimientoDetalle() {
                         <h3 className="font-bold text-lg">Tipo</h3>
                         <div className="flex items-center gap-2 px-4 py-2 bg-slate-200 text-slate-700 rounded-md border border-slate-300 w-fit font-medium">
                             <Wrench className="w-5 h-5" />
-                            {data.tipo === "Periodico" ? "Periódico" : data.tipo}
+                            {data.tipo}
+                        </div>
+                    </div>
+
+                    {/* Instancia */}
+                    <div className="space-y-2">
+                        <h3 className="font-bold text-lg">Instancia</h3>
+                        <div className="flex items-center gap-2 px-4 py-2 bg-white text-slate-700 rounded-md border border-slate-300 w-fit font-medium shadow-sm">
+                            <RotateCcw className="w-5 h-5" />
+                            {data.instancia}
                         </div>
                     </div>
                 </div>
@@ -129,7 +128,7 @@ export default function MantenimientoDetalle() {
                 <div className="mb-8">
                     <h3 className="font-bold text-lg mb-3">Resumen</h3>
                     <div className="p-4 border border-slate-300 rounded-lg text-slate-700">
-                        {data.resumen ?? "Ninguno."}
+                        {data.resumen}
                     </div>
                 </div>
 
@@ -141,14 +140,19 @@ export default function MantenimientoDetalle() {
                         <h3 className="font-bold text-lg">Ubicación técnica</h3>
                         <div className="p-4 bg-slate-200/50 rounded-lg border border-slate-300 min-h-[80px]">
                             <p className="font-semibold">{data.ubicacion.split('\n')[0]}</p>
-                            <p className="text-sm text-slate-600">{data.abreviacion}</p>
+                            <p className="text-sm text-slate-600">{data.ubicacion.split('\n')[1]}</p>
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <h3 className="font-bold text-lg">Especificación del dispositivo</h3>
+                        <div className="p-4 bg-slate-200/50 rounded-lg border border-slate-300 min-h-[80px]">
+                            <p className="text-slate-700">{data.especificacion}</p>
                         </div>
                     </div>
                     <div className="space-y-2">
                         <h3 className="font-bold text-lg">Área encargada</h3>
                         <div className="p-4 bg-slate-200/50 rounded-lg border border-slate-300 min-h-[80px]">
-                            <p className="font-semibold">{data.areaEncargada}</p>
-                            <p className="text-sm text-slate-600">{data.codigoArea}</p>
+                            <p className="text-slate-700">{data.area}</p>
                         </div>
                     </div>
                 </div>
@@ -160,7 +164,7 @@ export default function MantenimientoDetalle() {
                     <h3 className="font-bold text-lg mb-4">Programación del mantenimiento</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-2">
-                            <span className="font-bold">Fecha de Inicio</span>
+                            <span className="font-bold">Fecha de creación</span>
                             <div className="p-3 border border-slate-300 rounded-md text-slate-700 font-medium">
                                 {data.fechaCreacion}
                             </div>
@@ -181,49 +185,28 @@ export default function MantenimientoDetalle() {
                     <h3 className="font-bold text-lg mb-4">Actividades</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Checklist Item */}
-                        {checklistTitle ? (
-                            <div className="flex items-center justify-between p-3 border border-slate-300 rounded-lg group hover:border-slate-400 transition-colors relative">
-                                <Link
-                                    href={`/detalle-trabajo/mantenimientos/${id}`}
-                                    className="flex-1 hover:underline cursor-pointer"
-                                >
-                                    <span className="font-medium text-slate-900">{checklistTitle}</span>
-                                </Link>
-                                {checklistId && (
-                                    <div className="flex z-10 relative">
-                                        <div className="inline-block p-1 border-2 border-gray-200 rounded-[10px] mx-1 cursor-pointer hover:bg-gray-50 transition-colors"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                console.log("Opening edit modal, ID:", checklistId);
-                                                setEditChecklistModalOpen(true);
-                                            }}
-                                        >
-                                            <ClipboardPen className="h-5 w-5 text-blue-500" />
-                                        </div>
-                                        <div className="inline-block p-1 border-2 border-gray-200 rounded-[10px] mx-1 cursor-pointer hover:bg-gray-50 transition-colors"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                console.log("Opening delete modal, ID:", checklistId);
-                                                setDeleteChecklistModalOpen(true);
-                                            }}
-                                        >
-                                            <Trash2 className="h-5 w-5 text-red-500" />
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <Button
-                                variant="outline"
-                                className="w-full h-full min-h-[50px] border-dashed border-2 text-slate-600 hover:text-slate-900 hover:border-slate-400"
-                                onClick={() => setAddChecklistModalOpen(true)}
+                        <div className="flex items-center justify-between p-3 border border-slate-300 rounded-lg hover:border-slate-400 transition-colors bg-slate-50">
+                            <Link
+                                href={`/detalle-trabajo?id=${id}&type=mantenimientos`}
+                                className="flex-1 hover:underline cursor-pointer"
                             >
-                                <Plus className="w-5 h-5 mr-2" />
-                                Agregar Checklist
-                            </Button>
-                        )}
+                                <span className="font-medium text-slate-900">Checklist de revisión</span>
+                            </Link>
+
+                            <div className="flex gap-2">
+                                <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-500 hover:text-slate-900">
+                                    <Pencil className="w-4 h-4" />
+                                </Button>
+                                <Button size="icon" variant="ghost" className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50">
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+                            </div>
+                        </div>
+
+                        <Button variant="outline" className="w-full h-full min-h-[50px] border-dashed border-2 text-slate-600 hover:text-slate-900 hover:border-slate-400">
+                            <Plus className="w-5 h-5 mr-2" />
+                            Agregar Checklist
+                        </Button>
                     </div>
                 </div>
 
@@ -234,47 +217,14 @@ export default function MantenimientoDetalle() {
                 open={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
                 data={data}
-                mantenimientoId={id}
             />
 
             {/* Delete Modal */}
             <DeleteMaintenanceModal
                 open={deleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
-                onConfirm={() => {
-                    setIsDeleting(true);
-                    toast.success("Mantenimiento eliminado con éxito");
-                    setDeleteModalOpen(false);
-                }}
-                maintenanceName={data.titulo}
-                maintenanceId={id}
-            />
-
-            {/* Add Checklist Modal */}
-            <AgregarChecklistForm
-                open={addChecklistModalOpen}
-                onClose={() => setAddChecklistModalOpen(false)}
-                onSuccess={(data) => {
-                    setAddChecklistModalOpen(false);
-                }}
-                maintenanceId={id}
-                type="mantenimientos"
-            />
-
-            {/* Edit Checklist Modal */}
-            <EditarChecklistForm
-                open={editChecklistModalOpen}
-                onClose={() => setEditChecklistModalOpen(false)}
-                checklistId={checklistId || 0}
-                currentName={checklistTitle || ""}
-            />
-
-            <DeleteChecklistModal
-                open={deleteChecklistModalOpen}
-                onClose={() => setDeleteChecklistModalOpen(false)}
-                checklistId={checklistId || 0}
-                checklistName={checklistTitle || ""}
-            />
+                onConfirm={() => { alert('Eliminado'); setDeleteModalOpen(false); }}
+                maintenanceName={data.title} maintenanceId={0} />
         </div>
     );
 }
