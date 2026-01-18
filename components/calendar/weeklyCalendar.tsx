@@ -90,16 +90,47 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
     }
   }, [initialDate]);
 
-  // Formatear fecha para el hook (YYYY-MM-DD)
-  const formattedDate = currentDate.toISOString().split('T')[0];
+  // Calcular el inicio y fin de la semana para determinar qué meses cargar
+  const startOfWeekDate = new Date(currentDate);
+  const currentDayOfWeek = currentDate.getDay();
+  const diffToMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+  startOfWeekDate.setDate(currentDate.getDate() - diffToMonday);
 
-  // Fetch de eventos del calendario (mantenimientos e inspecciones) con filtro semanal
-  const { data: datosCalendario, isLoading, error } = useCalendarioSemanal(formattedDate);
+  const endOfWeekDate = new Date(startOfWeekDate);
+  endOfWeekDate.setDate(startOfWeekDate.getDate() + 6);
 
-  // Extraer arrays separados
-  const inspecciones = datosCalendario?.inspecciones || [];
-  const mantenimientos = datosCalendario?.mantenimientos || [];
-  const eventos = [...inspecciones, ...mantenimientos]; // Para compatibilidad 
+  // Formatear fechas para los hooks
+  const startOfWeekStr = startOfWeekDate.toISOString().split('T')[0];
+  const endOfWeekStr = endOfWeekDate.toISOString().split('T')[0];
+
+  // Fetch de eventos para el mes del inicio de la semana
+  const { data: datosMes1, isLoading: loading1 } = useCalendarioSemanal(startOfWeekStr);
+
+  // Fetch de eventos para el mes del fin de la semana (puede ser el mismo o siguiente)
+  const { data: datosMes2, isLoading: loading2 } = useCalendarioSemanal(endOfWeekStr);
+
+  const isLoading = loading1 || loading2;
+
+  // Combinar datos de ambos meses y eliminar duplicados (si los meses son iguales, useCalendarioSemanal maneja caché)
+  const inspecciones = useMemo(() => {
+    const list1 = datosMes1?.inspecciones || [];
+    const list2 = datosMes2?.inspecciones || [];
+    // Si los meses son iguales, list1 === list2 (por referencia de query cache si funciona bien, o contenido).
+    // Para asegurar, creamos un Map por ID.
+    const map = new Map();
+    [...list1, ...list2].forEach((item: any) => map.set(item.id || item.idInspeccion, item));
+    return Array.from(map.values());
+  }, [datosMes1, datosMes2]);
+
+  const mantenimientos = useMemo(() => {
+    const list1 = datosMes1?.mantenimientos || [];
+    const list2 = datosMes2?.mantenimientos || [];
+    const map = new Map();
+    [...list1, ...list2].forEach((item: any) => map.set(item.id || item.idMantenimiento, item));
+    return Array.from(map.values());
+  }, [datosMes1, datosMes2]);
+
+  const eventos = [...inspecciones, ...mantenimientos];
 
   // Generar datos de la semana basándose en la fecha actual
   const semanaDataBase = generateWeekData(currentDate);
@@ -108,21 +139,29 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
   // Distribuir eventos a los días correspondientes
   const semanaData = useMemo(() => {
 
-    return semanaDataBase.map(dia => {
-      const diaDateStr = dia.fullDate.toISOString().split('T')[0];
+    // Helper para obtener fecha local YYYY-MM-DD sin problemas de timezone
+    const toLocalDateString = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
 
-      // Filtrar eventos para este día with estructura adaptada
-      const tareasDelDia = eventos
+    return semanaDataBase.map(dia => {
+      const diaDateStr = toLocalDateString(dia.fullDate);
+
+      // 1. Tareas Normales
+      const tareasNormales = eventos
         .filter((evento: any) => {
           // Usar el campo correcto según el tipo de evento
           let fechaEvento = '';
 
           if (evento.idInspeccion) {
-            fechaEvento = evento.fechaCreacion; // ← Para inspecciones
+            fechaEvento = (evento.fechaCreacion || '').split('T')[0]; // ← Para inspecciones
           } else if (evento.idMantenimiento) {
-            fechaEvento = evento.fechaLimite; // ← Para mantenimientos
+            fechaEvento = (evento.fechaLimite || '').split('T')[0]; // ← Para mantenimientos
           } else {
-            fechaEvento = evento.fecha || '';
+            fechaEvento = (evento.fecha || '').split('T')[0];
           }
 
           return fechaEvento === diaDateStr;
@@ -159,15 +198,58 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
             area: evento.ubicacionTecnica || evento.ubicacion || '',
             color: getColorFromEstado(evento.estado || 'no empezado'),
             estado: evento.estado || 'no empezado',
-            fechaLimite: evento.fechaLimite || evento.fecha || diaDateStr
+            fechaLimite: evento.fechaLimite || evento.fecha || diaDateStr,
+            isProjection: false
           };
 
           return tareaMappeada;
         });
 
+      // 2. Tareas de Proyección (Ghost Events)
+      // 2. Tareas de Proyección (Ghost Events)
+      const tareasProyeccion = eventos
+        .filter((evento: any) => {
+          // Solo si existe fechaProximaGeneracion
+          if (!evento.fechaProximaGeneracion) return false;
+          // Comparar con el día actual
+          const fechaProj = evento.fechaProximaGeneracion.split('T')[0];
+          return fechaProj === diaDateStr;
+        })
+        .map((evento: any) => {
+          // Mapeo similar pero marcado como proyección
+          let tipo = '';
+          let id = '';
+          let titulo = '';
+
+          if (evento.idInspeccion) {
+            tipo = 'inspeccion';
+            id = `ghost-insp-${evento.idInspeccion}`; // ID único temporal
+            titulo = `(Proyección) ${evento.titulo || evento.nombre || 'Inspección'}`;
+          } else if (evento.idMantenimiento) {
+            tipo = 'mantenimiento';
+            id = `ghost-mant-${evento.idMantenimiento}`;
+            titulo = `(Proyección) ${evento.titulo || evento.nombre || 'Mantenimiento'}`;
+          } else {
+            tipo = evento.tipo ? evento.tipo.toLowerCase() : 'evento';
+            id = `ghost-${evento.id || Math.random()}`;
+            titulo = `(Proyección) ${evento.titulo || 'Evento'}`;
+          }
+
+          return {
+            id: id,
+            tipo: tipo,
+            titulo: titulo,
+            area: evento.ubicacionTecnica || evento.ubicacion || '',
+            color: 'grey', // Color base, se sobrescribirá o usará opacidad
+            estado: 'Proyección',
+            fechaLimite: diaDateStr,
+            isProjection: true
+          };
+        });
+
       return {
         ...dia,
-        tareas: tareasDelDia
+        tareas: [...tareasNormales, ...tareasProyeccion]
       };
     });
   }, [semanaDataBase, eventos]);
@@ -193,6 +275,9 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
 
   // Función para manejar el click en una tarea
   const handleTaskClick = (tarea: any, fecha: Date) => {
+    // Si es una proyección, no hacer nada
+    if (tarea.isProjection) return;
+
     if (tarea.tipo === 'mantenimiento') {
       // Usar datos básicos de la tarea mientras se carga el resumen
 
@@ -243,15 +328,7 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
   };
 
   // Formateo para mostrar rango de semana (simplificado)
-  const startOfWeek = new Date(currentDate);
-
-  // Asumiendo LUNES como inicio de semana
-  const currentDay = currentDate.getDay(); // 0 es Domingo, 1 es Lunes...
-  // Si es domingo (0), queremos restar 6 días para llegar al lunes anterior.
-  // Si es cualquier otro día, restamos (día - 1).
-  const diffToMonday = currentDay === 0 ? 6 : currentDay - 1;
-
-  startOfWeek.setDate(currentDate.getDate() - diffToMonday);
+  const startOfWeek = new Date(startOfWeekDate); // Usar la fecha calculada arriba
 
   const endOfWeek = new Date(startOfWeek);
   endOfWeek.setDate(startOfWeek.getDate() + 6); // Sumamos 6 días para llegar al domingo
@@ -341,9 +418,12 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
                         key={tarea.id}
                         onClick={() => handleTaskClick(tarea, exactDate)}
                         className={`
-                                relative p-3 rounded-r-xl rounded-l-sm border-l-[6px] shadow-sm cursor-pointer hover:opacity-90 transition-opacity
-                                ${tarea.tipo === 'mantenimiento' || tarea.tipo === 'inspeccion' ? 'hover:shadow-md hover:scale-[1.02] transition-all' : ''}
-                                ${cardColors[tarea.color as keyof typeof cardColors]}
+                                relative p-3 rounded-r-xl rounded-l-sm border-l-[6px] shadow-sm transition-opacity
+                                ${tarea.isProjection
+                            ? 'opacity-40 cursor-default bg-gray-50'
+                            : 'cursor-pointer hover:opacity-90 hover:shadow-md hover:scale-[1.02] transition-all'
+                          }
+                                ${!tarea.isProjection ? cardColors[tarea.color as keyof typeof cardColors] : 'border-l-gray-400'}
                               `}
                       >
                         <h4 className="font-bold text-gray-800 text-base leading-tight mb-1">

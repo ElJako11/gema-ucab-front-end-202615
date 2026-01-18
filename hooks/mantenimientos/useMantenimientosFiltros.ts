@@ -10,6 +10,10 @@ import { calendarioAPI, type FiltroCalendario, type EventoCalendario } from "@/l
 const getMonthKey = (dateString: string) => {
     if (!dateString) return dateString;
     try {
+        const parts = dateString.split('-');
+        if (parts.length >= 2) {
+            return `${parts[0]}-${parts[1]}-01`;
+        }
         const date = new Date(dateString);
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
     } catch (e) {
@@ -34,6 +38,9 @@ export const useMantenimientosFiltros = (date: string, filter: string = 'mensual
             }
         },
         select: (data) => {
+            // DEBUG: Ver datos crudos del API
+            console.log("RAW API DATA (useMantenimientosFiltros):", data);
+
             // Devolver la estructura separada como la devuelve el servidor
             const resultado: {
                 inspecciones: EventoCalendario[];
@@ -55,7 +62,8 @@ export const useMantenimientosFiltros = (date: string, filter: string = 'mensual
                         id: inspeccion.idInspeccion,
                         ubicacionTecnica: inspeccion.ubicacion,
                         // Para inspecciones, usar fechaCreacion como fecha principal
-                        fecha: inspeccion.fechaCreacion || inspeccion.fecha
+                        fecha: inspeccion.fechaCreacion || inspeccion.fecha,
+                        fechaProximaGeneracion: inspeccion.fechaProximaGeneracion
                     }));
                 }
 
@@ -66,7 +74,8 @@ export const useMantenimientosFiltros = (date: string, filter: string = 'mensual
                         tipo: 'Mantenimiento' as const,
                         id: mantenimiento.idMantenimiento,
                         ubicacionTecnica: mantenimiento.ubicacion,
-                        fecha: mantenimiento.fechaLimite || mantenimiento.fecha
+                        fecha: mantenimiento.fechaLimite || mantenimiento.fecha,
+                        fechaProximaGeneracion: mantenimiento.fechaProximaGeneracion // Explicit mapping
                     }));
                 }
 

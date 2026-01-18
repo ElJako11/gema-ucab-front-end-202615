@@ -11,6 +11,13 @@ import { calendarioAPI, type FiltroCalendario } from "@/lib/api/calendario";
 const getMonthKey = (dateString: string) => {
   if (!dateString) return dateString;
   try {
+    // Evitar problemas de timezone (UTC vs Local) parseando el string manualmente
+    // Formato esperado: YYYY-MM-DD
+    const parts = dateString.split('-');
+    if (parts.length >= 2) {
+      return `${parts[0]}-${parts[1]}-01`;
+    }
+    // Fallback si no es formato ISO
     const date = new Date(dateString);
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
   } catch (e) {

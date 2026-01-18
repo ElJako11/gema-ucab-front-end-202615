@@ -18,4 +18,5 @@ export type Mantenimiento = {
     codigoArea: string;
     tituloChecklist: string | null;
     idChecklist?: number;
+    fechaProximaGeneracion?: string;
 };

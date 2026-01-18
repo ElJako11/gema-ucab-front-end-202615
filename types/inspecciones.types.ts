@@ -11,4 +11,5 @@ export type Inspeccion = {
     codigoVerificacion?: string;
     idSupervisor?: number;
     prioridad: "BAJA" | "MEDIA" | "ALTA";
+    fechaProximaGeneracion?: string;
 };
