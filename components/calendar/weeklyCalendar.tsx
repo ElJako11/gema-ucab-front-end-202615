@@ -24,6 +24,15 @@ const getColorFromEstado = (estado: string): 'grey' | 'blue' | 'yellow' | 'green
   return 'grey';
 };
 
+/*Opciones del filtro por status */
+const opcionesFiltro = [
+  { id: 'todos', label: 'Todos', color: null },
+  { id: 'no-empezado', label: 'No empezado', color: 'bg-gema-darkgrey' },
+  { id: 'reprogramado', label: 'Reprogramado', color: 'bg-gema-yellow' },
+  { id: 'en-ejecucion', label: 'En ejecución', color: 'bg-gema-blue' },
+  { id: 'culminado', label: 'Culminado', color: 'bg-gema-green' },
+];
+
 // Función para generar los datos de la semana dinámicamente
 const generateWeekData = (currentDate: Date) => {
   // Calcular el inicio de la semana (lunes)
@@ -257,20 +266,24 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
   // Función para filtrar tareas según el filtro activo
   const filtrarTareas = (tareas: any[]) => {
 
-    let tareasFiltradas;
-    if (filtroActivo === 'todos') {
-      tareasFiltradas = tareas;
-    } else if (filtroActivo === 'mantenimientos') {
-      tareasFiltradas = tareas.filter(tarea => tarea.tipo === 'mantenimiento');
-    } else if (filtroActivo === 'inspecciones') {
-      tareasFiltradas = tareas.filter(tarea => tarea.tipo === 'inspeccion');
-    } else {
-      tareasFiltradas = tareas;
-    }
+    if (filtroActivo === 'todos') return tareas;
 
+    return tareas.filter(tarea => {
+      // Normalizar el estado de la tarea para comparar con el filtro
+      const estadoTarea = (tarea.estado || 'no empezado').toLowerCase().replace(/\s+/g, '-');
 
+      // Mapeo adicional para manejar inconsistencias (ej. "En ejecución" vs "en-ejecucion")
+      // El filtro usa: 'no-empezado', 'reprogramado', 'en-ejecucion', 'culminado'
 
-    return tareasFiltradas;
+      if (filtroActivo === 'en-ejecucion' &&
+        (estadoTarea.includes('ejecucion') || estadoTarea.includes('ejecución') || estadoTarea.includes('ejecutando'))) {
+        return true;
+      }
+
+      if (filtroActivo === 'no-empezado' && estadoTarea.includes('no-empezado')) return true;
+
+      return estadoTarea === filtroActivo;
+    });
   };
 
   // Función para manejar el click en una tarea
@@ -344,6 +357,7 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
         <div className="flex flex-col md:flex-row gap-4">
           {/* Filtro de mantenimientos e inspecciones */}
           <DropdownFilter
+            opciones={opcionesFiltro}
             filtroActual={filtroActivo}
             onFiltroChange={setFiltroActivo}
           />
@@ -401,8 +415,7 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
                 {/* Pill de Conteo (Encabezado gris dentro de la columna) */}
                 <div className="bg-gray-200 py-2 text-center relative overflow-hidden">
                   <span className="text-xs font-bold text-gray-700">
-                    {filtroActivo === 'todos' ? 'Mantenimientos' :
-                      filtroActivo === 'mantenimientos' ? 'Mantenimientos' : 'Inspecciones'} - {tareasFiltradas.length}
+                    {filtroActivo === 'todos' ? 'Actividades' : opcionesFiltro.find(o => o.id === filtroActivo)?.label} - {tareasFiltradas.length}
                   </span>
                 </div>
 
