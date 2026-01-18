@@ -6,11 +6,25 @@ import { calendarioAPI, type FiltroCalendario, type EventoCalendario } from "@/l
  * @deprecated Use useCalendario from hooks/calendario/useCalendario.ts instead
  * Mantenido por compatibilidad con componentes existentes
  */
+// Helper para normalizar la fecha (mismo que en useCalendario)
+const getMonthKey = (dateString: string) => {
+    if (!dateString) return dateString;
+    try {
+        const date = new Date(dateString);
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
+    } catch (e) {
+        return dateString;
+    }
+};
+
 export const useMantenimientosFiltros = (date: string, filter: string = 'mensual') => {
     const filtroCalendario = (filter === 'semanal' ? 'semanal' : 'mensual') as FiltroCalendario;
 
+    // Normalizar fecha si es mensual (para coincidir con useCalendario)
+    const queryKeyDate = filtroCalendario === 'mensual' ? getMonthKey(date) : date;
+
     return useQuery({
-        queryKey: ["calendario", date, filtroCalendario],
+        queryKey: ["calendario", queryKeyDate, filtroCalendario],
         queryFn: async () => {
             try {
                 const result = await calendarioAPI.getEventos(date, filtroCalendario);
