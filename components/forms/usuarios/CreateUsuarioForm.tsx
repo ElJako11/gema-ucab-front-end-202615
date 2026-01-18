@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,11 +36,18 @@ export const CreateUsuarioForm: React.FC<CreateUsuarioFormProps> = ({
             nombre: "",
             correo: "",
             tipo: "",
-            contraseña: "defaultPassword123",
+            contraseña: "",
         },
     });
 
     const { errors } = form.formState;
+
+    // Resetear el formulario cuando se cierra el modal
+    useEffect(() => {
+        if (!open) {
+            form.reset();
+        }
+    }, [open, form]);
 
     const createUsuarioMutation = useCreateUsuario();
     const { usuarios } = useUsuarios();
@@ -106,6 +114,23 @@ export const CreateUsuarioForm: React.FC<CreateUsuarioFormProps> = ({
                                         <Input
                                             placeholder="Ej: juan.perez@ucab.edu.ve"
                                             className={errors.correo ? "border-red-500 focus-visible:ring-red-500" : undefined}
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="contraseña"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Contraseña</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="password"
+                                            placeholder="password123"
                                             {...field}
                                         />
                                     </FormControl>
