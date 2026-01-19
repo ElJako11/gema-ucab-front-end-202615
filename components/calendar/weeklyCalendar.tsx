@@ -99,50 +99,57 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
     }
   }, [initialDate]);
 
-  // Calcular el inicio y fin de la semana para determinar qué meses cargar
-  const startOfWeekDate = new Date(currentDate);
-  const currentDayOfWeek = currentDate.getDay();
-  const diffToMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
-  startOfWeekDate.setDate(currentDate.getDate() - diffToMonday);
+  // Helper para obtener string de fecha segura en medio del mes
+  const getSafeMonthDateStr = (baseDate: Date, monthOffset: number) => {
+    const d = new Date(baseDate.getFullYear(), baseDate.getMonth() + monthOffset, 15);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
-  const endOfWeekDate = new Date(startOfWeekDate);
-  endOfWeekDate.setDate(startOfWeekDate.getDate() + 6);
+  const currentStr = getSafeMonthDateStr(currentDate, 0);
+  const prevStr = getSafeMonthDateStr(currentDate, -1);
+  const nextStr = getSafeMonthDateStr(currentDate, 1);
 
-  // Formatear fechas para los hooks
-  const startOfWeekStr = startOfWeekDate.toISOString().split('T')[0];
-  const endOfWeekStr = endOfWeekDate.toISOString().split('T')[0];
+  // Fetch de eventos para el mes actual, anterior y siguiente
+  const { data: dataActual, isLoading: load1 } = useCalendarioSemanal(currentStr);
+  const { data: dataPrev, isLoading: load2 } = useCalendarioSemanal(prevStr);
+  const { data: dataNext, isLoading: load3 } = useCalendarioSemanal(nextStr);
 
-  // Fetch de eventos para el mes del inicio de la semana
-  const { data: datosMes1, isLoading: loading1 } = useCalendarioSemanal(startOfWeekStr);
+  const isLoading = load1 || load2 || load3;
 
-  // Fetch de eventos para el mes del fin de la semana (puede ser el mismo o siguiente)
-  const { data: datosMes2, isLoading: loading2 } = useCalendarioSemanal(endOfWeekStr);
-
-  const isLoading = loading1 || loading2;
-
-  // Combinar datos de ambos meses y eliminar duplicados (si los meses son iguales, useCalendarioSemanal maneja caché)
+  // Combinar datos de los 3 meses y eliminar duplicados
   const inspecciones = useMemo(() => {
-    const list1 = datosMes1?.inspecciones || [];
-    const list2 = datosMes2?.inspecciones || [];
-    // Si los meses son iguales, list1 === list2 (por referencia de query cache si funciona bien, o contenido).
-    // Para asegurar, creamos un Map por ID.
+    const list1 = dataActual?.inspecciones || [];
+    const list2 = dataPrev?.inspecciones || [];
+    const list3 = dataNext?.inspecciones || [];
+
+    // Usamos un Map por ID para asegurar unicidad
     const map = new Map();
-    [...list1, ...list2].forEach((item: any) => map.set(item.id || item.idInspeccion, item));
+    [...list1, ...list2, ...list3].forEach((item: any) => map.set(item.id || item.idInspeccion, item));
     return Array.from(map.values());
-  }, [datosMes1, datosMes2]);
+  }, [dataActual, dataPrev, dataNext]);
 
   const mantenimientos = useMemo(() => {
-    const list1 = datosMes1?.mantenimientos || [];
-    const list2 = datosMes2?.mantenimientos || [];
+    const list1 = dataActual?.mantenimientos || [];
+    const list2 = dataPrev?.mantenimientos || [];
+    const list3 = dataNext?.mantenimientos || [];
+
     const map = new Map();
-    [...list1, ...list2].forEach((item: any) => map.set(item.id || item.idMantenimiento, item));
+    [...list1, ...list2, ...list3].forEach((item: any) => map.set(item.id || item.idMantenimiento, item));
     return Array.from(map.values());
-  }, [datosMes1, datosMes2]);
+  }, [dataActual, dataPrev, dataNext]);
 
   const eventos = [...inspecciones, ...mantenimientos];
 
 
   // Generar datos de la semana basándose en la fecha actual
+  const startOfWeekDate = new Date(currentDate);
+  const currentDayOfWeek = currentDate.getDay();
+  const diffToMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+  startOfWeekDate.setDate(currentDate.getDate() - diffToMonday);
+
   const semanaDataBase = generateWeekData(currentDate);
 
 
@@ -215,7 +222,6 @@ const WeeklyCalendar = ({ initialDate }: WeeklyCalendarProps) => {
           return tareaMappeada;
         });
 
-      // 2. Tareas de Proyección (Ghost Events)
       // 2. Tareas de Proyección (Ghost Events)
       const tareasProyeccion = eventos
         .filter((evento: any) => {
