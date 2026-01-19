@@ -1,7 +1,7 @@
 'use client';
 
 export const dynamic = 'force-dynamic';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { MonthlyCalendar } from "@/components/calendar/monthlyCalendar";
@@ -17,7 +17,7 @@ import {
     Calendar
 } from "lucide-react";
 
-const Calendario = () => {
+const CalendarioContent = () => {
     //Vista Actual del Calendario (Mensual o Semanal) por defecto es mensual
     const [vistaActual, setVistaActual] = useState('mensual');
     const searchParams = useSearchParams();
@@ -155,6 +155,14 @@ const Calendario = () => {
                 </div>
             </Modal>
         </div>
+    )
+}
+
+const Calendario = () => {
+    return (
+        <Suspense fallback={<div>Cargando...</div>}>
+            <CalendarioContent />
+        </Suspense>
     )
 }
 
