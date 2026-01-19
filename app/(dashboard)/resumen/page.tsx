@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import DateNavigator from "@/components/ui/dateNavigator";
 import DropdownFilter from "@/components/ui/dropdownFilter";
 import MaintenanceCard from "@/components/resumen/maintenanceCard";
-import type { resumen } from "@/types/resume.types";
+import { ResumenMantenimiento } from "@/types/resumenMantenimiento.type";
+import { ResumenInspeccion } from "@/types/resumenInspeccion.types";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/context";
 import {
@@ -14,7 +15,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import InspeccionCard from "@/components/resumen/inspeccionCard";
-import { useGetResumen } from "@/hooks/resumen/useGetResumen";
+import { useCalendario } from "@/hooks/calendario/useCalendario";
 import { exportResumenPDF } from "@/lib/api/resumen";
 import { useEffect } from "react";
 
@@ -50,28 +51,7 @@ const resumen = () => {
     const [isExporting, setIsExporting] = useState(false);
 
     // Formatear la fecha para la API (YYYY-MM-DD)
-    const apiDateParams = useMemo(() => {
-        const year = currentDate.getFullYear();
-        // OJO: getMonth() devuelve 0-11, sumamos 1. padStart asegura "05" en vez de "5"
-        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
 
-        if (vistaActual === 'mensual') {
-            return `${year}-${month}-01`;
-        } else {
-            // Lógica para obtener el lunes de la semana actual
-            const d = new Date(currentDate);
-            const day = d.getDay();
-            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-            d.setDate(diff);
-
-            const weekMonth = String(d.getMonth() + 1).padStart(2, '0');
-            const weekDay = String(d.getDate()).padStart(2, '0');
-            return `${d.getFullYear()}-${weekMonth}-${weekDay}`;
-        }
-    }, [currentDate, vistaActual]);
-
-    //Usar el hook para traer los datos del Backend
-    const { data: resumenData, isLoading, isError } = useGetResumen(apiDateParams, vistaActual);
 
     const { user, isLoading: isLoadingAuth } = useAuth();
     const router = useRouter();
@@ -86,18 +66,7 @@ const resumen = () => {
         }
     }, [user, isLoadingAuth, router]);
 
-    // Lógica específica del MES: sumar/restar el mes
-    const handlePrevMonth = () => {
-        const newDate = new Date(currentDate);
-        newDate.setMonth(newDate.getMonth() - 1);
-        setCurrentDate(newDate);
-    };
 
-    const handleNextMonth = () => {
-        const newDate = new Date(currentDate);
-        newDate.setMonth(newDate.getMonth() + 1);
-        setCurrentDate(newDate);
-    };
 
     // Función auxiliar para obtener el primer día de la semana (Lunes)
     const getStartOfWeek = (date: Date) => {
@@ -129,6 +98,8 @@ const resumen = () => {
     const handlePrev = () => {
         const newDate = new Date(currentDate);
         if (vistaActual === 'mensual') {
+            // Evitar problemas con cambio de mes en días 31 (set to 1st)
+            newDate.setDate(1);
             newDate.setMonth(newDate.getMonth() - 1);
         } else {
             // Si es semanal, restamos 7 días
@@ -140,6 +111,8 @@ const resumen = () => {
     const handleNext = () => {
         const newDate = new Date(currentDate);
         if (vistaActual === 'mensual') {
+            // Evitar problemas con cambio de mes en días 31
+            newDate.setDate(1);
             newDate.setMonth(newDate.getMonth() + 1);
         } else {
             // Si es semanal, sumamos 7 días
@@ -147,6 +120,29 @@ const resumen = () => {
         }
         setCurrentDate(newDate);
     };
+
+    // Calular parametros para la API dependiendo de la vista
+    const apiDateParams = useMemo(() => {
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+
+        if (vistaActual === 'mensual') {
+            return `${year}-${month}-01`;
+        } else {
+            // Lógica para obtener el lunes de la semana actual
+            const d = new Date(currentDate);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            d.setDate(diff);
+
+            const weekMonth = String(d.getMonth() + 1).padStart(2, '0');
+            const weekDay = String(d.getDate()).padStart(2, '0');
+            return `${d.getFullYear()}-${weekMonth}-${weekDay}`;
+        }
+    }, [currentDate, vistaActual]);
+
+    // Fetch dinamico segun la vista
+    const { data: resumenData, isLoading, isError } = useCalendario(apiDateParams, vistaActual as 'mensual' | 'semanal');
 
     // --- HEADER DINÁMICO ---
     let labelHeader = '';
@@ -156,7 +152,7 @@ const resumen = () => {
 
     } else {
         // Lógica para vista semanal (calcular inicio y fin de semana)
-        const startOfWeek = new Date(currentDate);
+        const startOfWeek = getStartOfWeek(currentDate);
         // Ajustamos al lunes más cercano (opcional, depende si quieres que la semana empiece hoy o el lunes)
         const day = startOfWeek.getDay();
         const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
@@ -171,13 +167,23 @@ const resumen = () => {
         labelHeader = `${startOfWeek.getDate()} de ${MONTH_NAMES[startOfWeek.getMonth()]} - ${endOfWeek.getDate()} de ${MONTH_NAMES[endOfWeek.getMonth()]} ${yearStr}`;
     }
 
-    //Unificacion de tareas para facilitar el filtrado
+    //Unificacion de tareas
     const allTasks = useMemo(() => {
         if (!resumenData) return [];
-        return [
-            ...(resumenData.inspecciones || []),
-            ...(resumenData.mantenimientos || [])
-        ];
+        // Map data safely to avoid type issues
+        const inspecciones = (resumenData.inspecciones || []).map(i => ({
+            ...i,
+            idInspeccion: (i as any).id || i.idInspeccion
+        })) as unknown as ResumenInspeccion[];
+
+        const mantenimientos = (resumenData.mantenimientos || []).map(m => ({
+            ...m,
+            // Prioridad a 'id' ya que es lo que devuelve useCalendario
+            idMantenimiento: m.id || (m as any).idMantenimiento
+        })) as unknown as ResumenMantenimiento[];
+
+        // Si el backend ya filtra, solo concatenamos
+        return [...inspecciones, ...mantenimientos];
     }, [resumenData]);
 
     //logica de filtrado
@@ -273,13 +279,13 @@ const resumen = () => {
                         filteredTasks.map((task) => (
                             "idMantenimiento" in task ? (
                                 <MaintenanceCard
-                                    key={`m-${task.idMantenimiento}`}
-                                    mantenimiento={task}
+                                    key={`m-${(task as ResumenMantenimiento).idMantenimiento}`}
+                                    mantenimiento={task as ResumenMantenimiento}
                                 />
                             ) : (
                                 <InspeccionCard
-                                    key={`i-${(task as any).idInspeccion}`}
-                                    inspeccion={task as any}
+                                    key={`i-${(task as ResumenInspeccion).idInspeccion}`}
+                                    inspeccion={task as ResumenInspeccion}
                                 />
                             )
                         ))
