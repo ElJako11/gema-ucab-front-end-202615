@@ -41,7 +41,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
         reValidateMode: "onSubmit",
         defaultValues: {
             tipoTrabajo: "Mantenimiento",
-            titulo: initialValues?.titulo || '',
+            nombre: initialValues?.nombre || '',
             prioridad: initialValues?.prioridad || 'MEDIA',
             idUbicacionTecnica: initialValues?.idUbicacionTecnica || 0,
             idGrupo: initialValues?.idGrupo || 0,
@@ -75,9 +75,9 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
 
         const payload: CreateMantenimientoRequest = {
             tipoTrabajo: "Mantenimiento",
-            nombre: data.titulo,
+            nombre: data.nombre,
             prioridad: data.prioridad,
-            fechaCreacion: data.fechaCreacion || new Date().toISOString().split('T')[0],
+            fechaCreacion: new Date(data.fechaCreacion).toISOString(),
             fechaLimite: data.fechaLimite, // +7 días si no se especifica
             tipo: data.tipo,
             frecuencia: data.frecuencia,
@@ -111,7 +111,7 @@ export const MaintenanceFormContent: React.FC<MaintenanceFormContentProps> = ({
                 <div className="p-4">
                     <FormField
                         control={form.control}
-                        name="titulo"
+                        name="nombre"
                         render={({ field }) => (
                             <FormItem className="w-3/4 border-gray-200">
                                 <FormLabel>Nombre</FormLabel>
