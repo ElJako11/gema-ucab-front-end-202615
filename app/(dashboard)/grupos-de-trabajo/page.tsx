@@ -19,8 +19,8 @@ import { useEffect } from "react";
 import { useGrupos } from "@/hooks/grupos-trabajo/useGrupoTrabajo";
 import { useTrabajadoresPorGrupo } from "@/hooks/grupos-trabajo/useTrabajadoresPorGrupo";
 import { useSupervisores } from "@/hooks/usuarios/useUsuarios";
-import { tecnicosAPI } from "@/lib/api/tecnicos";
-import { useQuery } from "@tanstack/react-query";
+
+
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CreateGrupoForm } from "@/components/forms/grupos/CreateGrupoForm";
 import { GestionTecnicosForm } from "@/components/forms/grupos/GestionTecnicosForm";
@@ -43,11 +43,7 @@ const GruposTrabajo: React.FC = () => {
     const { data: trabajadoresPorGrupo, isLoading: isLoadingTrabajadores } = useTrabajadoresPorGrupo();
     const { supervisores, isLoading: isLoadingSupervisores } = useSupervisores();
 
-    // Hook para técnicos (solo para el formulario de editar)
-    const { data: tecnicos, isLoading: isLoadingTecnicos } = useQuery({
-        queryKey: ["tecnicos"],
-        queryFn: () => tecnicosAPI.getAll(),
-    });
+
 
     const isLoading = isLoadingGrupos || isLoadingSupervisores || isLoadingTrabajadores || isLoadingAuth;
 
@@ -97,7 +93,6 @@ const GruposTrabajo: React.FC = () => {
                 <EditGrupoForm
                     grupo={grupoEditar}
                     setGrupo={setGrupoEditar}
-                    tecnicosDisponibles={tecnicos?.data || []}
                 />
             )}
 
