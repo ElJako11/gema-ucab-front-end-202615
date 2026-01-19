@@ -59,7 +59,6 @@ export default function MantenimientoDetalle() {
                     </Link>
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">{data.titulo}</h1>
-                        <p className="text-slate-500 font-medium">{data.code}</p>
                     </div>
                 </div>
                 <div className="flex gap-3">
@@ -112,14 +111,6 @@ export default function MantenimientoDetalle() {
                         </div>
                     </div>
 
-                    {/* Instancia */}
-                    <div className="space-y-2">
-                        <h3 className="font-bold text-lg">Instancia</h3>
-                        <div className="flex items-center gap-2 px-4 py-2 bg-white text-slate-700 rounded-md border border-slate-300 w-fit font-medium shadow-sm">
-                            <RotateCcw className="w-5 h-5" />
-                            {data.instancia}
-                        </div>
-                    </div>
                 </div>
 
                 <hr className="border-slate-100 my-8" />
@@ -147,12 +138,6 @@ export default function MantenimientoDetalle() {
                         <h3 className="font-bold text-lg">Especificación del dispositivo</h3>
                         <div className="p-4 bg-slate-200/50 rounded-lg border border-slate-300 min-h-[80px]">
                             <p className="text-slate-700">{data.especificacion}</p>
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <h3 className="font-bold text-lg">Área encargada</h3>
-                        <div className="p-4 bg-slate-200/50 rounded-lg border border-slate-300 min-h-[80px]">
-                            <p className="text-slate-700">{data.area}</p>
                         </div>
                     </div>
                 </div>
@@ -217,6 +202,7 @@ export default function MantenimientoDetalle() {
                 open={editModalOpen}
                 onClose={() => setEditModalOpen(false)}
                 data={data}
+                mantenimientoId={id}
             />
 
             {/* Delete Modal */}
@@ -224,7 +210,7 @@ export default function MantenimientoDetalle() {
                 open={deleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
                 onConfirm={() => { alert('Eliminado'); setDeleteModalOpen(false); }}
-                maintenanceName={data.title} maintenanceId={0} />
+                maintenanceName={data.titulo} maintenanceId={id} />
         </div>
     );
 }
